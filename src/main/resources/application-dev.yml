@@ -11,6 +11,9 @@ spring:
       schema-locations: classpath:db/database.sql
       data-locations: classpath:db/database_init_data.sqldata.sql
 
+  profiles:
+    active: dev
+
 # MyBatis Plus配置
 mybatis-plus:
   # mapper.xml文件位置
