@@ -1,4 +1,4 @@
-package com.example.forum.user.config;
+package com.example.primaryschoolmanagement.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
