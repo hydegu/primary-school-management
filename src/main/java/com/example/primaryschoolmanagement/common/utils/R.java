@@ -1,5 +1,6 @@
 package com.example.primaryschoolmanagement.common.utils;
 
+import com.example.primaryschoolmanagement.common.enums.ResultCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;

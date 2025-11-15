@@ -1,6 +1,5 @@
-package com.example.primaryschoolmanagement.common.utils;
+package com.example.primaryschoolmanagement.common.enums;
 
-import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 /**
