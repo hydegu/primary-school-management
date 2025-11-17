@@ -24,7 +24,7 @@ public class AppUser extends EntityBase {
     private String avatar;
     private String phone;
     private String email;
-    private Boolean gender;
+    private Byte gender;
     private Boolean status;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDateTime lastLoginTime;
