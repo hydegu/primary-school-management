@@ -24,8 +24,8 @@ public class AppUser extends BaseEntity {
     private String avatar;
     private String phone;
     private String email;
-    private Byte gender;
-    private Boolean status;
+    private Integer gender;
+    private Integer status;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDateTime lastLoginTime;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
