@@ -21,7 +21,7 @@ class PasswordEncoderTest {
      */
     @Test
     void generateEncodedPassword() {
-            String password = "Choose a password";
+            String password = "admin123";
             String encodedPassword = passwordEncoder.encode(password);
             System.out.println("明文密码: " + password);
             System.out.println("加密密码: " + encodedPassword);
@@ -34,8 +34,8 @@ class PasswordEncoderTest {
      */
     @Test
     void verifyPassword() {
-        String rawPassword = "123456";
-        String encodedPassword = "$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH"; // 替换为实际的加密密码
+        String rawPassword = "admin123";
+        String encodedPassword = "$2a$10$ZUh.a8caUHfFwRkAtVep8eS6o75W2B1ubK4bPLWKvnlBH26wlh/tS"; // 替换为实际的加密密码
 
         boolean matches = passwordEncoder.matches(rawPassword, encodedPassword);
         System.out.println("========== 密码验证结果 ==========");

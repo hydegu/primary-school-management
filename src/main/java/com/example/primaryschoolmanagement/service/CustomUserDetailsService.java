@@ -48,6 +48,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role.getRoleCode()));
         log.info("用户 {} 加载完成，授予角色 {}", username, role);
-        return new User(appUser.getUserName(), appUser.getPassword(), authorities);
+        return new User(appUser.getUsername(), appUser.getPassword(), authorities);
     }
 }

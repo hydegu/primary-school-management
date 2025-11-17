@@ -53,7 +53,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
     @Cacheable(cacheNames = "users:profile", key = "#name", unless = "#result == null")
     public AppUser findByUserName(String name) {
         return userRepo.selectOne(new LambdaQueryWrapper<AppUser>()
-                .eq(AppUser::getUserName, name));
+                .eq(AppUser::getUsername, name));
     }
 
     @Override
@@ -69,7 +69,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
         }
         String value = identifier.trim();
         LambdaQueryWrapper<AppUser> query = new LambdaQueryWrapper<>();
-        query.eq(AppUser::getUserName, value)
+        query.eq(AppUser::getUsername, value)
                 .or()
                 .eq(AppUser::getEmail, value);
         AppUser user = userRepo.selectOne(query);
@@ -129,7 +129,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
 
         // 生成令牌
         Map<String, Object> claims = new HashMap<>();
-        claims.put("username", user.getUserName());
+        claims.put("username", user.getUsername());
         claims.put("userId", user.getId());
         claims.put("roles", roleCode);
 
@@ -139,7 +139,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
                 claims
         );
 
-        log.info("用户登录成功：userId={}, username={}, role={}", user.getId(), user.getUserName(), roleCode);
+        log.info("用户登录成功：userId={}, username={}, role={}", user.getId(), user.getUsername(), roleCode);
         return token;
     }
 

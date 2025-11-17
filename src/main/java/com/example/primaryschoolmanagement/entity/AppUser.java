@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class AppUser extends BaseEntity {
     @TableId(type = IdType.AUTO)
     private Integer id;
-    private String userName;
+    private String username;
     private String password;
     private String realName;
     private Boolean userType;
