@@ -67,4 +67,9 @@ public class R implements Serializable {
 	public static R er(int code, String msg) {
 		return new R(code, msg);
 	}
+
+	public static R er(ResultCode resultCode) {
+		return new R(resultCode.getCode(), resultCode.getMsg());
+	}
+
 }

@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,6 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final CustomUserDetailsService userDetailsService;
     private final JwtProperties jwtProperties;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -47,8 +49,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         if (token != null) {
             try {
-                Claims claims = JwtUtils.parseJWT(jwtProperties.getUserSecretKey(), token);
-                setupAuthenticationIfNecessary(claims, request);
+                // 检查token是否在黑名单中
+                String blacklistKey = "jwt:blacklist:" + token;
+                Boolean isBlacklisted = redisTemplate.hasKey(blacklistKey);
+
+                if (Boolean.TRUE.equals(isBlacklisted)) {
+                    log.warn("JWT token已被加入黑名单（用户已登出）");
+                    SecurityContextHolder.clearContext();
+                } else {
+                    Claims claims = JwtUtils.parseJWT(jwtProperties.getUserSecretKey(), token);
+                    setupAuthenticationIfNecessary(claims, request);
+                }
             } catch (JwtException ex) {
                 log.warn("JWT token验证失败: {}", ex.getMessage());
                 SecurityContextHolder.clearContext();

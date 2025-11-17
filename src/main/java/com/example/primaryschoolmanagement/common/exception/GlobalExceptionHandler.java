@@ -38,6 +38,13 @@ public class GlobalExceptionHandler {
                 .body(R.er(ResultCode.ERROR.getCode(),ResultCode.ERROR.getMsg()));
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<R> handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.error("参数异常", ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(R.er(ResultCode.BAD_REQUEST.getCode(), ex.getMessage()));
+    }
+
     private ResultCode convertStatusToCode(HttpStatus status) {
         return switch (status) {
             case BAD_REQUEST -> ResultCode.BAD_REQUEST;

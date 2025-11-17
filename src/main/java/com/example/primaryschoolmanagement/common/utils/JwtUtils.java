@@ -60,5 +60,23 @@ public class JwtUtils {
         return claims;
     }
 
+    /**
+     * 获取token的过期时间（秒）
+     *
+     * @param secretKey jwt秘钥
+     * @param token     加密后的token
+     * @return 剩余的过期时间（秒），如果已过期返回0
+     */
+    public static long getTokenExpiration(String secretKey, String token) {
+        try {
+            Claims claims = parseJWT(secretKey, token);
+            Date expiration = claims.getExpiration();
+            long exp = expiration.getTime() - System.currentTimeMillis();
+            return Math.max(exp / 1000, 0);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
 
 }
