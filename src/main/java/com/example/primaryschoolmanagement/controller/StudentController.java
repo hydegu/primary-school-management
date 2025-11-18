@@ -5,20 +5,21 @@ import com.example.primaryschoolmanagement.entity.Student;
 import com.example.primaryschoolmanagement.service.StudentService;
 import jakarta.annotation.Resource;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("api/student")
+@RequestMapping("/api/student")
 
 public class StudentController {
 
     @Resource
     private StudentService studentService;
 
-    @PostMapping(value = "/addstudent")
+    @PostMapping(value = "")
     public R createStudent(@RequestBody Student dto) {
        if(dto == null || !StringUtils.hasText(dto.getStudentNo()) || !StringUtils.hasText(dto.getStudentName())){
            return R.er(400,"学号和姓名不能为空");
@@ -31,20 +32,16 @@ public class StudentController {
        }
 
     }
-    @PostMapping(value = "/findstudent")
-    public R findByStudentNo(@RequestBody Student dto){
+    @GetMapping(value = "/list")
+    public R list(@RequestParam(required = false) Map<String,Object> map){
         try {
-            if(dto == null || !StringUtils.hasText(dto.getStudentNo())){
-                return R.er(400,"学号不能为空");
-            }
-            Student student = studentService.findByStudentNo(dto.getStudentNo());
-            return student != null ? R.ok(student):R.er(404,"查无此人");
+            List<Student> studentList = studentService.list(map);
+            return R.ok(studentList);
         }catch (Exception e){
             return R.er(500,"查询异常"+e.getMessage());
         }
-
     }
-    @PostMapping(value = "/updatestudent")
+    @PutMapping(value = "/{id}")
     public R updateStudent(@RequestBody Student dto){
         if(dto == null || !StringUtils.hasText(dto.getStudentNo()) || !StringUtils.hasText(dto.getStudentName())){
             return R.er(400,"学号不能为空");
@@ -57,7 +54,7 @@ public class StudentController {
         }
 
     }
-    @PostMapping(value = "/deletebystudentNo")
+    @DeleteMapping(value = "/{id}")
     public R delete(@RequestBody Integer id){
 
         if(id == null ){
