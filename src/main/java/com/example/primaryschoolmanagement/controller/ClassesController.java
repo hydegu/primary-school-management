@@ -14,7 +14,7 @@ public class ClassesController {
     private ClassesService classesService;
 
     @GetMapping(value="/class/list")
-    public R classesList(Classes classes){
+    public R classesList(){
         return this.classesService.classesList();
     }
     @PostMapping(value="/class")
