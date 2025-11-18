@@ -15,9 +15,6 @@ erDiagram
     sys_user ||--|| edu_student : "1对1"
     sys_user ||--|| edu_parent : "1对1"
     
-    %% 学生与家长关系
-    edu_student ||--o{ edu_student_parent : "学生-家长"
-    edu_parent ||--o{ edu_student_parent : "家长-学生"
     
     %% 年级、班级、学生层级关系
     edu_grade ||--o{ edu_class : "1对多"
