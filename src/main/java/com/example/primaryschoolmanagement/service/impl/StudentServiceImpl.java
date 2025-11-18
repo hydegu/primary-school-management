@@ -1,5 +1,6 @@
 package com.example.primaryschoolmanagement.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -21,6 +22,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -151,5 +155,33 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR,"：请求失败");
         }
         return row;
+    }
+
+    @Override
+    public List<Student> list(Map<String,Object> map) {
+        LambdaQueryWrapper<Student> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Student::getIsDeleted,0);
+        if(map == null){
+            return studentDao.selectList(queryWrapper);
+        }
+        if(map.get("studentNo") != null){
+            queryWrapper.eq(Student::getStudentNo,map.get("studentNo"));
+        }
+        if(map.get("studentName") != null){
+            queryWrapper.eq(Student::getStudentName,map.get("studentName"));
+        }
+        if(map.get("gender") != null){
+            queryWrapper.eq(Student::getGender,map.get("gender"));
+        }
+        if(map.get("IdCard") != null){
+            queryWrapper.eq(Student::getIdCard,map.get("IdCard"));
+        }
+        if(map.get("classId") != null){
+            queryWrapper.eq(Student::getClassId,map.get("classId"));
+        }
+        if(map.get("gradeId") != null){
+            queryWrapper.eq(Student::getGradeId,map.get("gradeId"));
+        }
+        return studentDao.selectList(queryWrapper);
     }
 }
