@@ -5,17 +5,20 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.example.primaryschoolmanagement.common.base.BaseEntity;
 import lombok.Data;
-import lombok.experimental.Accessors;
 
 @Data
-@TableName("sys_role")
-@Accessors(chain = true)
-public class Role extends BaseEntity {
+@TableName("edu_course")
+public class Course extends BaseEntity {
     @TableId(type = IdType.AUTO)
     private Integer id;
-    private String roleName;
-    private String roleCode;
-    private String roleDesc;
-    private String sortOrder;
-    private Boolean status;
+    private String courseName;
+    private Integer subjectId;
+    private Integer classId;
+    private Integer teacherId;
+    private String semester;
+    private Integer weeklyHours;
+    private Integer totalHours;
+    private Integer status;
+    private String remark;
+
 }
