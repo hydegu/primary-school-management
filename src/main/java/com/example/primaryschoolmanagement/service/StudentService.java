@@ -5,6 +5,9 @@ import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.entity.Student;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 public interface StudentService extends IService<Student> {
 
@@ -16,4 +19,7 @@ public interface StudentService extends IService<Student> {
     int updateStudent(Student dto);
 
     int delete(Integer id);
+
+    List<Student> list(Map<String,Object> map);
+
 }
