@@ -16,11 +16,11 @@ import java.time.LocalDateTime;
 @Accessors(chain = true)
 public class AppUser extends BaseEntity {
     @TableId(type = IdType.AUTO)
-    private Integer id;
+    private Long id;
     private String username;
     private String password;
     private String realName;
-    private Boolean userType;
+    private Integer userType;
     private String avatar;
     private String phone;
     private String email;

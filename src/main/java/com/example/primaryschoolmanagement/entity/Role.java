@@ -16,6 +16,6 @@ public class Role extends BaseEntity {
     private String roleName;
     private String roleDesc;
     private String roleCode;
-    private String sortOrder;
-    private Boolean status;
+    private Integer sortOrder;
+    private Integer status;
 }

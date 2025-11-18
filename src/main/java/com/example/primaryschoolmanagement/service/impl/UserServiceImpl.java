@@ -96,7 +96,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
 
     @Override
     @CacheEvict(cacheNames = "users:roles", key = "#user.userName()")
-    public Role selectRolesByUserId(Integer userId) {
+    public Role selectRolesByUserId(Long userId) {
         return userRepo.selectRolesByUserId(userId);
     }
 

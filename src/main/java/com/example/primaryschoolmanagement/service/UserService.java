@@ -13,7 +13,7 @@ import java.util.Optional;
 @Service
 public interface UserService extends IService<AppUser> {
 
-    Role selectRolesByUserId(Integer userId);
+    Role selectRolesByUserId(Long userId);
 
     AppUser findByUserName(String name);
 

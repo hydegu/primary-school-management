@@ -14,5 +14,5 @@ public interface UserDao extends BaseMapper<AppUser> {
         JOIN sys_user_role ur ON r.id = ur.role_id
         WHERE ur.user_id = #{userId}
     """)
-    Role selectRolesByUserId(Integer userId);
+    Role selectRolesByUserId(Long userId);
 }
