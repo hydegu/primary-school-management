@@ -14,8 +14,8 @@ public class Role extends BaseEntity {
     @TableId(type = IdType.AUTO)
     private Integer id;
     private String roleName;
-    private String roleCode;
     private String roleDesc;
+    private String roleCode;
     private String sortOrder;
     private Boolean status;
 }
