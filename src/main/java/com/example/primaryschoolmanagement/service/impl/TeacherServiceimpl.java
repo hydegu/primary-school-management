@@ -49,7 +49,7 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
                         teacher.setUserId(rs.getInt("user_id"));
                         teacher.setTeacherNo(rs.getString("teacher_no"));
                         teacher.setTeacherName(rs.getString("teacher_name"));
-                        teacher.setGender(rs.getString("gender"));
+                        teacher.setGender(rs.getInt("gender"));
                         teacher.setBirthDate(rs.getDate("birth_date"));
                         teacher.setIdCard(rs.getString("id_card"));
                         teacher.setPhone(rs.getString("phone"));
@@ -229,7 +229,7 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         if (teacher.getTeacherName() != null && !teacher.getTeacherName().isEmpty()) {
             updateWrapper.set("teacher_name", teacher.getTeacherName());
         }
-        if (teacher.getGender() != null && !teacher.getGender().isEmpty()) {
+        if (teacher.getGender() != null) {
             updateWrapper.set("gender", teacher.getGender());
         }
         if (teacher.getBirthDate() != null) {
