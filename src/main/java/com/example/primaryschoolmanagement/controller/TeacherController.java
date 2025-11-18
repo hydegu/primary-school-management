@@ -12,19 +12,10 @@ public class TeacherController {
     @Autowired
     private TeacherService teacherService;
     @GetMapping(value="/teacher/{id}")
-    public R teacherList(Teacher teacher){
-        return this.teacherService.teacherList();
+    public R getTeacherById(@PathVariable Integer id){
+        return this.teacherService.getTeacherById(id);
     }
-//    // 组合查询接口：支持姓名、工号、职称的联合查询
-//    @GetMapping("/teacher/list")  // 改为POST请求
-//    public R queryTeachers(@RequestBody TeacherQueryDTO queryDTO) {  // 用@RequestBody接收JSON
-//        // 从DTO中获取参数
-//        return teacherService.queryByConditions(
-//                queryDTO.getTeacherName(),
-//                queryDTO.getTeacherNo(),
-//                queryDTO.getTitle()
-//        );
-//    }
+
     @GetMapping("/teacher/list")
     public R queryByConditions(
             // 用@RequestParam接收查询参数，required = false表示可选（无参数时为null）
@@ -34,21 +25,6 @@ public class TeacherController {
 
         // 调用服务层方法，传递搜索条件（null表示不筛选该字段）
         return teacherService.queryByConditions(teacherName, teacherNo, title);
-    }
-    @GetMapping(value = "/teacherno")
-    public R teacherNo(@RequestBody Teacher teacher){
-        String teacher_no = teacher.getTeacherNo();
-        return this.teacherService.teacherNo(teacher_no);
-    }
-    @GetMapping(value = "/teacherName")
-    public R teacherName(@RequestBody Teacher teacher){
-        String teacher_name = teacher.getTeacherName();
-        return this.teacherService.teacherName(teacher_name);
-    }
-    @GetMapping(value = "/title")
-    public R title(@RequestBody Teacher teacher){
-        String title = teacher.getTitle();
-        return this.teacherService.title(title);
     }
     @PostMapping(value="/teacher")
     public R addteacher(@RequestBody Teacher teacher){

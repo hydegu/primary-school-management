@@ -100,65 +100,27 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
     }
 
     @Override
-    public R teacherNo(String teacherNo) {
-        // 1. 验证输入的teacher_no是否为空
-        if (teacherNo == null || teacherNo.trim().isEmpty()) {
-            return R.er();
+    public R getTeacherById(Integer id) {
+        // 1. 验证ID是否为空
+        if (id == null) {
+            return R.er(400, "教师ID不能为空");
         }
-        // 2. 去除空格，避免因空格导致的查询失败
-        String trimmedTeacherNo = teacherNo.trim();
-        // 3. 构建查询条件
+
+        // 2. 构建查询条件
         LambdaQueryWrapper<Teacher> queryWrapper = new LambdaQueryWrapper<>();
-        // 精准匹配teacher_no
-        queryWrapper.eq(Teacher::getTeacherNo, trimmedTeacherNo);
-        // 如果有逻辑删除，添加未删除条件（根据实际项目调整）
+        queryWrapper.eq(Teacher::getId, id);
+        // 查询未删除的记录
         queryWrapper.eq(Teacher::getIsDeleted, "0");
-        // 4. 执行查询
+
+        // 3. 执行查询
         Teacher teacher = this.teacherDao.selectOne(queryWrapper);
-        // 5. 处理查询结果
+
+        // 4. 处理查询结果
         if (teacher != null) {
-            // 查询成功，返回教师信息
             return R.ok(teacher);
         } else {
-            // 未找到对应记录
-            return R.er();
+            return R.er(404, "未找到ID为 " + id + " 的教师记录");
         }
-    }
-
-    @Override
-    public R teacherName(String teacherName) {
-        // 检查输入参数是否为空
-        if (teacherName == null || teacherName.trim().isEmpty()) {
-            return R.er();
-        }
-        // 查询指定教师的所有信息（*表示所有字段）
-        // 使用?占位符防止SQL注入
-        List<Map<String, Object>> teacherInfo = this.jdbcTemplate.queryForList(
-                "select * from edu_teacher where teacher_name = ?",
-                teacherName.trim()
-        );
-        if (teacherInfo.isEmpty()) {
-            return R.er();
-        }
-        return R.ok(teacherInfo);
-    }
-
-    @Override
-    public R title(String title) {
-        // 检查输入参数是否为空
-        if (title == null || title.trim().isEmpty()) {
-            return R.er();
-        }
-        // 查询指定教师的所有信息（*表示所有字段）
-        // 使用?占位符防止SQL注入
-        List<Map<String, Object>> teacherInfo = this.jdbcTemplate.queryForList(
-                "select * from edu_teacher where title = ?",
-                title.trim()
-        );
-        if (teacherInfo.isEmpty()) {
-            return R.er();
-        }
-        return R.ok(teacherInfo);
     }
 
 

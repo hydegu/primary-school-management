@@ -8,9 +8,7 @@ public interface TeacherService extends IService<Teacher> {
 
     R teacherList();
     R queryByConditions(String teacherName, String teacherNo, String title);
-    R teacherNo(String teacher_no);
-    R teacherName(String teacherName);
-    R title(String title);
+    R getTeacherById(Integer id);
     R addTeacher(Teacher teacher);
     R deleteTeacher(Integer id);
     R updateTeacher(Teacher teacher);
