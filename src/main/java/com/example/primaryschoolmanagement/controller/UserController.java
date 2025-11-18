@@ -65,7 +65,7 @@ public class UserController {
         String roleCode = role != null ? role.getRoleCode() : "student";
         // 生成令牌
         Map<String, Object> claims = new HashMap<>();
-        claims.put("username", user.getUserName());
+        claims.put("username", user.getUsername());
         claims.put("userId", user.getId());
         claims.put("roles", roleCode);
         String token = JwtUtils.createJwt(jwtProperties.getUserSecretKey(), jwtProperties.getUserTtl(), claims);
