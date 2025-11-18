@@ -1,4 +1,4 @@
-package com.example.primaryschoolmanagement.dao;
+package com.example.primaryschoolmanagement.dto;
 
 import lombok.Data;
 

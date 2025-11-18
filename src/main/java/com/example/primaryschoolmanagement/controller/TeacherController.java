@@ -1,7 +1,6 @@
 package com.example.primaryschoolmanagement.controller;
 
 import com.example.primaryschoolmanagement.common.utils.R;
-import com.example.primaryschoolmanagement.dao.TeacherQueryDTO;
 import com.example.primaryschoolmanagement.entity.Teacher;
 import com.example.primaryschoolmanagement.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -77,7 +77,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
     }
 
     @Override
-    @CacheEvict(cacheNames = "users:profile", key = "#user.userName()")
+    @CacheEvict(cacheNames = "users:profile", key = "#user.username", condition = "#user != null")
     public void updatePassword(AppUser user, String rawPassword) {
         if (user == null || user.getId() == null) {
             throw new IllegalArgumentException("用户信息不完整");
@@ -95,7 +95,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
     }
 
     @Override
-    @CacheEvict(cacheNames = "users:roles", key = "#user.userName()")
+    @CacheEvict(cacheNames = "users:roles", key = "#userId")
     public Role selectRolesByUserId(Long userId) {
         return userRepo.selectRolesByUserId(userId);
     }
