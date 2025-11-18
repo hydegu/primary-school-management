@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.primaryschoolmanagement.common.enums.ResultCode;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dao.TeacherDao;
 import com.example.primaryschoolmanagement.entity.Teacher;
@@ -96,7 +97,7 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         teacher.setUpdatedAt(currentTime);
         teacher.setIsDeleted(false);
         int row = this.teacherDao.insert(teacher);
-        return row>0?R.ok("添加成功"):R.er("添加失败");
+        return row>0?R.ok("添加成功"):R.er(ResultCode.ERROR);
     }
 
     @Override
@@ -120,7 +121,7 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         int row = teacherDao.updateById(updateTeacher);
 
         // 4. 返回结果
-        return row > 0 ? R.ok("删除成功") : R.er("删除失败");
+        return row > 0 ? R.ok("删除成功") : R.er(ResultCode.ERROR);
     }
 
 

@@ -955,20 +955,11 @@ classId=1&page=1&size=10
    - 可能导致数据不一致
    - 建议：添加关联数据验证
 
----
 
-### H. 相关文档
-
-- [原始API文档1 - 教师+班级模块](../src/main/java/com/example/primaryschoolmanagement/doc/1.md)
-- [原始API文档2 - 学生+课程模块](../src/main/java/com/example/primaryschoolmanagement/doc/2.md)
-- [原始API文档3 - 业务流程模块](../src/main/java/com/example/primaryschoolmanagement/doc/3.md)
-- [原始整合文档](../src/main/java/com/example/primaryschoolmanagement/doc/API接口文档.md)
 - 项目源码：`/src/main/java/com/example/primaryschoolmanagement/`
 
----
 
 **文档维护**: 请在每次实现或修改接口后及时更新此文档
 
 **最后更新时间**: 2025-11-18
-**整理人**: Claude Code
 **版本**: v2.0
