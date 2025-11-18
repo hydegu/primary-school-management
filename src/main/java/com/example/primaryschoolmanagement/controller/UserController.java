@@ -10,6 +10,7 @@ import com.example.primaryschoolmanagement.entity.Role;
 import com.example.primaryschoolmanagement.service.UserService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -47,13 +48,12 @@ public class UserController {
      * @return 令牌
      */
     @PostMapping("/login")
-    public R login(@RequestBody LoginRequest loginRequest) {
+    public R login(@Valid @RequestBody LoginRequest loginRequest) {
         // 查找用户
         AppUser user = userService.findByIdentifier(loginRequest.getIdentifier())
                 .orElseThrow(() -> new IllegalArgumentException("用户名或密码错误"));
         // 验证密码
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            R.er(ResultCode.USERCHECK);
             throw new IllegalArgumentException("用户名或密码错误");
         }
         // 检查用户状态
