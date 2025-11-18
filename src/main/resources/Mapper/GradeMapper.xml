@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 命名空间需与对应的Dao接口全路径一致 -->
+<mapper namespace="com.example.primaryschoolmanagement.dao.GradeDao">
+    <select id="GradeList" resultType="grade">
+        select id,gradeName,gradeLevel,schoolYear,status,remark,createdAt, updatedAt,isDeleted from edu_grade;
+    </select>
+</mapper>

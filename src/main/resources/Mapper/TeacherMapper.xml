@@ -3,6 +3,6 @@
 <!-- 命名空间需与对应的Dao接口全路径一致 -->
 <mapper namespace="com.example.primaryschoolmanagement.dao.TeacherDao">
     <select id="TeacherList" resultType="teacher">
-        select teacher_no,teacher_name,gender,birth_date from edu_teacher;
+        select id,user_id,teacher_no,teacher_name,gender,birth_date,id_card,phone, email, title, hire_date, created_at, updated_at, is_deleted from edu_teacher;
     </select>
 </mapper>

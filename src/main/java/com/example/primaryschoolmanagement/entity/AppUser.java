@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.example.primaryschoolmanagement.common.base.EntityBase;
+import com.example.primaryschoolmanagement.common.base.BaseEntity;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("sys_user")
 @Accessors(chain = true)
-public class AppUser extends EntityBase {
+public class AppUser extends BaseEntity {
     @TableId(type = IdType.AUTO)
     private Integer id;
     private String userName;
@@ -24,7 +24,7 @@ public class AppUser extends EntityBase {
     private String avatar;
     private String phone;
     private String email;
-    private Boolean gender;
+    private Byte gender;
     private Boolean status;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDateTime lastLoginTime;

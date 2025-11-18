@@ -7,9 +7,9 @@ spring:
 
   sql:
     init:
-      mode: always              # 启动时执行SQL
+      mode: embedded             # 启动时执行SQL
       schema-locations: classpath:db/database.sql
-      data-locations: classpath:db/database_init_data.sqldata.sql
+      data-locations: classpath:db/database_init_data.sql
 
   data:
     redis:
