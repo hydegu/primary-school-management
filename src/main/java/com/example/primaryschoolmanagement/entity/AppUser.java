@@ -28,6 +28,5 @@ public class AppUser extends BaseEntity {
     private Integer status;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDateTime lastLoginTime;
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDateTime lastLoginIp;
+    private String lastLoginIp;
 }
