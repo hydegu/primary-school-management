@@ -9,60 +9,25 @@ import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dao.TeacherDao;
 import com.example.primaryschoolmanagement.entity.Teacher;
 import com.example.primaryschoolmanagement.service.TeacherService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 
 @Service
 public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implements TeacherService {
     private final TeacherDao teacherDao;
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
 
     public TeacherServiceimpl(TeacherDao teacherDao) {
         this.teacherDao = teacherDao;
     }
 
     public R teacherList() {
-        System.out.println("查询成功");
-        Page page = new Page();
-        page.setCurrent(1);
-        page.setSize(5);
-        Page pageInfo = this.teacherDao.selectPage(page, null);
-        // 查询多列，用RowMapper映射到Teacher对象
-        List<Teacher> teachers = this.jdbcTemplate.query(
-                "select id,user_id,teacher_no, teacher_name, gender, birth_date, id_card, " +
-                        "phone, email, title, hire_date, created_at, updated_at, is_deleted " +
-                        "from edu_teacher;",
-                new RowMapper<Teacher>() {
-                    @Override
-                    public Teacher mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        Teacher teacher = new Teacher();
-                        // 手动映射：数据库列名 -> 对象属性（注意字段类型匹配）
-                        teacher.setId(rs.getInt("id"));
-                        teacher.setUserId(rs.getInt("user_id"));
-                        teacher.setTeacherNo(rs.getString("teacher_no"));
-                        teacher.setTeacherName(rs.getString("teacher_name"));
-                        teacher.setGender(rs.getInt("gender"));
-                        teacher.setBirthDate(rs.getDate("birth_date"));
-                        teacher.setIdCard(rs.getString("id_card"));
-                        teacher.setPhone(rs.getString("phone"));
-                        teacher.setEmail(rs.getString("email"));
-                        teacher.setTitle(rs.getString("title"));
-                        teacher.setHireDate(rs.getDate("hire_date"));
-                        teacher.setCreatedAt(rs.getDate("created_at"));
-                        teacher.setUpdatedAt(rs.getDate("updated_at"));
-                        teacher.setIsDeleted(rs.getString("is_deleted"));
-                        return teacher;
-                    }
-                }
-        );
+        // 使用MyBatis-Plus查询所有未删除的教师
+        LambdaQueryWrapper<Teacher> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Teacher::getIsDeleted, false);
+        List<Teacher> teachers = this.teacherDao.selectList(queryWrapper);
         return R.ok(teachers);
     }
 
@@ -71,7 +36,7 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         // 构建查询条件
         LambdaQueryWrapper<Teacher> queryWrapper = new LambdaQueryWrapper<>();
         // 逻辑删除条件（根据实际项目调整，如不需要可删除）
-        queryWrapper.eq(Teacher::getIsDeleted, "0");
+        queryWrapper.eq(Teacher::getIsDeleted, false);
 
         // 1. 优先按姓名筛选（如果传入姓名）
         if (teacherName != null && !teacherName.trim().isEmpty()) {
@@ -110,7 +75,7 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         LambdaQueryWrapper<Teacher> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Teacher::getId, id);
         // 查询未删除的记录
-        queryWrapper.eq(Teacher::getIsDeleted, "0");
+        queryWrapper.eq(Teacher::getIsDeleted, false);
 
         // 3. 执行查询
         Teacher teacher = this.teacherDao.selectOne(queryWrapper);
@@ -126,39 +91,36 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
 
     @Override
     public R addTeacher(Teacher teacher){
-        System.out.println("添加成功");
-        Date currentTime = new Date();
+        LocalDateTime currentTime = LocalDateTime.now();
         teacher.setCreatedAt(currentTime);
         teacher.setUpdatedAt(currentTime);
+        teacher.setIsDeleted(false);
         int row = this.teacherDao.insert(teacher);
-        return row>0?R.ok():R.er();
+        return row>0?R.ok("添加成功"):R.er("添加失败");
     }
 
     @Override
     public R deleteTeacher(Integer id) {
-        // 1. 校验id非空（补充上之前注释的代码，避免空指针）
+        // 1. 校验id非空
         if (id == null) {
-            System.out.println("删除失败：传入的id为null");
-            return R.er(); // 建议返回具体错误信息
+            return R.er(400, "教师ID不能为空");
         }
 
         // 2. 查询记录是否存在
         Teacher existingTeacher = teacherDao.selectById(id);
         if (existingTeacher == null) {
-            System.out.println("删除失败：未找到ID为" + id + "的教师记录");
-            return R.er();
+            return R.er(404, "未找到ID为" + id + "的教师记录");
         }
 
-        // 3. 执行逻辑删除（更新isDeleted为1）
+        // 3. 执行逻辑删除（更新isDeleted为true）
         Teacher updateTeacher = new Teacher();
         updateTeacher.setId(id);
-        updateTeacher.setIsDeleted("1"); // 直接写"1"更简洁
+        updateTeacher.setIsDeleted(true);
+        updateTeacher.setUpdatedAt(LocalDateTime.now());
         int row = teacherDao.updateById(updateTeacher);
-        System.out.println("删除ID为" + id + "的教师，影响行数：" + row);
 
         // 4. 返回结果
-        return row > 0 ? R.ok("删除成功：已删除ID为" + id + "的教师")
-                : R.er();
+        return row > 0 ? R.ok("删除成功") : R.er("删除失败");
     }
 
 
@@ -168,17 +130,17 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         // 1. 验证主键id是否存在（必须传入id才能确定更新哪条记录）
         Integer id = teacher.getId();
         if (id == null) {
-            return R.er();
+            return R.er(400, "教师ID不能为空");
         }
 
         // 2. 验证要更新的记录是否存在
         Teacher existingTeacher = teacherDao.selectById(id);
         if (existingTeacher == null) {
-            return R.er();
+            return R.er(404, "未找到ID为" + id + "的教师记录");
         }
 
         // 3. 设置更新时间（无论是否修改其他字段，更新时间都要刷新）
-        teacher.setUpdatedAt(new Date());
+        teacher.setUpdatedAt(LocalDateTime.now());
 
         // 4. 使用条件更新，仅更新非空字段（核心逻辑）
         UpdateWrapper<Teacher> updateWrapper = new UpdateWrapper<>();
