@@ -12,6 +12,6 @@ public interface TeacherService extends IService<Teacher> {
     R teacherName(String teacherName);
     R title(String title);
     R addTeacher(Teacher teacher);
-    R deleteTeacher(Teacher teacher);
+    R deleteTeacher(Integer id);
     R updateTeacher(Teacher teacher);
 }

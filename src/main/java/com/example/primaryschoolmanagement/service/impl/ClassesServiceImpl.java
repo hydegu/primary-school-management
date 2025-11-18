@@ -76,13 +76,13 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
     }
 
     @Override
-    public R deleteclasses(Classes classes) {
-        // 1. 获取id并校验非空
-        Integer id = classes.getId();
-        if (id == null) {
-            System.out.println("删除失败：传入的id为null");
-            return R.er();
-        }
+    public R deleteclasses(Integer id) {
+//        // 1. 获取id并校验非空
+//        Integer id = classes.getId();
+//        if (id == null) {
+//            System.out.println("删除失败：传入的id为null");
+//            return R.er();
+//        }
 
         // 2. 先查询记录是否存在（关键排查步骤）
         Classes existingClasses = classesDao.selectById(id);

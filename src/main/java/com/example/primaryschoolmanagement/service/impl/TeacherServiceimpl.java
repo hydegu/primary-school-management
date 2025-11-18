@@ -173,35 +173,30 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
     }
 
     @Override
-    public R deleteTeacher(Teacher teacher) {
-        // 1. 获取id并校验非空
-        Integer id = teacher.getId();
+    public R deleteTeacher(Integer id) {
+        // 1. 校验id非空（补充上之前注释的代码，避免空指针）
         if (id == null) {
             System.out.println("删除失败：传入的id为null");
-            return R.er();
+            return R.er(); // 建议返回具体错误信息
         }
 
-        // 2. 先查询记录是否存在（关键排查步骤）
+        // 2. 查询记录是否存在
         Teacher existingTeacher = teacherDao.selectById(id);
         if (existingTeacher == null) {
             System.out.println("删除失败：未找到ID为" + id + "的教师记录");
             return R.er();
         }
 
-        // 3. 执行删除操作
+        // 3. 执行逻辑删除（更新isDeleted为1）
         Teacher updateTeacher = new Teacher();
         updateTeacher.setId(id);
-        updateTeacher.setIsDeleted(String.valueOf(1));
-        int row = this.teacherDao.updateById(updateTeacher);
+        updateTeacher.setIsDeleted("1"); // 直接写"1"更简洁
+        int row = teacherDao.updateById(updateTeacher);
         System.out.println("删除ID为" + id + "的教师，影响行数：" + row);
 
-        // 4. 根据结果返回明确信息
-        if (row > 0) {
-            return R.ok("删除成功：已删除ID为" + id + "的教师");
-        } else {
-            // 若走到这里，可能是逻辑删除或其他异常
-            return R.er();
-        }
+        // 4. 返回结果
+        return row > 0 ? R.ok("删除成功：已删除ID为" + id + "的教师")
+                : R.er();
     }
 
 

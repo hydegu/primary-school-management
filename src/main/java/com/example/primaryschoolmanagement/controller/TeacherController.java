@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.*;
 public class TeacherController {
     @Autowired
     private TeacherService teacherService;
-    @GetMapping(value="/teacherList")
+    @GetMapping(value="/teacher/{id}")
     public R teacherList(Teacher teacher){
         return this.teacherService.teacherList();
     }
     // 组合查询接口：支持姓名、工号、职称的联合查询
-    @PostMapping("/query")  // 改为POST请求
+    @GetMapping("/teacher/list")  // 改为POST请求
     public R queryTeachers(@RequestBody TeacherQueryDTO queryDTO) {  // 用@RequestBody接收JSON
         // 从DTO中获取参数
         return teacherService.queryByConditions(
@@ -41,15 +41,15 @@ public class TeacherController {
         String title = teacher.getTitle();
         return this.teacherService.title(title);
     }
-    @PostMapping(value="/addteacher")
+    @PostMapping(value="/teacher")
     public R addteacher(@RequestBody Teacher teacher){
         return this.teacherService.addTeacher(teacher);
     }
-    @PostMapping(value="/deleteteacher")
-    public R deleteteacher(@RequestBody Teacher teacher){
-        return this.teacherService.deleteTeacher(teacher);
+    @DeleteMapping("/teacher/{id}")
+    public R deleteTeacher(@PathVariable Integer id) { // 变量名与 {id} 一致时，可省略 "id" 参数
+        return this.teacherService.deleteTeacher(id);
     }
-    @PostMapping(value="/updateteacher")
+    @PutMapping(value="/teacher/{id}")
     public R updateteacher(@RequestBody Teacher teacher){
         return this.teacherService.updateTeacher(teacher);
     }
