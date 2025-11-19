@@ -73,7 +73,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleDao, Role> implements RoleS
         }
         role.setCreatedAt(LocalDateTime.now());
         role.setUpdatedAt(LocalDateTime.now());
-        role.setIsDeleted(0);
+        role.setIsDeleted(false);
 
         // 5. 保存角色
         int result = roleDao.insert(role);
@@ -92,7 +92,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleDao, Role> implements RoleS
 
         // 1. 查询角色是否存在
         Role role = roleDao.selectById(id);
-        if (role == null || role.getIsDeleted() == 1) {
+        if (role == null || role.getIsDeleted()) {
             throw new RoleNotFoundException(id);
         }
 
@@ -143,7 +143,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleDao, Role> implements RoleS
 
         // 1. 查询角色是否存在
         Role role = roleDao.selectById(id);
-        if (role == null || role.getIsDeleted() == 1) {
+        if (role == null || role.getIsDeleted()) {
             throw new RoleNotFoundException(id);
         }
 
@@ -177,7 +177,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleDao, Role> implements RoleS
         log.info("查询角色详情：roleId={}", id);
 
         Role role = roleDao.selectById(id);
-        if (role == null || role.getIsDeleted() == 1) {
+        if (role == null || role.getIsDeleted()) {
             throw new RoleNotFoundException(id);
         }
 
@@ -207,7 +207,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleDao, Role> implements RoleS
 
         // 1. 检查角色是否存在
         Role role = roleDao.selectById(roleId);
-        if (role == null || role.getIsDeleted() == 1) {
+        if (role == null || role.getIsDeleted()) {
             throw new RoleNotFoundException(roleId);
         }
 
@@ -222,7 +222,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleDao, Role> implements RoleS
 
         // 4. 过滤未删除的用户并转换为DTO
         return users.stream()
-                .filter(user -> user.getIsDeleted() == 0)
+                .filter(user -> !user.getIsDeleted())
                 .map(user -> userService.getUserById(user.getId()))
                 .collect(Collectors.toList());
     }

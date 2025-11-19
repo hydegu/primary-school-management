@@ -231,7 +231,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
         }
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
-        user.setIsDeleted(0);
+        user.setIsDeleted(false);
 
         // 7. 保存用户
         int result = userRepo.insert(user);
@@ -253,7 +253,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
 
         // 1. 查询用户是否存在
         AppUser user = userRepo.selectById(id);
-        if (user == null || user.getIsDeleted() == 1) {
+        if (user == null || user.getIsDeleted()) {
             throw new UserNotFoundException(id);
         }
 
@@ -318,7 +318,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
 
         // 1. 查询用户是否存在
         AppUser user = userRepo.selectById(id);
-        if (user == null || user.getIsDeleted() == 1) {
+        if (user == null || user.getIsDeleted()) {
             throw new UserNotFoundException(id);
         }
 
@@ -352,7 +352,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
         log.info("查询用户详情：userId={}", id);
 
         AppUser user = userRepo.selectById(id);
-        if (user == null || user.getIsDeleted() == 1) {
+        if (user == null || user.getIsDeleted()) {
             throw new UserNotFoundException(id);
         }
 
@@ -408,14 +408,14 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
 
         // 1. 检查用户是否存在
         AppUser user = userRepo.selectById(userId);
-        if (user == null || user.getIsDeleted() == 1) {
+        if (user == null || user.getIsDeleted()) {
             throw new UserNotFoundException(userId);
         }
 
         // 2. 检查角色是否都存在
         for (Long roleId : roleIds) {
             Role role = roleDao.selectById(roleId);
-            if (role == null || role.getIsDeleted() == 1) {
+            if (role == null || role.getIsDeleted()) {
                 throw new RoleNotFoundException(roleId);
             }
         }
