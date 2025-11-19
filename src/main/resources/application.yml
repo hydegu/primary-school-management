@@ -1,6 +1,5 @@
 # application.yml
 spring:
-  port: 8082
   datasource:
     url: jdbc:mysql://localhost:3306/school_management?useSSL=false&serverTimezone=Asia/Shanghai
     username: root
@@ -49,3 +48,5 @@ com:
     user-secret-key: +kJ8A7Cw9b9hhPNULgUTYsXWLJI0TIsuLtGX99A+I3M=
     user-ttl: 7200000  # 2小时
     user-token-name: authentication
+server:
+  port: 8082
