@@ -80,9 +80,9 @@
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "操作成功",
-  "data": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."  // JWT Token
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."  // JWT Token令牌，需要保存用于后续请求
 }
 ```
 
@@ -106,8 +106,8 @@ Authorization: Bearer <token>
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "登出成功"
+  "code": 200,           // 状态码：200表示成功
+  "msg": "登出成功"       // 消息：操作结果描述
 }
 ```
 
@@ -158,29 +158,29 @@ username=admin&userType=1&status=1&page=1&size=10
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "操作成功",
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
   "data": {
-    "total": 100,
-    "records": [
+    "total": 100,        // 总记录数
+    "records": [         // 用户列表数据
       {
-        "id": 1,
-        "username": "admin",
-        "realName": "系统管理员",
-        "userType": 1,
-        "avatar": "/uploads/avatars/2024/11/19/1_abc123.jpg",
-        "phone": "13800138000",
-        "email": "admin@example.com",
-        "gender": 1,
-        "status": 1,
-        "lastLoginTime": "2024-11-18 10:30:00",
-        "createdAt": "2024-01-01 00:00:00",
-        "updatedAt": "2024-11-18 10:30:00",
-        "roles": ["super_admin"]
+        "id": 1,                        // 用户ID
+        "username": "admin",            // 用户名（登录账号）
+        "realName": "系统管理员",        // 真实姓名
+        "userType": 1,                  // 用户类型：1-管理员 2-教师 3-学生 4-家长
+        "avatar": "/uploads/avatars/2024/11/19/1_abc123.jpg",  // 头像URL地址
+        "phone": "13800138000",         // 手机号
+        "email": "admin@example.com",   // 邮箱地址
+        "gender": 1,                    // 性别：1-男 2-女
+        "status": 1,                    // 状态：0-禁用 1-启用
+        "lastLoginTime": "2024-11-18 10:30:00",  // 最后登录时间
+        "createdAt": "2024-01-01 00:00:00",      // 创建时间
+        "updatedAt": "2024-11-18 10:30:00",      // 更新时间
+        "roles": ["super_admin"]        // 角色列表
       }
     ],
-    "page": 1,
-    "size": 10
+    "page": 1,           // 当前页码
+    "size": 10           // 每页条数
   }
 }
 ```
@@ -236,21 +236,21 @@ curl -X POST http://localhost:8082/api/users \
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "操作成功",
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
   "data": {
-    "id": 10,
-    "username": "teacher001",
-    "realName": "张老师",
-    "userType": 2,
-    "avatar": "/uploads/avatars/2024/11/19/10_abc123.jpg",
-    "phone": "13800138001",
-    "email": "teacher001@example.com",
-    "gender": 1,
-    "status": 1,
-    "createdAt": "2024-11-19 10:00:00",
-    "updatedAt": "2024-11-19 10:00:00",
-    "roles": ["teacher"]
+    "id": 10,                       // 用户ID（新创建的用户ID）
+    "username": "teacher001",       // 用户名（登录账号）
+    "realName": "张老师",            // 真实姓名
+    "userType": 2,                  // 用户类型：1-管理员 2-教师 3-学生 4-家长
+    "avatar": "/uploads/avatars/2024/11/19/10_abc123.jpg",  // 头像URL地址
+    "phone": "13800138001",         // 手机号
+    "email": "teacher001@example.com",  // 邮箱地址
+    "gender": 1,                    // 性别：1-男 2-女
+    "status": 1,                    // 状态：0-禁用 1-启用
+    "createdAt": "2024-11-19 10:00:00",  // 创建时间
+    "updatedAt": "2024-11-19 10:00:00",  // 更新时间
+    "roles": ["teacher"]            // 角色列表（已自动分配）
   }
 }
 ```
@@ -309,20 +309,20 @@ curl -X PUT http://localhost:8082/api/users/10 \
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "操作成功",
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
   "data": {
-    "id": 10,
-    "username": "teacher001",
-    "realName": "张老师",
-    "userType": 2,
-    "avatar": "/uploads/avatars/2024/11/19/10_def456.jpg",
-    "phone": "13800138002",
-    "email": "teacher001@example.com",
-    "gender": 1,
-    "status": 1,
-    "updatedAt": "2024-11-19 11:00:00",
-    "roles": ["teacher"]
+    "id": 10,                       // 用户ID
+    "username": "teacher001",       // 用户名（登录账号）
+    "realName": "张老师",            // 真实姓名
+    "userType": 2,                  // 用户类型：1-管理员 2-教师 3-学生 4-家长
+    "avatar": "/uploads/avatars/2024/11/19/10_def456.jpg",  // 头像URL地址（已更新）
+    "phone": "13800138002",         // 手机号（已更新）
+    "email": "teacher001@example.com",  // 邮箱地址
+    "gender": 1,                    // 性别：1-男 2-女
+    "status": 1,                    // 状态：0-禁用 1-启用
+    "updatedAt": "2024-11-19 11:00:00",  // 更新时间
+    "roles": ["teacher"]            // 角色列表
   }
 }
 ```
@@ -361,8 +361,8 @@ curl -X PUT http://localhost:8082/api/users/10 \
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "删除成功"
+  "code": 200,           // 状态码：200表示成功
+  "msg": "删除成功"       // 消息：操作结果描述
 }
 ```
 
@@ -397,23 +397,23 @@ curl -X PUT http://localhost:8082/api/users/10 \
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "操作成功",
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
   "data": {
-    "id": 10,
-    "username": "teacher001",
-    "realName": "张老师",
-    "userType": 2,
-    "avatar": "/uploads/avatars/2024/11/19/10_abc123.jpg",
-    "phone": "13800138001",
-    "email": "teacher001@example.com",
-    "gender": 1,
-    "status": 1,
-    "lastLoginTime": "2024-11-19 09:30:00",
-    "lastLoginIp": "192.168.1.100",
-    "createdAt": "2024-11-01 10:00:00",
-    "updatedAt": "2024-11-19 09:30:00",
-    "roles": ["teacher"]
+    "id": 10,                       // 用户ID
+    "username": "teacher001",       // 用户名（登录账号）
+    "realName": "张老师",            // 真实姓名
+    "userType": 2,                  // 用户类型：1-管理员 2-教师 3-学生 4-家长
+    "avatar": "/uploads/avatars/2024/11/19/10_abc123.jpg",  // 头像URL地址
+    "phone": "13800138001",         // 手机号
+    "email": "teacher001@example.com",  // 邮箱地址
+    "gender": 1,                    // 性别：1-男 2-女
+    "status": 1,                    // 状态：0-禁用 1-启用
+    "lastLoginTime": "2024-11-19 09:30:00",  // 最后登录时间
+    "lastLoginIp": "192.168.1.100",          // 最后登录IP地址
+    "createdAt": "2024-11-01 10:00:00",      // 创建时间
+    "updatedAt": "2024-11-19 09:30:00",      // 更新时间
+    "roles": ["teacher"]            // 角色列表
   }
 }
 ```
@@ -449,8 +449,8 @@ curl -X PUT http://localhost:8082/api/users/10 \
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "角色分配成功"
+  "code": 200,           // 状态码：200表示成功
+  "msg": "角色分配成功"   // 消息：操作结果描述
 }
 ```
 
@@ -474,9 +474,9 @@ curl -X PUT http://localhost:8082/api/users/10 \
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "操作成功",
-  "data": ["teacher", "class_monitor"]
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": ["teacher", "class_monitor"]  // 角色代码列表
 }
 ```
 
@@ -520,27 +520,27 @@ curl -X PUT http://localhost:8082/api/users/10 \
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "操作成功",
-  "data": [
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": [              // 菜单树形数据
     {
-      "id": 1,
-      "menuName": "系统管理",
-      "menuPath": "/system",
-      "menuIcon": "system",
-      "menuType": 1,
-      "parentId": 0,
-      "sortOrder": 1,
-      "children": [
+      "id": 1,                    // 菜单ID
+      "menuName": "系统管理",      // 菜单名称
+      "menuPath": "/system",      // 菜单路径
+      "menuIcon": "system",       // 菜单图标
+      "menuType": 1,              // 菜单类型：1-目录 2-菜单 3-按钮
+      "parentId": 0,              // 父菜单ID（0表示顶级菜单）
+      "sortOrder": 1,             // 排序号
+      "children": [               // 子菜单列表
         {
-          "id": 2,
-          "menuName": "用户管理",
-          "menuPath": "/system/user",
-          "menuIcon": "user",
-          "menuType": 2,
-          "parentId": 1,
-          "sortOrder": 1,
-          "children": []
+          "id": 2,                     // 子菜单ID
+          "menuName": "用户管理",       // 子菜单名称
+          "menuPath": "/system/user",  // 子菜单路径
+          "menuIcon": "user",          // 子菜单图标
+          "menuType": 2,               // 菜单类型：1-目录 2-菜单 3-按钮
+          "parentId": 1,               // 父菜单ID
+          "sortOrder": 1,              // 排序号
+          "children": []               // 子菜单列表（空表示无子菜单）
         }
       ]
     }
@@ -846,19 +846,19 @@ teacherName=张&teacherNo=T001&title=语文教师
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "操作成功",
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
   "data": {
-    "id": 1,
-    "teacherNo": "T001",
-    "teacherName": "张老师",
-    "gender": 1,
-    "birthDate": "1985-03-15",
-    "idCard": "110101198503150011",
-    "phone": "13900139000",
-    "email": "teacher001@school.com",
-    "title": "数学教师",
-    "hireDate": "2024-09-01"
+    "id": 1,                        // 教师ID
+    "teacherNo": "T001",            // 教师工号
+    "teacherName": "张老师",         // 教师姓名
+    "gender": 1,                    // 性别：1-男 2-女
+    "birthDate": "1985-03-15",      // 出生日期
+    "idCard": "110101198503150011", // 身份证号
+    "phone": "13900139000",         // 联系电话
+    "email": "teacher001@school.com",  // 邮箱地址
+    "title": "数学教师",             // 职称
+    "hireDate": "2024-09-01"        // 入职日期
   }
 }
 ```
@@ -1271,9 +1271,9 @@ classId=1&page=1&size=10
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "操作成功",
-  "data": 1  // 调课申请ID
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": 1              // 调课申请ID（新创建的申请记录ID）
 }
 ```
 
@@ -1300,18 +1300,18 @@ classId=1&page=1&size=10
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "操作成功",
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
   "data": {
-    "id": 1,
-    "teacherId": 10,
-    "teacherName": "张老师",
-    "scheduleId": 123,
-    "originalDate": "2024-11-20",
-    "newDate": "2024-11-21",
-    "reason": "临时有事需要调整课程时间",
-    "approvalStatus": 1,
-    "createdAt": "2024-11-19 10:00:00"
+    "id": 1,                     // 调课申请ID
+    "teacherId": 10,             // 教师ID
+    "teacherName": "张老师",      // 教师姓名
+    "scheduleId": 123,           // 课程ID
+    "originalDate": "2024-11-20", // 原上课日期
+    "newDate": "2024-11-21",     // 调整后日期
+    "reason": "临时有事需要调整课程时间",  // 调课原因
+    "approvalStatus": 1,         // 审批状态：1-待审批 2-审批中 3-已通过 4-已拒绝 5-已撤回
+    "createdAt": "2024-11-19 10:00:00"  // 申请时间
   }
 }
 ```
@@ -1344,24 +1344,24 @@ teacherId=10&page=1&size=10
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "操作成功",
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
   "data": {
-    "records": [
+    "records": [         // 调课记录列表
       {
-        "id": 1,
-        "scheduleId": 123,
-        "originalDate": "2024-11-20",
-        "newDate": "2024-11-21",
-        "reason": "临时有事",
-        "approvalStatus": 1,
-        "createdAt": "2024-11-19 10:00:00"
+        "id": 1,                     // 调课申请ID
+        "scheduleId": 123,           // 课程ID
+        "originalDate": "2024-11-20", // 原上课日期
+        "newDate": "2024-11-21",     // 调整后日期
+        "reason": "临时有事",         // 调课原因
+        "approvalStatus": 1,         // 审批状态：1-待审批 2-审批中 3-已通过 4-已拒绝 5-已撤回
+        "createdAt": "2024-11-19 10:00:00"  // 申请时间
       }
     ],
-    "total": 20,
-    "size": 10,
-    "current": 1,
-    "pages": 2
+    "total": 20,         // 总记录数
+    "size": 10,          // 每页条数
+    "current": 1,        // 当前页码
+    "pages": 2           // 总页数
   }
 }
 ```
@@ -1407,9 +1407,9 @@ teacherId=10&page=1&size=10
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "操作成功",
-  "data": 1  // 换课申请ID
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": 1              // 换课申请ID（新创建的申请记录ID）
 }
 ```
 
@@ -1444,8 +1444,8 @@ confirm=true  // true表示同意，false表示拒绝
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "操作成功"
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功"       // 消息：操作结果描述
 }
 ```
 
@@ -1482,26 +1482,26 @@ teacherId=10&page=1&size=10
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "操作成功",
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
   "data": {
-    "records": [
+    "records": [         // 换课记录列表
       {
-        "id": 1,
-        "myScheduleId": 123,
-        "targetScheduleId": 456,
-        "targetTeacherId": 20,
-        "targetTeacherName": "李老师",
-        "reason": "时间冲突",
-        "targetConfirm": 0,
-        "approvalStatus": 1,
-        "createdAt": "2024-11-19 10:00:00"
+        "id": 1,                      // 换课申请ID
+        "myScheduleId": 123,          // 我的课程ID
+        "targetScheduleId": 456,      // 目标课程ID
+        "targetTeacherId": 20,        // 目标教师ID
+        "targetTeacherName": "李老师", // 目标教师姓名
+        "reason": "时间冲突",          // 换课原因
+        "targetConfirm": 0,           // 对方确认状态：0-待确认 1-已同意 2-已拒绝
+        "approvalStatus": 1,          // 审批状态：1-待审批 2-审批中 3-已通过 4-已拒绝 5-已撤回
+        "createdAt": "2024-11-19 10:00:00"  // 申请时间
       }
     ],
-    "total": 10,
-    "size": 10,
-    "current": 1,
-    "pages": 1
+    "total": 10,         // 总记录数
+    "size": 10,          // 每页条数
+    "current": 1,        // 当前页码
+    "pages": 1           // 总页数
   }
 }
 ```
@@ -1547,9 +1547,9 @@ teacherId=10&page=1&size=10
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "操作成功",
-  "data": 1  // 调班申请ID
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": 1              // 调班申请ID（新创建的申请记录ID）
 }
 ```
 
@@ -1576,19 +1576,19 @@ teacherId=10&page=1&size=10
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "操作成功",
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
   "data": {
-    "id": 1,
-    "studentId": 100,
-    "studentName": "小明",
-    "currentClassId": 1,
-    "currentClassName": "一年级1班",
-    "targetClassId": 2,
-    "targetClassName": "一年级2班",
-    "reason": "家庭住址变更",
-    "approvalStatus": 1,
-    "createdAt": "2024-11-19 10:00:00"
+    "id": 1,                        // 调班申请ID
+    "studentId": 100,               // 学生ID
+    "studentName": "小明",           // 学生姓名
+    "currentClassId": 1,            // 当前班级ID
+    "currentClassName": "一年级1班", // 当前班级名称
+    "targetClassId": 2,             // 目标班级ID
+    "targetClassName": "一年级2班",  // 目标班级名称
+    "reason": "家庭住址变更",        // 调班原因
+    "approvalStatus": 1,            // 审批状态：1-待审批 2-审批中 3-已通过 4-已拒绝 5-已撤回
+    "createdAt": "2024-11-19 10:00:00"  // 申请时间
   }
 }
 ```
@@ -1621,25 +1621,25 @@ studentId=100&page=1&size=10
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "操作成功",
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
   "data": {
-    "records": [
+    "records": [         // 调班记录列表
       {
-        "id": 1,
-        "currentClassId": 1,
-        "currentClassName": "一年级1班",
-        "targetClassId": 2,
-        "targetClassName": "一年级2班",
-        "reason": "家庭住址变更",
-        "approvalStatus": 1,
-        "createdAt": "2024-11-19 10:00:00"
+        "id": 1,                        // 调班申请ID
+        "currentClassId": 1,            // 当前班级ID
+        "currentClassName": "一年级1班", // 当前班级名称
+        "targetClassId": 2,             // 目标班级ID
+        "targetClassName": "一年级2班",  // 目标班级名称
+        "reason": "家庭住址变更",        // 调班原因
+        "approvalStatus": 1,            // 审批状态：1-待审批 2-审批中 3-已通过 4-已拒绝 5-已撤回
+        "createdAt": "2024-11-19 10:00:00"  // 申请时间
       }
     ],
-    "total": 5,
-    "size": 10,
-    "current": 1,
-    "pages": 1
+    "total": 5,          // 总记录数
+    "size": 10,          // 每页条数
+    "current": 1,        // 当前页码
+    "pages": 1           // 总页数
   }
 }
 ```
