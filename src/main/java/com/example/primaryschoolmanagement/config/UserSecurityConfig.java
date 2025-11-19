@@ -39,7 +39,7 @@ public class UserSecurityConfig {
                 .authenticationManager(authenticationManager)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/user/login", "/api/user/logout","/api/**").permitAll()
+                        .requestMatchers("/api/user/login", "/api/user/logout","/api/**","/api/classes/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(handler -> handler

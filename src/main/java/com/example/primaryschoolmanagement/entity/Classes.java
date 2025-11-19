@@ -25,5 +25,4 @@ public class Classes {
     private Date updatedAt;
     private Integer isDeleted;
 
-
 }

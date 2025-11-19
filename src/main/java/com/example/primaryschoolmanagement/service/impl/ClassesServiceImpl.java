@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dao.ClassesDao;
+import com.example.primaryschoolmanagement.dao.StudentDao;
 import com.example.primaryschoolmanagement.entity.Classes;
 import com.example.primaryschoolmanagement.entity.Student;
 import com.example.primaryschoolmanagement.service.ClassesService;
@@ -22,6 +23,8 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
     private final ClassesDao classesDao;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private StudentDao studentDao; // 需在类中定义StudentDao的Autowired注入
 
     public ClassesServiceImpl(ClassesDao classesDao) {
         this.classesDao = classesDao;
@@ -177,9 +180,18 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
                         "classes.classNo",
                         "classes.className",
                         "classes.headTeacherId"
-                )
-                .notIn("classes", "student.class_id = classes.id");
-        return R.ok();
+                );
+
+
+
+        List<Map<String, Object>> resultList = studentDao.selectMaps(wrapper);
+
+        // 4. 处理查询结果
+        if (resultList.isEmpty()) {
+            return R.er(404, "该班级暂无学生数据");
+        } else {
+            return R.ok(resultList);
+        }
     }
 
 
