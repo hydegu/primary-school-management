@@ -15,6 +15,7 @@ public class GradeController {
     @Autowired
     private GradeService gradeService;
 
+    //年级列表
     @GetMapping(value="/grade/**")
     public R gradeList(Grade grade){
         return this.gradeService.gradeList();
