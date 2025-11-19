@@ -49,4 +49,4 @@ com:
     user-ttl: 7200000  # 2小时
     user-token-name: authentication
 server:
-  port: 8082
+  port: 8092
