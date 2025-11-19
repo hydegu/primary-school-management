@@ -98,7 +98,7 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
 
 
     @Override
-    @Transactional
+
     public R addTeacher(Teacher teacher, AppUser appuser){
         LocalDateTime currentTime = LocalDateTime.now();
         teacher.setCreatedAt(currentTime);
@@ -134,20 +134,18 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         if (id == null) {
             return R.er(400, "教师ID不能为空");
         }
-
         // 2. 查询记录是否存在
         Teacher existingTeacher = teacherDao.selectById(id);
         if (existingTeacher == null) {
             return R.er(404, "未找到ID为" + id + "的教师记录");
         }
-
         // 3. 执行逻辑删除（更新isDeleted为true）
+        //教师表
         Teacher updateTeacher = new Teacher();
         updateTeacher.setId(id);
         updateTeacher.setIsDeleted(true);
         updateTeacher.setUpdatedAt(LocalDateTime.now());
         int row = teacherDao.updateById(updateTeacher);
-
         // 4. 返回结果
         return row > 0 ? R.ok("删除成功") : R.er(ResultCode.ERROR);
     }

@@ -165,6 +165,7 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
         }
     }
 
+    //班级课程列表
     @Override
     public R classStudent(Classes classes, Student student) {
         Integer id = classes.getId();
@@ -181,11 +182,7 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
                         "classes.className",
                         "classes.headTeacherId"
                 );
-
-
-
         List<Map<String, Object>> resultList = studentDao.selectMaps(wrapper);
-
         // 4. 处理查询结果
         if (resultList.isEmpty()) {
             return R.er(404, "该班级暂无学生数据");
