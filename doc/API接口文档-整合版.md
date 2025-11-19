@@ -104,53 +104,6 @@ Authorization: Bearer <token>
 
 ---
 
-#### 1.1.3 用户注册 🚧
-
-**接口地址**: `POST /api/user/register`
-
-**实现状态**: 🚧 未实现
-
-**未实现原因**:
-- ⚠️ Service层有 `regUser()` 方法，但Controller层未暴露接口
-- ⚠️ 需要添加注册参数验证（用户名唯一性、密码强度等）
-- ⚠️ 需要确定注册流程（是否需要邮箱验证、手机验证码等）
-
-**功能描述**: 新用户注册
-
-**预期请求参数**:
-```json
-{
-  "userName": "student001",
-  "password": "Pass@123",
-  "realName": "张三",
-  "userType": 3,              // 1-管理员 2-教师 3-学生 4-家长
-  "phone": "13800138000",
-  "email": "student001@example.com"
-}
-```
-
-**待实现功能**:
-1. [ ] Controller接口开发
-2. [ ] 用户名/手机号/邮箱唯一性验证
-3. [ ] 密码强度验证
-4. [ ] 发送验证码功能（可选）
-5. [ ] 自动分配默认角色
-
----
-
-#### 1.1.4 修改密码 🚧
-
-**接口地址**: `PUT /api/user/password`
-
-**实现状态**: 🚧 未实现
-
-**未实现原因**:
-- ⚠️ Service层有 `updatePassword()` 方法，但未暴露接口
-- ⚠️ 需要实现旧密码验证逻辑
-- ⚠️ 需要添加密码修改日志记录
-
----
-
 #### 1.1.5 获取当前用户信息 🚧
 
 **接口地址**: `GET /api/user/profile`
@@ -170,6 +123,7 @@ Authorization: Bearer <token>
 **实现状态**: 🚧 **完全未实现**
 
 **未实现原因**:
+
 - ⚠️ 未创建 `RoleController`
 - ⚠️ 未创建 `RoleService` 接口
 - ⚠️ 需要实现分页查询功能
