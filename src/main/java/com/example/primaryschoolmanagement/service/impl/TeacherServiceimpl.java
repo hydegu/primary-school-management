@@ -144,8 +144,7 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         Teacher updateTeacher = new Teacher();
         updateTeacher.setId(id);
         updateTeacher.setIsDeleted(true);
-        updateTeacher.setUpdatedAt(LocalDateTime.now());
-        int row = teacherDao.updateById(updateTeacher);
+        int row = teacherDao.deleteById(updateTeacher);
         // 4. 返回结果
         return row > 0 ? R.ok("删除成功") : R.er(ResultCode.ERROR);
     }
