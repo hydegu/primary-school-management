@@ -1,24 +1,21 @@
 package com.example.primaryschoolmanagement.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dao.ClassesDao;
-import com.example.primaryschoolmanagement.dao.GradeDao;
 import com.example.primaryschoolmanagement.entity.Classes;
-import com.example.primaryschoolmanagement.entity.Grade;
-import com.example.primaryschoolmanagement.entity.Teacher;
+import com.example.primaryschoolmanagement.entity.Student;
 import com.example.primaryschoolmanagement.service.ClassesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implements ClassesService {
@@ -31,38 +28,13 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
     }
     @Override
     public R classesList() {
-        System.out.println("查询成功");
-        Page page = new Page();
-        page.setCurrent(1);
-        page.setSize(5);
-        Page pageInfo = this.classesDao.selectPage(page, null);
-        // 查询多列，用RowMapper映射到Teacher对象
-        List<Classes> classes = this.jdbcTemplate.query(
-                "select * " +
-                        "from edu_class;",
-                new RowMapper<Classes>() {
-                    @Override
-                    public Classes mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        Classes classes = new Classes();
-                        // 手动映射：数据库列名 -> 对象属性（注意字段类型匹配）
-                        classes.setId(rs.getInt("id"));
-                        classes.setClassNo(rs.getString("class_no"));
-                        classes.setClassName(rs.getString("class_name"));
-                        classes.setHeadTeacherId(rs.getInt("head_teacher_id"));
-                        classes.setClassroom(rs.getString("classroom"));
-                        classes.setMaxStudents(rs.getInt("max_students"));
-                        classes.setCurrentStudents(rs.getInt("current_students"));
-                        classes.setSchoolYear(rs.getString("school_year"));
-                        classes.setStatus(rs.getInt("status"));
-                        classes.setRemark(rs.getString("remark"));
-                        classes.setCreatedAt(rs.getDate("created_at"));
-                        classes.setUpdatedAt(rs.getDate("updated_at"));
-                        classes.setIsDeleted(rs.getInt("is_deleted"));
-                        return classes;
-                    }
-                }
-        );
-        return R.ok(classes);
+       LambdaQueryWrapper<Classes> queryWrapper = new LambdaQueryWrapper<>();
+        List<Classes> classesList = this.classesDao.selectList(queryWrapper);
+        if (classesList.isEmpty()) {
+            return R.er();
+        } else {
+            return R.ok(classesList);
+        }
     }
 
     @Override
@@ -173,6 +145,43 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
         // 6. 根据结果返回信息
         return row > 0 ? R.ok("班级信息更新成功") : R.er();
     }
+
+    @Override
+    public R getclassById(Integer id) {
+        if(id==null){
+            return R.er(400, "班级ID不能为空");
+        }
+        LambdaQueryWrapper<Classes> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Classes::getId,id);
+        queryWrapper.eq(Classes::getIsDeleted, false);
+        Classes classes = this.classesDao.selectOne(queryWrapper);
+        if (classes != null) {
+            return R.ok(classes);
+        } else {
+            return R.er(404, "未找到ID为 " + id + " 的班级记录");
+        }
+    }
+
+    @Override
+    public R classStudent(Classes classes, Student student) {
+        Integer id = classes.getId();
+        Integer classid = student.getClassId();
+        QueryWrapper<Student> wrapper = new QueryWrapper<>();
+        wrapper.eq("student.class_id",id)//学生表class_id=class表的id
+                .eq("classes.id",id)
+                .select(
+                        "student.id",
+                        "student.studentNo",
+                        "student.studentName",
+                        "student.gender",
+                        "classes.classNo",
+                        "classes.className",
+                        "classes.headTeacherId"
+                )
+                .notIn("classes", "student.class_id = classes.id");
+        return R.ok();
+    }
+
 
 
 }

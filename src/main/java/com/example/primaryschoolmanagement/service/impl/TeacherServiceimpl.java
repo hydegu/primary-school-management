@@ -8,9 +8,14 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.enums.ResultCode;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dao.TeacherDao;
+import com.example.primaryschoolmanagement.dao.UserDao;
+import com.example.primaryschoolmanagement.entity.AppUser;
+import com.example.primaryschoolmanagement.entity.Course;
 import com.example.primaryschoolmanagement.entity.Teacher;
 import com.example.primaryschoolmanagement.service.TeacherService;
+import io.swagger.models.auth.In;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -19,9 +24,11 @@ import java.util.*;
 @Service
 public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implements TeacherService {
     private final TeacherDao teacherDao;
+    private final UserDao userDao;
 
-    public TeacherServiceimpl(TeacherDao teacherDao) {
+    public TeacherServiceimpl(TeacherDao teacherDao, UserDao userDao) {
         this.teacherDao = teacherDao;
+        this.userDao = userDao;
     }
 
     public R teacherList() {
@@ -91,13 +98,34 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
 
 
     @Override
-    public R addTeacher(Teacher teacher){
+    @Transactional
+    public R addTeacher(Teacher teacher, AppUser appuser){
         LocalDateTime currentTime = LocalDateTime.now();
         teacher.setCreatedAt(currentTime);
         teacher.setUpdatedAt(currentTime);
-        teacher.setIsDeleted(false);
-        int row = this.teacherDao.insert(teacher);
-        return row>0?R.ok("添加成功"):R.er(ResultCode.ERROR);
+
+        int teacherrow = this.teacherDao.insert(teacher);
+        if (teacherrow <= 0) {
+            throw new RuntimeException("教师信息插入失败");
+        }
+        Integer teacherId = teacher.getId();
+        if(teacherId==null){
+            return R.er(400, "获取教师ID失败");
+        }
+        appuser.setId(Long.valueOf(teacher.getUserId()));
+        appuser.setUsername("teacher"+teacher.getTeacherNo());
+        appuser.setPassword("teacher123");
+        appuser.setUserType(2);
+        appuser.setPhone(teacher.getPhone());
+        appuser.setEmail(teacher.getEmail());
+        appuser.setGender(teacher.getGender());
+        appuser.setCreatedAt(currentTime);
+        appuser.setUpdatedAt(currentTime);
+        int userrow = this.userDao.insert(appuser);
+        if (userrow <= 0) {
+            throw new RuntimeException("用户信息插入失败");
+        }
+        return R.ok("教师及用户信息添加成功");
     }
 
     @Override
@@ -184,5 +212,16 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         // 6. 根据结果返回信息
         return row > 0 ? R.ok("更新成功") : R.er();
     }
+
+//    @Override
+//    public R getcrouseByteacherId(Integer id) {
+//        if(id==null){
+//            return R.er(400, "教师ID不能为空");
+//        }
+//        LambdaQueryWrapper<Course> queryWrapper = new LambdaQueryWrapper<>();
+//
+//        return null;
+//    }
+
 
 }

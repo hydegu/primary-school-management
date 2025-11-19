@@ -24,4 +24,6 @@ public class Classes {
     private Date createdAt;
     private Date updatedAt;
     private Integer isDeleted;
+
+
 }
