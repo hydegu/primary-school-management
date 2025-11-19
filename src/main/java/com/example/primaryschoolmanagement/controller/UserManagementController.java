@@ -12,9 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 用户管理Controller
@@ -33,25 +31,108 @@ public class UserManagementController {
     /**
      * 创建用户
      * 权限要求：超级管理员
+     * 支持文件上传（multipart/form-data）或 JSON（application/json）
      */
     @PreAuthorize("hasRole('super_admin')")
-    @PostMapping
-    public R createUser(@Valid @RequestBody UserCreateRequest request) {
-        log.info("创建用户请求：username={}", request.getUsername());
-        UserDTO user = userService.createUser(request);
-        return R.ok(user);
+    @PostMapping(consumes = {"multipart/form-data", "application/json"})
+    public R createUser(
+            @RequestParam(required = false) MultipartFile avatarFile,
+            @RequestParam String username,
+            @RequestParam String password,
+            @RequestParam String realName,
+            @RequestParam Integer userType,
+            @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) Integer gender,
+            @RequestParam(required = false) Integer status
+    ) {
+        log.info("创建用户请求：username={}", username);
+
+        try {
+            // 构建请求对象
+            UserCreateRequest request = UserCreateRequest.builder()
+                    .username(username)
+                    .password(password)
+                    .realName(realName)
+                    .userType(userType)
+                    .phone(phone)
+                    .email(email)
+                    .gender(gender)
+                    .status(status)
+                    .build();
+
+            // 先创建用户（不带头像）
+            UserDTO user = userService.createUser(request);
+
+            // 如果上传了头像文件，保存文件并更新用户头像
+            if (avatarFile != null && !avatarFile.isEmpty()) {
+                String avatarUrl = fileStorageService.storeAvatar(avatarFile, user.getId());
+                log.info("头像文件上传成功：userId={}, url={}", user.getId(), avatarUrl);
+
+                // 更新用户头像
+                UserUpdateRequest updateRequest = UserUpdateRequest.builder()
+                        .avatar(avatarUrl)
+                        .build();
+                user = userService.updateUser(user.getId(), updateRequest);
+            }
+
+            return R.ok(user);
+
+        } catch (IllegalArgumentException e) {
+            log.warn("创建用户失败：{}", e.getMessage());
+            return R.er(400, e.getMessage());
+        } catch (Exception e) {
+            log.error("创建用户异常", e);
+            return R.er(500, "创建用户失败");
+        }
     }
 
     /**
      * 更新用户
      * 权限要求：超级管理员
+     * 支持文件上传（multipart/form-data）
      */
     @PreAuthorize("hasRole('super_admin')")
-    @PutMapping("/{id}")
-    public R updateUser(@PathVariable Long id, @Valid @RequestBody UserUpdateRequest request) {
+    @PutMapping(value = "/{id}", consumes = {"multipart/form-data", "application/json"})
+    public R updateUser(
+            @PathVariable Long id,
+            @RequestParam(required = false) MultipartFile avatarFile,
+            @RequestParam(required = false) String realName,
+            @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) Integer gender,
+            @RequestParam(required = false) Integer status
+    ) {
         log.info("更新用户请求：userId={}", id);
-        UserDTO user = userService.updateUser(id, request);
-        return R.ok(user);
+
+        try {
+            // 构建请求对象
+            UserUpdateRequest request = UserUpdateRequest.builder()
+                    .realName(realName)
+                    .phone(phone)
+                    .email(email)
+                    .gender(gender)
+                    .status(status)
+                    .build();
+
+            // 如果上传了头像文件，先保存文件
+            if (avatarFile != null && !avatarFile.isEmpty()) {
+                String avatarUrl = fileStorageService.storeAvatar(avatarFile, id);
+                request.setAvatar(avatarUrl);
+                log.info("头像文件上传成功：userId={}, url={}", id, avatarUrl);
+            }
+
+            // 更新用户
+            UserDTO user = userService.updateUser(id, request);
+            return R.ok(user);
+
+        } catch (IllegalArgumentException e) {
+            log.warn("更新用户失败：{}", e.getMessage());
+            return R.er(400, e.getMessage());
+        } catch (Exception e) {
+            log.error("更新用户异常", e);
+            return R.er(500, "更新用户失败");
+        }
     }
 
     /**
@@ -130,42 +211,5 @@ public class UserManagementController {
         log.info("查询用户角色：userId={}", id);
         List<String> roles = userService.getUserRoles(id);
         return R.ok(roles);
-    }
-
-    /**
-     * 上传用户头像
-     * 权限要求：任何认证用户（只能上传自己的头像或管理员可上传任意用户）
-     */
-    @PostMapping("/{id}/avatar")
-    public R uploadAvatar(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
-        log.info("上传用户头像：userId={}, filename={}", id, file.getOriginalFilename());
-
-        try {
-            // 1. 验证用户是否存在
-            UserDTO user = userService.getUserById(id);
-
-            // 2. 存储新头像文件
-            String fileUrl = fileStorageService.storeAvatar(file, id);
-
-            // 3. 更新用户头像URL
-            UserUpdateRequest updateRequest = new UserUpdateRequest();
-            updateRequest.setAvatar(fileUrl);
-            UserDTO updatedUser = userService.updateUser(id, updateRequest);
-
-            // 4. 返回结果
-            Map<String, Object> result = new HashMap<>();
-            result.put("url", fileUrl);
-            result.put("user", updatedUser);
-
-            log.info("用户头像上传成功：userId={}, url={}", id, fileUrl);
-            return R.ok(result);
-
-        } catch (IllegalArgumentException e) {
-            log.warn("头像上传失败：{}", e.getMessage());
-            return R.er(400, e.getMessage());
-        } catch (Exception e) {
-            log.error("头像上传异常", e);
-            return R.er(500, "头像上传失败");
-        }
     }
 }
