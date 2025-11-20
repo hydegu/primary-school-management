@@ -36,6 +36,7 @@ public class UserRole {
     /**
      * 创建时间
      */
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDateTime createdAt;
 
     public UserRole(Long userId, Long roleId) {
