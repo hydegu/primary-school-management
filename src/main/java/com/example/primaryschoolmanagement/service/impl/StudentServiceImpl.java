@@ -1,6 +1,7 @@
 package com.example.primaryschoolmanagement.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.exception.ApiException;
@@ -98,66 +99,54 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @CacheEvict(cacheNames = "students:profile", key = "#dto.studentNo")
-    public int updateStudent(StudentDto dto) {
-        if (dto == null || !StringUtils.hasText(dto.getStudentNo())) {
+    @CacheEvict(cacheNames = "students:profile", key = "#dto.id")
+    public boolean updateStudent(Student dto) {
+        if (dto == null) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "修改人员不能为空");
         }
         String studentNo = dto.getStudentNo();
-        Student student = findByStudentNo(studentNo);
-        if (student == null || !student.getIsDeleted()) {
-            throw new ApiException(HttpStatus.NOT_FOUND, "查无此人：" + studentNo);
+        Student student = studentDao.selectById(dto.getId());
+        if (student == null || student.getIsDeleted()) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "查无此人");
         }
-
+        LambdaUpdateWrapper<Student> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Student::getId,dto.getId());
         //更新修改的字段
         Boolean hasChange = false;
-        Student updateStudent = new Student();
-        if (StringUtils.hasText(dto.getStudentName())) {
-            String newStudent = dto.getStudentName().trim();
-            if (!dto.getStudentName().equals(student.getStudentName())) {
-                updateStudent.setStudentName(newStudent);
-                hasChange = true;
-            }
+        if(dto.getStudentName() != null){
+            updateWrapper.set(Student::getStudentName,dto.getStudentName().trim());
+            hasChange = true;
         }
+
         if (dto.getGender() != null && dto.getGender() != student.getGender()) {
-            updateStudent.setGender(dto.getGender());
+            updateWrapper.set(Student::getGender,dto.getGender());
             hasChange = true;
         }
         if (dto.getBirthDate() != null && dto.getBirthDate() != student.getBirthDate()) {
-            updateStudent.setBirthDate(dto.getBirthDate());
+            updateWrapper.set(Student::getBirthDate,dto.getBirthDate());
             hasChange = true;
         }
         if (StringUtils.hasText(dto.getIdCard())) {
             String newStudent = dto.getIdCard().trim();
             String oldStudent = student.getIdCard().trim();
             if (oldStudent == null) {
-                updateStudent.setIdCard(newStudent);
+                updateWrapper.set(Student::getIdCard,dto.getId());
                 hasChange = true;
             } else if (!newStudent.equals(oldStudent)) {
-                updateStudent.setIdCard(newStudent);
+                updateWrapper.set(Student::getIdCard,dto.getIdCard());
                 hasChange = true;
             }
         }
 
         if (dto.getClassId() != null && dto.getClassId() != student.getClassId()) {
-            updateStudent.setClassId(dto.getClassId());
+            updateWrapper.set(Student::getClassId,dto.getClassId());
             hasChange = true;
         }
         if (dto.getGradeId() != null && dto.getGradeId() != student.getGradeId()) {
-            updateStudent.setGradeId(dto.getGradeId());
+            updateWrapper.set(Student::getGradeId,dto.getGradeId());
             hasChange = true;
         }
-        if (!hasChange) {
-            return 0;
-        }
-        UpdateWrapper<Student> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("student_no", studentNo)
-        ;
-        int row = studentDao.update(updateStudent, updateWrapper);
-        if (row <= 0) {
-            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "更新学生失败");
-        }
-        return row;
+        return update(updateWrapper);
     }
 
     @Override
