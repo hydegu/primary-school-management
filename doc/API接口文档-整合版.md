@@ -1860,8 +1860,43 @@
 
 **请求参数**:
 - `studentId` - 学生ID
-- `page` - 页码
-- `size` - 每页条数
+- `page` - 页码，默认1
+- `size` - 每页条数，默认10
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 1,
+    "list": [
+      {
+        "id": 1,                                         // 请假ID
+        "leaveNo": "L2024112000001",                     // 请假单号
+        "studentId": 1,                                  // 学生ID
+        "studentName": "小明",                           // 学生姓名
+        "classId": 1,                                    // 班级ID
+        "leaveType": 1,                                  // 请假类型：1-病假 2-事假 3-其他
+        "startDate": "2024-11-20",                       // 开始日期
+        "endDate": "2024-11-22",                         // 结束日期
+        "leaveDays": 3.0,                                // 请假天数
+        "reason": "感冒发烧",                            // 请假原因
+        "proofFiles": [],                                // 证明材料（JSON数组）
+        "applyTime": "2024-11-19T10:00:00",             // 申请时间
+        "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+        "approvalId": null,                              // 关联审批记录ID
+        "remark": null,                                  // 备注
+        "createdAt": "2024-11-19T10:00:00",             // 创建时间
+        "updatedAt": "2024-11-19T10:00:00"              // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
 
 **实现位置**: `LeaveController.java:39`
 
@@ -1875,8 +1910,43 @@
 
 **请求参数**:
 - `classId` - 班级ID
-- `page` - 页码
-- `size` - 每页条数
+- `page` - 页码，默认1
+- `size` - 每页条数，默认10
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 1,
+    "list": [
+      {
+        "id": 1,                                         // 请假ID
+        "leaveNo": "L2024112000001",                     // 请假单号
+        "studentId": 1,                                  // 学生ID
+        "studentName": "小明",                           // 学生姓名
+        "classId": 1,                                    // 班级ID
+        "leaveType": 1,                                  // 请假类型：1-病假 2-事假 3-其他
+        "startDate": "2024-11-20",                       // 开始日期
+        "endDate": "2024-11-22",                         // 结束日期
+        "leaveDays": 3.0,                                // 请假天数
+        "reason": "感冒发烧",                            // 请假原因
+        "proofFiles": [],                                // 证明材料（JSON数组）
+        "applyTime": "2024-11-19T10:00:00",             // 申请时间
+        "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+        "approvalId": null,                              // 关联审批记录ID
+        "remark": null,                                  // 备注
+        "createdAt": "2024-11-19T10:00:00",             // 创建时间
+        "updatedAt": "2024-11-19T10:00:00"              // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
 
 **实现位置**: `LeaveController.java:58`
 
@@ -1893,13 +1963,40 @@
 **请求参数**:
 ```json
 {
-  "studentId": 1,
-  "leaveType": 1,
-  "startDate": "2024-11-20",
-  "endDate": "2024-11-22",
-  "leaveDays": 3,
-  "reason": "感冒发烧",
-  "proofFiles": []
+  "studentId": 1,                                    // 学生ID
+  "leaveType": 1,                                    // 请假类型：1-病假 2-事假 3-其他
+  "startDate": "2024-11-20",                         // 开始日期
+  "endDate": "2024-11-22",                           // 结束日期
+  "leaveDays": 3.0,                                  // 请假天数
+  "reason": "感冒发烧",                              // 请假原因
+  "proofFiles": []                                   // 证明材料（JSON数组）
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "申请成功",
+  "dataset": {
+    "id": 1,                                         // 请假ID
+    "leaveNo": "L2024112000001",                     // 请假单号
+    "studentId": 1,                                  // 学生ID
+    "studentName": "小明",                           // 学生姓名
+    "classId": 1,                                    // 班级ID
+    "leaveType": 1,                                  // 请假类型：1-病假 2-事假 3-其他
+    "startDate": "2024-11-20",                       // 开始日期
+    "endDate": "2024-11-22",                         // 结束日期
+    "leaveDays": 3.0,                                // 请假天数
+    "reason": "感冒发烧",                            // 请假原因
+    "proofFiles": [],                                // 证明材料（JSON数组）
+    "applyTime": "2024-11-19T10:00:00",             // 申请时间
+    "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalId": null,                              // 关联审批记录ID
+    "remark": null,                                  // 备注
+    "createdAt": "2024-11-19T10:00:00",             // 创建时间
+    "updatedAt": "2024-11-19T10:00:00"              // 更新时间
+  }
 }
 ```
 
@@ -1913,6 +2010,35 @@
 
 **路由**: `/leave/detail`
 
+**功能描述**: 查询请假详细信息
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "id": 1,                                         // 请假ID
+    "leaveNo": "L2024112000001",                     // 请假单号
+    "studentId": 1,                                  // 学生ID
+    "studentName": "小明",                           // 学生姓名
+    "classId": 1,                                    // 班级ID
+    "leaveType": 1,                                  // 请假类型：1-病假 2-事假 3-其他
+    "startDate": "2024-11-20",                       // 开始日期
+    "endDate": "2024-11-22",                         // 结束日期
+    "leaveDays": 3.0,                                // 请假天数
+    "reason": "感冒发烧",                            // 请假原因
+    "proofFiles": [],                                // 证明材料（JSON数组）
+    "applyTime": "2024-11-19T10:00:00",             // 申请时间
+    "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalId": null,                              // 关联审批记录ID
+    "remark": null,                                  // 备注
+    "createdAt": "2024-11-19T10:00:00",             // 创建时间
+    "updatedAt": "2024-11-19T10:00:00"              // 更新时间
+  }
+}
+```
+
 **实现位置**: `LeaveController.java:32`
 
 ---
@@ -1922,6 +2048,15 @@
 **接口地址**: `PUT /api/leave/{id}/cancel`
 
 **功能描述**: 撤回请假申请
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "撤回成功",
+  "dataset": null
+}
+```
 
 **实现位置**: `LeaveController.java:49`
 
@@ -1964,10 +2099,40 @@
 **请求参数**:
 ```json
 {
-  "scheduleId": 123,
-  "originalDate": "2024-11-20",
-  "newDate": "2024-11-21",
-  "reason": "临时有事"
+  "scheduleId": 123,                                 // 原课程表ID
+  "originalDate": "2024-11-20",                      // 原上课日期
+  "originalPeriod": 3,                               // 原上课节次
+  "newDate": "2024-11-21",                           // 新上课日期
+  "newPeriod": 3,                                    // 新上课节次
+  "newClassroom": "201",                             // 新教室
+  "reason": "临时有事"                                // 调课原因
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "申请成功",
+  "dataset": {
+    "id": 1,                                         // 调课ID
+    "changeNo": "CC2024112000001",                   // 调课单号
+    "applyTeacherId": 1,                             // 申请教师ID
+    "applyTeacherName": "李老师",                    // 申请教师姓名
+    "originalScheduleId": 123,                       // 原课程表ID
+    "originalDate": "2024-11-20",                    // 原上课日期
+    "originalPeriod": 3,                             // 原上课节次
+    "newDate": "2024-11-21",                         // 新上课日期
+    "newPeriod": 3,                                  // 新上课节次
+    "newClassroom": "201",                           // 新教室
+    "reason": "临时有事",                            // 调课原因
+    "applyTime": "2024-11-19T10:00:00",             // 申请时间
+    "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalId": null,                              // 关联审批记录ID
+    "remark": null,                                  // 备注
+    "createdAt": "2024-11-19T10:00:00",             // 创建时间
+    "updatedAt": "2024-11-19T10:00:00"              // 更新时间
+  }
 }
 ```
 
@@ -1979,6 +2144,35 @@
 
 **接口地址**: `GET /api/course-change/{id}`
 
+**功能描述**: 根据ID查询调课详细信息
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "id": 1,                                         // 调课ID
+    "changeNo": "CC2024112000001",                   // 调课单号
+    "applyTeacherId": 1,                             // 申请教师ID
+    "applyTeacherName": "李老师",                    // 申请教师姓名
+    "originalScheduleId": 123,                       // 原课程表ID
+    "originalDate": "2024-11-20",                    // 原上课日期
+    "originalPeriod": 3,                             // 原上课节次
+    "newDate": "2024-11-21",                         // 新上课日期
+    "newPeriod": 3,                                  // 新上课节次
+    "newClassroom": "201",                           // 新教室
+    "reason": "临时有事",                            // 调课原因
+    "applyTime": "2024-11-19T10:00:00",             // 申请时间
+    "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalId": null,                              // 关联审批记录ID
+    "remark": null,                                  // 备注
+    "createdAt": "2024-11-19T10:00:00",             // 创建时间
+    "updatedAt": "2024-11-19T10:00:00"              // 更新时间
+  }
+}
+```
+
 **实现位置**: `CourseChangeController.java:33`
 
 ---
@@ -1987,10 +2181,47 @@
 
 **接口地址**: `GET /api/course-change/my`
 
+**功能描述**: 查询教师的调课记录
+
 **请求参数**:
 - `teacherId` - 教师ID
-- `page` - 页码
-- `size` - 每页条数
+- `page` - 页码，默认1
+- `size` - 每页条数，默认10
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 1,
+    "list": [
+      {
+        "id": 1,                                         // 调课ID
+        "changeNo": "CC2024112000001",                   // 调课单号
+        "applyTeacherId": 1,                             // 申请教师ID
+        "applyTeacherName": "李老师",                    // 申请教师姓名
+        "originalScheduleId": 123,                       // 原课程表ID
+        "originalDate": "2024-11-20",                    // 原上课日期
+        "originalPeriod": 3,                             // 原上课节次
+        "newDate": "2024-11-21",                         // 新上课日期
+        "newPeriod": 3,                                  // 新上课节次
+        "newClassroom": "201",                           // 新教室
+        "reason": "临时有事",                            // 调课原因
+        "applyTime": "2024-11-19T10:00:00",             // 申请时间
+        "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+        "approvalId": null,                              // 关联审批记录ID
+        "remark": null,                                  // 备注
+        "createdAt": "2024-11-19T10:00:00",             // 创建时间
+        "updatedAt": "2024-11-19T10:00:00"              // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
 
 **实现位置**: `CourseChangeController.java:40`
 
@@ -2011,10 +2242,37 @@
 **请求参数**:
 ```json
 {
-  "myScheduleId": 123,
-  "targetScheduleId": 456,
-  "targetTeacherId": 20,
-  "reason": "时间冲突"
+  "myScheduleId": 123,          // 申请方课程表ID
+  "targetScheduleId": 456,      // 对方课程表ID
+  "targetTeacherId": 20,        // 对方教师ID
+  "reason": "时间冲突"           // 换课原因
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "申请成功",
+  "dataset": {
+    "id": 1,                                         // 换课ID
+    "swapNo": "CS2024112000001",                     // 换课单号
+    "applyTeacherId": 1,                             // 申请教师ID
+    "applyTeacherName": "李老师",                    // 申请教师姓名
+    "applyScheduleId": 123,                          // 申请方课程表ID
+    "targetTeacherId": 20,                           // 对方教师ID
+    "targetTeacherName": "王老师",                   // 对方教师姓名
+    "targetScheduleId": 456,                         // 对方课程表ID
+    "reason": "时间冲突",                            // 换课原因
+    "applyTime": "2024-11-20T10:00:00",             // 申请时间
+    "confirmStatus": 1,                              // 确认状态：1-待确认 2-已同意 3-已拒绝
+    "confirmTime": null,                             // 确认时间
+    "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalId": null,                              // 关联审批记录ID
+    "remark": null,                                  // 备注
+    "createdAt": "2024-11-20T10:00:00",             // 创建时间
+    "updatedAt": "2024-11-20T10:00:00"              // 更新时间
+  }
 }
 ```
 
@@ -2027,7 +2285,38 @@
 **接口地址**: `PUT /api/course-swap/{id}/confirm`
 
 **请求参数**:
-- `confirm` - true-同意 false-拒绝
+```json
+{
+  "confirm": true              // true-同意 false-拒绝
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "确认成功",
+  "dataset": {
+    "id": 1,                                         // 换课ID
+    "swapNo": "CS2024112000001",                     // 换课单号
+    "applyTeacherId": 1,                             // 申请教师ID
+    "applyTeacherName": "李老师",                    // 申请教师姓名
+    "applyScheduleId": 123,                          // 申请方课程表ID
+    "targetTeacherId": 20,                           // 对方教师ID
+    "targetTeacherName": "王老师",                   // 对方教师姓名
+    "targetScheduleId": 456,                         // 对方课程表ID
+    "reason": "时间冲突",                            // 换课原因
+    "applyTime": "2024-11-20T10:00:00",             // 申请时间
+    "confirmStatus": 2,                              // 确认状态：1-待确认 2-已同意 3-已拒绝
+    "confirmTime": "2024-11-20T14:30:00",           // 确认时间
+    "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalId": null,                              // 关联审批记录ID
+    "remark": null,                                  // 备注
+    "createdAt": "2024-11-20T10:00:00",             // 创建时间
+    "updatedAt": "2024-11-20T14:30:00"              // 更新时间
+  }
+}
+```
 
 **实现位置**: `CourseSwapController.java:44`
 
@@ -2041,6 +2330,41 @@
 - `teacherId` - 教师ID
 - `page` - 页码
 - `size` - 每页条数
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 1,
+    "list": [
+      {
+        "id": 1,                                         // 换课ID
+        "swapNo": "CS2024112000001",                     // 换课单号
+        "applyTeacherId": 1,                             // 申请教师ID
+        "applyTeacherName": "李老师",                    // 申请教师姓名
+        "applyScheduleId": 123,                          // 申请方课程表ID
+        "targetTeacherId": 20,                           // 对方教师ID
+        "targetTeacherName": "王老师",                   // 对方教师姓名
+        "targetScheduleId": 456,                         // 对方课程表ID
+        "reason": "时间冲突",                            // 换课原因
+        "applyTime": "2024-11-20T10:00:00",             // 申请时间
+        "confirmStatus": 2,                              // 确认状态：1-待确认 2-已同意 3-已拒绝
+        "confirmTime": "2024-11-20T14:30:00",           // 确认时间
+        "approvalStatus": 2,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+        "approvalId": 1,                                 // 关联审批记录ID
+        "remark": null,                                  // 备注
+        "createdAt": "2024-11-20T10:00:00",             // 创建时间
+        "updatedAt": "2024-11-20T15:00:00"              // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
 
 **实现位置**: `CourseSwapController.java:34`
 
@@ -2061,10 +2385,35 @@
 **请求参数**:
 ```json
 {
-  "studentId": 100,
-  "currentClassId": 1,
-  "targetClassId": 2,
-  "reason": "家庭住址变更"
+  "studentId": 100,              // 学生ID
+  "currentClassId": 1,           // 当前班级ID
+  "targetClassId": 2,            // 目标班级ID
+  "reason": "家庭住址变更"        // 调班原因
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "申请成功",
+  "dataset": {
+    "id": 1,                                         // 调班ID
+    "transferNo": "CT2024112000001",                 // 调班单号
+    "studentId": 100,                                // 学生ID
+    "studentName": "小明",                           // 学生姓名
+    "currentClassId": 1,                             // 当前班级ID
+    "currentClassName": "一年级1班",                 // 当前班级名称
+    "targetClassId": 2,                              // 目标班级ID
+    "targetClassName": "一年级2班",                  // 目标班级名称
+    "reason": "家庭住址变更",                        // 调班原因
+    "applyTime": "2024-11-20T10:00:00",             // 申请时间
+    "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalId": null,                              // 关联审批记录ID
+    "remark": null,                                  // 备注
+    "createdAt": "2024-11-20T10:00:00",             // 创建时间
+    "updatedAt": "2024-11-20T10:00:00"              // 更新时间
+  }
 }
 ```
 
@@ -2075,6 +2424,31 @@
 ##### 查询调班详情 ✅
 
 **接口地址**: `GET /api/class-transfer/{id}`
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "id": 1,                                         // 调班ID
+    "transferNo": "CT2024112000001",                 // 调班单号
+    "studentId": 100,                                // 学生ID
+    "studentName": "小明",                           // 学生姓名
+    "currentClassId": 1,                             // 当前班级ID
+    "currentClassName": "一年级1班",                 // 当前班级名称
+    "targetClassId": 2,                              // 目标班级ID
+    "targetClassName": "一年级2班",                  // 目标班级名称
+    "reason": "家庭住址变更",                        // 调班原因
+    "applyTime": "2024-11-20T10:00:00",             // 申请时间
+    "approvalStatus": 2,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalId": 1,                                 // 关联审批记录ID
+    "remark": "同意转班",                            // 备注
+    "createdAt": "2024-11-20T10:00:00",             // 创建时间
+    "updatedAt": "2024-11-20T15:00:00"              // 更新时间
+  }
+}
+```
 
 **实现位置**: `ClassTransferController.java:33`
 
@@ -2088,6 +2462,39 @@
 - `studentId` - 学生ID
 - `page` - 页码
 - `size` - 每页条数
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 1,
+    "list": [
+      {
+        "id": 1,                                         // 调班ID
+        "transferNo": "CT2024112000001",                 // 调班单号
+        "studentId": 100,                                // 学生ID
+        "studentName": "小明",                           // 学生姓名
+        "currentClassId": 1,                             // 当前班级ID
+        "currentClassName": "一年级1班",                 // 当前班级名称
+        "targetClassId": 2,                              // 目标班级ID
+        "targetClassName": "一年级2班",                  // 目标班级名称
+        "reason": "家庭住址变更",                        // 调班原因
+        "applyTime": "2024-11-20T10:00:00",             // 申请时间
+        "approvalStatus": 2,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+        "approvalId": 1,                                 // 关联审批记录ID
+        "remark": "同意转班",                            // 备注
+        "createdAt": "2024-11-20T10:00:00",             // 创建时间
+        "updatedAt": "2024-11-20T15:00:00"              // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
 
 **实现位置**: `ClassTransferController.java:40`
 
