@@ -86,7 +86,9 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
         LambdaQueryWrapper<AppUser> query = new LambdaQueryWrapper<>();
         query.eq(AppUser::getUsername, value)
                 .or()
-                .eq(AppUser::getEmail, value);
+                .eq(AppUser::getEmail, value)
+                .or()
+                .eq(AppUser::getPhone, value);
         AppUser user = userRepo.selectOne(query);
         return Optional.ofNullable(user);
     }

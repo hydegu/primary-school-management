@@ -442,7 +442,7 @@ curl -X PUT http://localhost:8082/api/users/10 \
 **请求参数**:
 ```json
 {
-  "roleIds": [1, 2, 3]
+  "roleIds": [1, 2, 3]  //权限ID(1超级管理员 2教务管理员 3教师 4班主任 5学生)
 }
 ```
 
