@@ -56,10 +56,13 @@ public class CourseController {
         };
         return  R.ok();
     }
-    @DeleteMapping(value = "/{id}")
-    public R delete(@RequestBody Integer teacherId){
-
-        return null;
+    @DeleteMapping
+    public R delete(@RequestBody SubjectTeacherRelationDTO dto){
+        if(dto == null){
+            throw new ApiException(HttpStatus.BAD_REQUEST,"删除的课程为空");
+        }
+        int row = courseService.deleteCourse(dto);
+        return row > 0 ? R.ok():R.er();
     }
 //    @DeleteMapping(value = "/{id}")
 //    public R delete(@RequestBody Integer id){

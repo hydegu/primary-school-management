@@ -16,7 +16,7 @@ public interface CourseService extends IService<Course> {
 
     boolean updateCourse(Course course);
 
-    int deleteCourse(Integer id);
+    int deleteCourse(SubjectTeacherRelationDTO dto);
 
     CourseVO getCourse(Integer id);
 
