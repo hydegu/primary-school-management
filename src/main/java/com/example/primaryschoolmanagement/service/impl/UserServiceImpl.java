@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.exception.*;
+import com.example.primaryschoolmanagement.common.utils.IpUtils;
 import com.example.primaryschoolmanagement.common.utils.JwtUtils;
 import com.example.primaryschoolmanagement.config.JwtProperties;
 import com.example.primaryschoolmanagement.dao.RoleDao;
@@ -17,6 +18,7 @@ import com.example.primaryschoolmanagement.entity.AppUser;
 import com.example.primaryschoolmanagement.entity.Role;
 import com.example.primaryschoolmanagement.service.UserService;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.Cache;
@@ -114,7 +116,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
     }
 
     @Override
-    public String login(LoginRequest loginRequest) {
+    public String login(LoginRequest loginRequest, HttpServletRequest request) {
         log.info("用户登录请求：identifier={}", loginRequest.getIdentifier());
 
         // 查找用户
@@ -139,6 +141,13 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
         // 获取用户角色
         Role role = selectRolesByUserId(user.getId());
         String roleCode = role != null ? role.getRoleCode() : "student";
+
+        // 获取登录IP并更新用户登录信息
+        String loginIp = IpUtils.getClientIp(request);
+        user.setLastLoginIp(loginIp);
+        user.setLastLoginTime(LocalDateTime.now());
+        userRepo.updateById(user);
+        log.info("记录登录信息：userId={}, ip={}", user.getId(), loginIp);
 
         // 生成令牌
         Map<String, Object> claims = new HashMap<>();

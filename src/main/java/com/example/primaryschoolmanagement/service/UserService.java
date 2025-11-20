@@ -6,6 +6,7 @@ import com.example.primaryschoolmanagement.dto.common.PageResult;
 import com.example.primaryschoolmanagement.dto.user.*;
 import com.example.primaryschoolmanagement.entity.AppUser;
 import com.example.primaryschoolmanagement.entity.Role;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 
 
@@ -29,9 +30,10 @@ public interface UserService extends IService<AppUser> {
      * 用户登录 - 处理登录业务逻辑并返回Token
      *
      * @param loginRequest 登录请求
+     * @param request HTTP请求对象（用于获取IP地址）
      * @return JWT Token
      */
-    String login(LoginRequest loginRequest);
+    String login(LoginRequest loginRequest, HttpServletRequest request);
 
     /**
      * 用户登出 - 将Token加入黑名单
