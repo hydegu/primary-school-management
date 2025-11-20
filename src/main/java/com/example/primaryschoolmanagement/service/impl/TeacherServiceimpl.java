@@ -122,11 +122,11 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         if (userrow <= 0) {
             throw new RuntimeException("用户信息插入失败");
         }
-        userrole.setUserId(Math.toIntExact(appuser.getId()));
+        userrole.setUserId(appuser.getId());
         if("班主任".equals(teacher.getTitle())){
-            userrole.setRoleId(4);
+            userrole.setRoleId(4L);
         }else{
-            userrole.setRoleId(3);
+            userrole.setRoleId(3L);
         }
         int userRoleRow = this.userRoleDao.insert(userrole);
         if (userRoleRow <= 0) {
@@ -197,7 +197,7 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         // 1. 验证主键id是否存在（必须传入id才能确定更新哪条记录）
         Integer id = teacher.getId();
         Integer userid = teacher.getUserId();
-        Integer roleid = userrole.getRoleId();
+        long roleid = userrole.getRoleId();
         if (id == null) {
             return R.er(400, "教师ID不能为空");
         }

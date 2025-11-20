@@ -5,12 +5,6 @@ spring:
     username: root
     password: 123456
 
-  sql:
-    init:
-      mode: embedded             # 启动时执行SQL
-      schema-locations: classpath:db/database.sql
-      data-locations: classpath:db/database_init_data.sql
-
   data:
     redis:
       host: localhost
