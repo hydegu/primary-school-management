@@ -951,6 +951,43 @@
 
 **功能描述**: 查询学生列表，支持条件筛选
 
+**请求参数**:
+- `studentName` - 学生姓名（模糊查询）
+- `studentNo` - 学号
+- `classId` - 班级ID
+- `gradeId` - 年级ID
+- `page` - 页码，默认1
+- `size` - 每页条数，默认10
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 1,
+    "list": [
+      {
+        "id": 1,                                     // 学生ID
+        "userId": 10,                                // 关联用户ID
+        "studentNo": "S2024001",                     // 学号
+        "studentName": "小明",                       // 学生姓名
+        "gender": 1,                                 // 性别：1-男 2-女
+        "birthDate": "2016-05-20",                   // 出生日期
+        "idCard": "110101201605200011",              // 身份证号
+        "classId": 1,                                // 当前班级ID
+        "gradeId": 1,                                // 当前年级ID
+        "createdAt": "2025-11-20T10:00:00",         // 创建时间
+        "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
+
 **实现位置**: `StudentController.java:35`
 
 ---
@@ -964,13 +1001,34 @@
 **请求参数**:
 ```json
 {
-  "studentNo": "S2024001",
-  "studentName": "小明",
-  "gender": 1,
-  "birthDate": "2016-05-20",
-  "idCard": "110101201605200011",
-  "gradeId": 1,
-  "classId": 1
+  "studentNo": "S2024001",                          // 学号
+  "studentName": "小明",                            // 学生姓名
+  "gender": 1,                                      // 性别：1-男 2-女
+  "birthDate": "2016-05-20",                        // 出生日期
+  "idCard": "110101201605200011",                   // 身份证号
+  "gradeId": 1,                                     // 当前年级ID
+  "classId": 1                                      // 当前班级ID
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "添加成功",
+  "dataset": {
+    "id": 1,                                        // 学生ID
+    "userId": 10,                                   // 关联用户ID
+    "studentNo": "S2024001",                        // 学号
+    "studentName": "小明",                          // 学生姓名
+    "gender": 1,                                    // 性别：1-男 2-女
+    "birthDate": "2016-05-20",                      // 出生日期
+    "idCard": "110101201605200011",                 // 身份证号
+    "classId": 1,                                   // 当前班级ID
+    "gradeId": 1,                                   // 当前年级ID
+    "createdAt": "2025-11-20T10:00:00",            // 创建时间
+    "updatedAt": "2025-11-20T10:00:00"             // 更新时间
+  }
 }
 ```
 
@@ -984,6 +1042,40 @@
 
 **路由**: `/student/change`
 
+**请求参数**:
+```json
+{
+  "studentNo": "S2024001",                          // 学号
+  "studentName": "小明",                            // 学生姓名
+  "gender": 1,                                      // 性别：1-男 2-女
+  "birthDate": "2016-05-20",                        // 出生日期
+  "idCard": "110101201605200011",                   // 身份证号
+  "gradeId": 1,                                     // 当前年级ID
+  "classId": 1                                      // 当前班级ID
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "修改成功",
+  "dataset": {
+    "id": 1,                                        // 学生ID
+    "userId": 10,                                   // 关联用户ID
+    "studentNo": "S2024001",                        // 学号
+    "studentName": "小明",                          // 学生姓名
+    "gender": 1,                                    // 性别：1-男 2-女
+    "birthDate": "2016-05-20",                      // 出生日期
+    "idCard": "110101201605200011",                 // 身份证号
+    "classId": 1,                                   // 当前班级ID
+    "gradeId": 1,                                   // 当前年级ID
+    "createdAt": "2025-11-20T10:00:00",            // 创建时间
+    "updatedAt": "2025-11-20T11:30:00"             // 更新时间
+  }
+}
+```
+
 **实现位置**: `StudentController.java:44`
 
 ---
@@ -993,6 +1085,15 @@
 **接口地址**: `DELETE /api/student/{id}`
 
 **路由**: `/student/delete`
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "删除成功",
+  "dataset": null
+}
+```
 
 **实现位置**: `StudentController.java:57`
 
@@ -1024,6 +1125,39 @@
 - `teacherName` - 教师姓名（模糊查询）
 - `teacherNo` - 教师工号
 - `title` - 职称
+- `page` - 页码，默认1
+- `size` - 每页条数，默认10
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 1,
+    "list": [
+      {
+        "id": 1,                                     // 教师ID
+        "userId": 20,                                // 关联用户ID
+        "teacherNo": "T100",                         // 教师编号
+        "teacherName": "李老师",                     // 教师姓名
+        "gender": 1,                                 // 性别：1-男 2-女
+        "birthDate": "1985-03-15",                   // 出生日期
+        "idCard": "110101198503150011",              // 身份证号
+        "phone": "13900139000",                      // 联系电话
+        "email": "teacher100@school.com",            // 邮箱
+        "title": "数学教师",                         // 职称（如：班主任/语文老师）
+        "hireDate": "2024-09-01",                    // 入职日期
+        "createdAt": "2025-11-20T10:00:00",         // 创建时间
+        "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
 
 **实现位置**: `TeacherController.java:24`
 
@@ -1034,6 +1168,29 @@
 **接口地址**: `GET /api/teacher/{id}`
 
 **功能描述**: 根据教师ID查询教师详细信息
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "id": 1,                                     // 教师ID
+    "userId": 20,                                // 关联用户ID
+    "teacherNo": "T100",                         // 教师编号
+    "teacherName": "李老师",                     // 教师姓名
+    "gender": 1,                                 // 性别：1-男 2-女
+    "birthDate": "1985-03-15",                   // 出生日期
+    "idCard": "110101198503150011",              // 身份证号
+    "phone": "13900139000",                      // 联系电话
+    "email": "teacher100@school.com",            // 邮箱
+    "title": "数学教师",                         // 职称（如：班主任/语文老师）
+    "hireDate": "2024-09-01",                    // 入职日期
+    "createdAt": "2025-11-20T10:00:00",         // 创建时间
+    "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+  }
+}
+```
 
 **实现位置**: `TeacherController.java:18`
 
@@ -1048,15 +1205,38 @@
 **请求参数**:
 ```json
 {
-  "teacherNo": "T100",
-  "teacherName": "李老师",
-  "gender": 1,
-  "birthDate": "1985-03-15",
-  "idCard": "110101198503150011",
-  "phone": "13900139000",
-  "email": "teacher100@school.com",
-  "title": "数学教师",
-  "hireDate": "2024-09-01"
+  "teacherNo": "T100",                           // 教师编号
+  "teacherName": "李老师",                       // 教师姓名
+  "gender": 1,                                   // 性别：1-男 2-女
+  "birthDate": "1985-03-15",                     // 出生日期
+  "idCard": "110101198503150011",                // 身份证号
+  "phone": "13900139000",                        // 联系电话
+  "email": "teacher100@school.com",              // 邮箱
+  "title": "数学教师",                           // 职称（如：班主任/语文老师）
+  "hireDate": "2024-09-01"                       // 入职日期
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "添加成功",
+  "dataset": {
+    "id": 1,                                     // 教师ID
+    "userId": 20,                                // 关联用户ID
+    "teacherNo": "T100",                         // 教师编号
+    "teacherName": "李老师",                     // 教师姓名
+    "gender": 1,                                 // 性别：1-男 2-女
+    "birthDate": "1985-03-15",                   // 出生日期
+    "idCard": "110101198503150011",              // 身份证号
+    "phone": "13900139000",                      // 联系电话
+    "email": "teacher100@school.com",            // 邮箱
+    "title": "数学教师",                         // 职称（如：班主任/语文老师）
+    "hireDate": "2024-09-01",                    // 入职日期
+    "createdAt": "2025-11-20T10:00:00",         // 创建时间
+    "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+  }
 }
 ```
 
@@ -1070,6 +1250,44 @@
 
 **路由**: `/teacher/change`
 
+**请求参数**:
+```json
+{
+  "teacherNo": "T100",                           // 教师编号
+  "teacherName": "李老师",                       // 教师姓名
+  "gender": 1,                                   // 性别：1-男 2-女
+  "birthDate": "1985-03-15",                     // 出生日期
+  "idCard": "110101198503150011",                // 身份证号
+  "phone": "13900139000",                        // 联系电话
+  "email": "teacher100@school.com",              // 邮箱
+  "title": "数学教师",                           // 职称（如：班主任/语文老师）
+  "hireDate": "2024-09-01"                       // 入职日期
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "修改成功",
+  "dataset": {
+    "id": 1,                                     // 教师ID
+    "userId": 20,                                // 关联用户ID
+    "teacherNo": "T100",                         // 教师编号
+    "teacherName": "李老师",                     // 教师姓名
+    "gender": 1,                                 // 性别：1-男 2-女
+    "birthDate": "1985-03-15",                   // 出生日期
+    "idCard": "110101198503150011",              // 身份证号
+    "phone": "13900139000",                      // 联系电话
+    "email": "teacher100@school.com",            // 邮箱
+    "title": "数学教师",                         // 职称（如：班主任/语文老师）
+    "hireDate": "2024-09-01",                    // 入职日期
+    "createdAt": "2025-11-20T10:00:00",         // 创建时间
+    "updatedAt": "2025-11-20T10:05:00"          // 更新时间
+  }
+}
+```
+
 **实现位置**: `TeacherController.java:45`
 
 ---
@@ -1079,6 +1297,15 @@
 **接口地址**: `DELETE /api/teacher/{id}`
 
 **路由**: `/teacher/delete`
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "删除成功",
+  "dataset": null
+}
+```
 
 **实现位置**: `TeacherController.java:40`
 
@@ -1098,6 +1325,31 @@
 
 **功能描述**: 根据科目ID获取能教该科目的教师列表（用于排课）
 
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": [
+    {
+      "id": 1,                                     // 教师ID
+      "userId": 20,                                // 关联用户ID
+      "teacherNo": "T100",                         // 教师编号
+      "teacherName": "李老师",                     // 教师姓名
+      "gender": 1,                                 // 性别：1-男 2-女
+      "birthDate": "1985-03-15",                   // 出生日期
+      "idCard": "110101198503150011",              // 身份证号
+      "phone": "13900139000",                      // 联系电话
+      "email": "teacher100@school.com",            // 邮箱
+      "title": "数学教师",                         // 职称（如：班主任/语文老师）
+      "hireDate": "2024-09-01",                    // 入职日期
+      "createdAt": "2025-11-20T10:00:00",         // 创建时间
+      "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+    }
+  ]
+}
+```
+
 **实现位置**: `TeacherController.java:60`
 
 ---
@@ -1107,6 +1359,30 @@
 **接口地址**: `GET /api/teacher/crouses`
 
 **功能描述**: 获取教师的课程列表
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": [
+    {
+      "id": 1,                                     // 课程ID
+      "courseName": "一年级数学",                  // 课程名称
+      "subjectId": 1,                              // 科目ID
+      "classId": 1,                                // 班级ID
+      "teacherId": 1,                              // 任课教师ID
+      "semester": "2023-2024-1",                   // 学期（如：2023-2024-1）
+      "weeklyHours": 5,                            // 每周课时数
+      "totalHours": 80,                            // 总课时数
+      "status": 1,                                 // 状态：0-停用 1-进行中 2-已结束
+      "remark": null,                              // 备注
+      "createdAt": "2025-11-20T10:00:00",         // 创建时间
+      "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+    }
+  ]
+}
+```
 
 **实现位置**: `TeacherController.java:49`
 
@@ -1122,6 +1398,46 @@
 
 **接口地址**: `GET /api/class/list`
 
+**功能描述**: 查询班级列表，支持条件筛选（班级名称、年级ID、学年）
+
+**请求参数**:
+- `className` - 班级名称（模糊查询）
+- `gradeId` - 年级ID
+- `schoolYear` - 学年（如：2023-2024）
+- `page` - 页码，默认1
+- `size` - 每页条数，默认10
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 1,
+    "list": [
+      {
+        "id": 1,                                     // 班级ID
+        "classNo": "C2024001",                       // 班级编号
+        "className": "一年一班",                     // 班级名称（如：一年一班）
+        "gradeId": 1,                                // 年级ID
+        "headTeacherId": 1,                          // 班主任ID（教师ID）
+        "classroom": "101",                          // 上课教室
+        "maxStudents": 50,                           // 最大学生数
+        "currentStudents": 30,                       // 当前学生数
+        "schoolYear": "2023-2024",                   // 学年（如：2023-2024）
+        "status": 1,                                 // 状态：0-停用 1-启用
+        "remark": null,                              // 备注
+        "createdAt": "2025-11-20T10:00:00",         // 创建时间
+        "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
+
 **实现位置**: `ClassesController.java:16`
 
 ---
@@ -1131,6 +1447,44 @@
 **接口地址**: `POST /api/class`
 
 **路由**: `/class/add`
+
+**请求参数**:
+```json
+{
+  "classNo": "C2024001",                         // 班级编号
+  "className": "一年一班",                       // 班级名称（如：一年一班）
+  "gradeId": 1,                                  // 年级ID
+  "headTeacherId": 1,                            // 班主任ID（教师ID）
+  "classroom": "101",                            // 上课教室
+  "maxStudents": 50,                             // 最大学生数
+  "schoolYear": "2023-2024",                     // 学年（如：2023-2024）
+  "status": 1,                                   // 状态：0-停用 1-启用
+  "remark": null                                 // 备注
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "添加成功",
+  "dataset": {
+    "id": 1,                                     // 班级ID
+    "classNo": "C2024001",                       // 班级编号
+    "className": "一年一班",                     // 班级名称（如：一年一班）
+    "gradeId": 1,                                // 年级ID
+    "headTeacherId": 1,                          // 班主任ID（教师ID）
+    "classroom": "101",                          // 上课教室
+    "maxStudents": 50,                           // 最大学生数
+    "currentStudents": 0,                        // 当前学生数
+    "schoolYear": "2023-2024",                   // 学年（如：2023-2024）
+    "status": 1,                                 // 状态：0-停用 1-启用
+    "remark": null,                              // 备注
+    "createdAt": "2025-11-20T10:00:00",         // 创建时间
+    "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+  }
+}
+```
 
 **实现位置**: `ClassesController.java:20`
 
@@ -1142,6 +1496,44 @@
 
 **路由**: `/class/change`
 
+**请求参数**:
+```json
+{
+  "classNo": "C2024001",                         // 班级编号
+  "className": "一年一班",                       // 班级名称（如：一年一班）
+  "gradeId": 1,                                  // 年级ID
+  "headTeacherId": 1,                            // 班主任ID（教师ID）
+  "classroom": "101",                            // 上课教室
+  "maxStudents": 50,                             // 最大学生数
+  "schoolYear": "2023-2024",                     // 学年（如：2023-2024）
+  "status": 1,                                   // 状态：0-停用 1-启用
+  "remark": null                                 // 备注
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "修改成功",
+  "dataset": {
+    "id": 1,                                     // 班级ID
+    "classNo": "C2024001",                       // 班级编号
+    "className": "一年一班",                     // 班级名称（如：一年一班）
+    "gradeId": 1,                                // 年级ID
+    "headTeacherId": 1,                          // 班主任ID（教师ID）
+    "classroom": "101",                          // 上课教室
+    "maxStudents": 50,                           // 最大学生数
+    "currentStudents": 30,                       // 当前学生数
+    "schoolYear": "2023-2024",                   // 学年（如：2023-2024）
+    "status": 1,                                 // 状态：0-停用 1-启用
+    "remark": null,                              // 备注
+    "createdAt": "2025-11-20T10:00:00",         // 创建时间
+    "updatedAt": "2025-11-20T10:05:00"          // 更新时间
+  }
+}
+```
+
 **实现位置**: `ClassesController.java:28`
 
 ---
@@ -1151,6 +1543,15 @@
 **接口地址**: `DELETE /api/class/{id}`
 
 **路由**: `/class/delete`
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "删除成功",
+  "dataset": null
+}
+```
 
 **实现位置**: `ClassesController.java:24`
 
