@@ -84,7 +84,7 @@ public class CourseController {
     public R courseList(Integer subjectId){
         System.out.println(subjectId);
         if(subjectId == null){
-            throw new ApiException(HttpStatus.BAD_REQUEST,"传递的参数为空1");
+            throw new ApiException(HttpStatus.BAD_REQUEST,"传递的参数为空");
         }
         List<CourseVO> courseList = courseService.list(subjectId);
         return R.ok(courseList);
