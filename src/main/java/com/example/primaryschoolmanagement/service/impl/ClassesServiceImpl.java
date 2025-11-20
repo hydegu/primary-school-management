@@ -165,7 +165,7 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
         }
     }
 
-    //班级课程列表
+    //班级学生列表
     @Override
     public R classStudent(Classes classes, Student student) {
         Integer id = classes.getId();

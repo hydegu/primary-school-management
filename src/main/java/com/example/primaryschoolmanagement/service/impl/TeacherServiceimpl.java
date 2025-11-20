@@ -2,22 +2,17 @@ package com.example.primaryschoolmanagement.service.impl;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.enums.ResultCode;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dao.TeacherDao;
 import com.example.primaryschoolmanagement.dao.UserDao;
-import com.example.primaryschoolmanagement.entity.AppUser;
-import com.example.primaryschoolmanagement.entity.Course;
-import com.example.primaryschoolmanagement.entity.Role;
-import com.example.primaryschoolmanagement.entity.Teacher;
+import com.example.primaryschoolmanagement.dao.UserRoleDao;
+import com.example.primaryschoolmanagement.entity.*;
 import com.example.primaryschoolmanagement.service.TeacherService;
-import io.swagger.models.auth.In;
-import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -27,10 +22,12 @@ import java.util.*;
 public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implements TeacherService {
     private final TeacherDao teacherDao;
     private final UserDao userDao;
+    private final UserRoleDao userRoleDao;
 
-    public TeacherServiceimpl(TeacherDao teacherDao, UserDao userDao) {
+    public TeacherServiceimpl(TeacherDao teacherDao, UserDao userDao, UserRoleDao userRoleDao) {
         this.teacherDao = teacherDao;
         this.userDao = userDao;
+        this.userRoleDao =userRoleDao;
     }
 
     public R teacherList() {
@@ -100,7 +97,7 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
 
 
     @Override
-    public R addTeacher(Teacher teacher, AppUser appuser, Role role){
+    public R addTeacher(Teacher teacher, AppUser appuser, UserRole userrole){
         LocalDateTime currentTime = LocalDateTime.now();
         teacher.setCreatedAt(currentTime);
         teacher.setUpdatedAt(currentTime);
@@ -125,14 +122,26 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         if (userrow <= 0) {
             throw new RuntimeException("用户信息插入失败");
         }
+        userrole.setUserId(Math.toIntExact(appuser.getId()));
+        if("班主任".equals(teacher.getTitle())){
+            userrole.setRoleId(4);
+        }else{
+            userrole.setRoleId(3);
+        }
+        int userRoleRow = this.userRoleDao.insert(userrole);
+        if (userRoleRow <= 0) {
+            throw new RuntimeException("用户信息插入失败");
+        }
         return R.ok("信息添加成功");
     }
 
+
+
     @Override
-    public R deleteTeacher(Teacher teacher, AppUser appuser) {
+    public R deleteTeacher(Teacher teacher, AppUser appuser,UserRole userrole) {
         // 1. 校验id非空
         Integer teacherid = teacher.getId();
-        Integer appuserid = Math.toIntExact(appuser.getId());
+        Integer appuserid = teacher.getUserId();
         if (teacherid == null) {
             return R.er(400, "教师ID不能为空");
         }
@@ -149,9 +158,10 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         int teacherrow = teacherDao.deleteById(updateTeacher);
         //用户表
         int appuserrow = 0;
-        if (teacherid == appuserid) {
+        int userRoleRow = 0;
+
             if (appuserid == null) {
-                return R.er(400, "教师ID不能为空");
+                return R.er(400, "用户ID不能为空");
             }
             AppUser existingAppUser = userDao.selectById(appuserid);
             if (existingAppUser == null) {
@@ -161,10 +171,21 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
             updateAppUser.setId(Long.valueOf(appuserid));
             updateAppUser.setIsDeleted(true);
             appuserrow = userDao.deleteById(updateAppUser);
-        }
+                if (appuserid == null) {
+                    return R.er(400, "角色用户ID不能为空");
+                }
+                QueryWrapper<UserRole> queryWrapper = new QueryWrapper<>();
+                queryWrapper.eq("user_id", appuserid); // 按用户ID查询关联的角色记录
+                List<UserRole> existingUserRoles = userRoleDao.selectList(queryWrapper);
+                if (existingUserRoles == null || existingUserRoles.isEmpty()) {
+                    return R.er(404, "未找到用户ID为" + appuserid + "的角色关联记录");
+                }
+                userRoleRow = userRoleDao.delete(queryWrapper);
+
+
         // 4. 返回结果
         // 两个条件都满足才返回成功，否则失败
-        return (teacherrow > 0 && appuserrow > 0)
+        return (teacherrow > 0 && appuserrow > 0 && userRoleRow > 0)
                 ? R.ok("删除成功")
                 : R.er(ResultCode.ERROR);
     }
@@ -172,10 +193,11 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
 
 
     @Override
-    public R updateTeacher(Teacher teacher,AppUser appuser) {
+    public R updateTeacher(Teacher teacher,AppUser appuser,UserRole userrole) {
         // 1. 验证主键id是否存在（必须传入id才能确定更新哪条记录）
         Integer id = teacher.getId();
-        Integer userid = Math.toIntExact(appuser.getId());
+        Integer userid = teacher.getUserId();
+        Integer roleid = userrole.getRoleId();
         if (id == null) {
             return R.er(400, "教师ID不能为空");
         }
@@ -190,6 +212,7 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         // 4. 使用条件更新，仅更新非空字段（核心逻辑）
         UpdateWrapper<Teacher> updateWrapper = new UpdateWrapper<>();
         UpdateWrapper<AppUser> wrapper = new UpdateWrapper<>();
+        UpdateWrapper<UserRole> userwrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", id); // 条件：根据id更新
 
         // 逐个判断字段是否为null，非null则加入更新条件
@@ -221,25 +244,36 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         }
         if (teacher.getTitle() != null && !teacher.getTitle().isEmpty()) {
             updateWrapper.set("title", teacher.getTitle());
+            if(teacher.getTitle().equals("班主任")){
+                roleid=4;
+                userwrapper.set("role_id",roleid);
+            }else{
+                roleid=3;
+                userwrapper.set("role_id",roleid);
+            }
+
         }
         if (teacher.getHireDate() != null) {
             updateWrapper.set("hire_date", teacher.getHireDate());
         }
         // 注意：更新时间已强制设置，这里无需重复判断
         updateWrapper.set("updated_at", teacher.getUpdatedAt());
-
         // 5. 执行更新操作（只更新非空字段）
         int teacherrow = this.teacherDao.update(null, updateWrapper);
-//        System.out.println("id: " + id + ", userid: " + userid);
+        System.out.println("id: " + id + ", userid: " + userid);
+        //更新用户表
         int appuserrow = 0;
-        if (id == userid) {
             wrapper.eq("id", userid); // 条件：更新指定ID的用户
             // 检查phone字段，非空则添加更新
 //            System.out.println("appuser.getphone"+appuser.getPhone());
             appuserrow = this.userDao.update(null, wrapper);
-        }
+
+//        System.out.println("userid: " + userid + ", role_id: " + roleid);
+        int userrolerow = 0;
+            userwrapper.eq("user_id", userid);
+            userrolerow = this.userRoleDao.update(null, userwrapper);
         // 6. 根据结果返回信息
-        return (teacherrow > 0 && appuserrow > 0)
+        return (teacherrow > 0 && appuserrow > 0 && userrolerow>0)
                 ? R.ok("更新")
                 : R.er(ResultCode.ERROR);
     }
