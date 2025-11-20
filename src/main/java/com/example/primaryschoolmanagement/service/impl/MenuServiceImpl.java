@@ -1,8 +1,13 @@
 package com.example.primaryschoolmanagement.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.exception.BusinessException;
+import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dao.MenuDao;
+import com.example.primaryschoolmanagement.dto.common.PageResult;
 import com.example.primaryschoolmanagement.dto.menu.MenuCreateRequest;
 import com.example.primaryschoolmanagement.dto.menu.MenuDTO;
 import com.example.primaryschoolmanagement.dto.menu.MenuUpdateRequest;
@@ -209,6 +214,37 @@ public class MenuServiceImpl extends ServiceImpl<MenuDao, Menu> implements MenuS
         return allMenus.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public R getAllMenusWithPagination(int page, int size) {
+        log.info("分页查询所有菜单列表，page={}, size={}", page, size);
+
+        // 1. 创建分页对象
+        Page<Menu> pageParam = new Page<>(page, size);
+
+        // 2. 创建查询条件：查询未删除的菜单，按排序字段和ID排序
+        LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Menu::getIsDeleted, false)
+                .orderByAsc(Menu::getSortOrder, Menu::getId);
+
+        // 3. 执行分页查询
+        IPage<Menu> menuPage = menuDao.selectPage(pageParam, queryWrapper);
+
+        // 4. 转换为DTO
+        List<MenuDTO> menuDTOList = menuPage.getRecords().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        // 5. 构建分页结果
+        PageResult<MenuDTO> pageResult = PageResult.of(
+                menuPage.getTotal(),
+                menuDTOList,
+                (int) menuPage.getCurrent(),
+                (int) menuPage.getSize()
+        );
+
+        return R.ok(pageResult);
     }
 
     /**

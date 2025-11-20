@@ -442,7 +442,7 @@ curl -X PUT http://localhost:8082/api/users/10 \
 **请求参数**:
 ```json
 {
-  "roleIds": [1, 2, 3]
+  "roleIds": [1, 2, 3]  //权限ID(1超级管理员 2教务管理员 3教师 4班主任 5学生)
 }
 ```
 
@@ -557,15 +557,79 @@ curl -X PUT http://localhost:8082/api/users/10 \
 
 ---
 
-#### 1.4.2 获取所有菜单列表 ✅
+#### 1.4.2 获取所有菜单列表（分页） ✅
 
 **接口地址**: `GET /api/menu/list`
 
 **实现状态**: ✅ 已实现
 
-**功能描述**: 获取所有菜单列表（扁平结构，用于下拉选择等）
+**功能描述**: 分页获取所有菜单列表（扁平结构）
+
+**查询参数**:
+- `page` (可选) - 页码，默认 1
+- `size` (可选) - 每页条数，默认 10
+
+**请求示例**:
+```http
+GET /api/menu/list?page=1&size=10
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 50,
+    "list": [
+      {
+        "id": 1,
+        "menuName": "系统管理",
+        "menuCode": "system",
+        "menuType": 1,
+        "parentId": 0,
+        "routePath": "/system",
+        "componentPath": null,
+        "permission": null,
+        "icon": "system",
+        "sortOrder": 1,
+        "remark": "系统管理模块"
+      },
+      {
+        "id": 2,
+        "menuName": "用户管理",
+        "menuCode": "user",
+        "menuType": 2,
+        "parentId": 1,
+        "routePath": "/system/user",
+        "componentPath": "system/user/index",
+        "permission": "system:user:list",
+        "icon": "user",
+        "sortOrder": 1,
+        "remark": "用户管理页面"
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 5
+  }
+}
+```
+
+**响应字段说明**:
+- `total` - 总记录数
+- `list` - 菜单数据列表
+- `page` - 当前页码
+- `size` - 每页条数
+- `pages` - 总页数
 
 **实现位置**: `MenuController.java:43`
+
+**已实现功能**:
+- ✅ 支持分页参数
+- ✅ 返回分页结果（total、list、page、size、pages）
+- ✅ 按排序字段和ID排序
+- ✅ 仅查询未删除的菜单
 
 ---
 
