@@ -188,20 +188,20 @@
     "total": 1,
     "list": [
       {
-        "id": 1,
-        "username": "admin",
-        "realName": "系统管理员",
-        "userType": 1,
-        "avatar": null,
-        "phone": null,
-        "email": null,
-        "gender": 1,
-        "status": 1,
-        "lastLoginTime": "2025-11-20T18:57:23",
-        "lastLoginIp": "0:0:0:0:0:0:0:1",
-        "createdAt": "2025-11-15T10:13:40",
-        "updatedAt": "2025-11-17T20:10:11",
-        "roles": [
+        "id": 1,                                      // 用户ID
+        "username": "admin",                          // 登录账号
+        "realName": "系统管理员",                      // 真实姓名
+        "userType": 1,                                // 用户类型：1-管理员 2-教师 3-学生 4-家长
+        "avatar": null,                               // 头像URL
+        "phone": null,                                // 联系电话
+        "email": null,                                // 邮箱
+        "gender": 1,                                  // 性别：1-男 2-女
+        "status": 1,                                  // 状态：0-禁用 1-启用
+        "lastLoginTime": "2025-11-20T18:57:23",      // 最后登录时间
+        "lastLoginIp": "0:0:0:0:0:0:0:1",            // 最后登录IP
+        "createdAt": "2025-11-15T10:13:40",          // 创建时间
+        "updatedAt": "2025-11-17T20:10:11",          // 更新时间
+        "roles": [                                    // 角色列表
           "super_admin"
         ]
       }
@@ -236,28 +236,31 @@
 - `phone` (可选) - 手机号
 - `email` (可选) - 邮箱
 - `gender` (可选) - 性别：1-男 2-女
+
+**响应示例**:
 ```json
 {
   "code": 200,
   "msg": "操作成功",
   "dataset": {
-    "id": 2,
-    "username": "123",
-    "realName": "123",
-    "userType": 123,
-    "avatar": null,
-    "phone": null,
-    "email": null,
-    "gender": null,
-    "status": 1,
-    "lastLoginTime": null,
-    "lastLoginIp": null,
-    "createdAt": "2025-11-20T19:00:59.2740925",
-    "updatedAt": "2025-11-20T19:00:59.2740925",
-    "roles": []
+    "id": 2,                                          // 用户ID
+    "username": "123",                                // 登录账号
+    "realName": "123",                                // 真实姓名
+    "userType": 123,                                  // 用户类型：1-管理员 2-教师 3-学生 4-家长
+    "avatar": null,                                   // 头像URL
+    "phone": null,                                    // 联系电话
+    "email": null,                                    // 邮箱
+    "gender": null,                                   // 性别：1-男 2-女
+    "status": 1,                                      // 状态：0-禁用 1-启用
+    "lastLoginTime": null,                            // 最后登录时间
+    "lastLoginIp": null,                              // 最后登录IP
+    "createdAt": "2025-11-20T19:00:59.2740925",      // 创建时间
+    "updatedAt": "2025-11-20T19:00:59.2740925",      // 更新时间
+    "roles": []                                       // 角色列表
   }
 }
 ```
+
 **实现位置**: `UserManagementController.java:38`
 
 ---
@@ -269,6 +272,43 @@
 **路由**: `/user/list/change`
 
 **功能描述**: 修改用户信息，支持更新头像
+
+**请求格式**: `multipart/form-data`
+
+**请求参数**:
+- `username` (可选) - 登录账号
+- `password` (可选) - 密码
+- `realName` (可选) - 真实姓名
+- `userType` (可选) - 用户类型
+- `avatarFile` (可选) - 头像文件
+- `phone` (可选) - 联系电话
+- `email` (可选) - 邮箱
+- `gender` (可选) - 性别：1-男 2-女
+- `status` (可选) - 状态：0-禁用 1-启用
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "id": 2,                                          // 用户ID
+    "username": "teacher01",                          // 登录账号
+    "realName": "张老师",                             // 真实姓名
+    "userType": 2,                                    // 用户类型：1-管理员 2-教师 3-学生 4-家长
+    "avatar": "/uploads/avatar/teacher01.jpg",        // 头像URL
+    "phone": "13800138000",                           // 联系电话
+    "email": "teacher01@school.com",                  // 邮箱
+    "gender": 1,                                      // 性别：1-男 2-女
+    "status": 1,                                      // 状态：0-禁用 1-启用
+    "lastLoginTime": null,                            // 最后登录时间
+    "lastLoginIp": null,                              // 最后登录IP
+    "createdAt": "2025-11-20T19:00:59",              // 创建时间
+    "updatedAt": "2025-11-20T20:15:30",              // 更新时间
+    "roles": ["teacher"]                              // 角色列表
+  }
+}
+```
 
 **实现位置**: `UserManagementController.java:96`
 
@@ -282,6 +322,15 @@
 
 **功能描述**: 删除用户（软删除）
 
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "删除成功",
+  "dataset": null
+}
+```
+
 **实现位置**: `UserManagementController.java:144`
 
 ---
@@ -291,6 +340,32 @@
 **接口地址**: `GET /api/users/{id}`
 
 **功能描述**: 查询用户详细信息，包括角色信息
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "id": 1,                                          // 用户ID
+    "username": "admin",                              // 登录账号
+    "realName": "系统管理员",                          // 真实姓名
+    "userType": 1,                                    // 用户类型：1-管理员 2-教师 3-学生 4-家长
+    "avatar": null,                                   // 头像URL
+    "phone": "13900139000",                           // 联系电话
+    "email": "admin@school.com",                      // 邮箱
+    "gender": 1,                                      // 性别：1-男 2-女
+    "status": 1,                                      // 状态：0-禁用 1-启用
+    "lastLoginTime": "2025-11-20T18:57:23",          // 最后登录时间
+    "lastLoginIp": "0:0:0:0:0:0:0:1",                // 最后登录IP
+    "createdAt": "2025-11-15T10:13:40",              // 创建时间
+    "updatedAt": "2025-11-17T20:10:11",              // 更新时间
+    "roles": [                                        // 角色列表
+      "super_admin"
+    ]
+  }
+}
+```
 
 **实现位置**: `UserManagementController.java:152`
 
@@ -311,7 +386,16 @@
 **请求参数**:
 ```json
 {
-  "roleIds": [1, 2, 3]
+  "roleIds": [1, 2, 3]                                // 角色ID列表
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "分配成功",
+  "dataset": null
 }
 ```
 
@@ -324,6 +408,26 @@
 **接口地址**: `GET /api/users/{id}/roles`
 
 **功能描述**: 查询用户的角色列表
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": [
+    {
+      "id": 1,                                        // 角色ID
+      "roleName": "超级管理员",                        // 角色名称
+      "roleCode": "super_admin",                      // 角色编码
+      "roleDesc": "拥有系统所有权限",                  // 角色描述
+      "sortOrder": 1,                                 // 显示排序
+      "status": 1,                                    // 状态：0-禁用 1-启用
+      "createdAt": "2025-11-15T10:13:40",            // 创建时间
+      "updatedAt": "2025-11-15T10:13:40"             // 更新时间
+    }
+  ]
+}
+```
 
 **实现位置**: `UserManagementController.java:207`
 
@@ -340,10 +444,28 @@
 **请求参数**:
 ```json
 {
-  "roleName": "班主任",
-  "roleCode": "head_teacher",
-  "roleDesc": "班主任角色",
-  "sortOrder": 4
+  "roleName": "班主任",                               // 角色名称
+  "roleCode": "head_teacher",                        // 角色编码
+  "roleDesc": "班主任角色",                           // 角色描述
+  "sortOrder": 4                                     // 显示排序
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "创建成功",
+  "dataset": {
+    "id": 6,                                         // 角色ID
+    "roleName": "班主任",                             // 角色名称
+    "roleCode": "head_teacher",                      // 角色编码
+    "roleDesc": "班主任角色",                         // 角色描述
+    "sortOrder": 4,                                  // 显示排序
+    "status": 1,                                     // 状态：0-禁用 1-启用
+    "createdAt": "2025-11-20T20:30:00",             // 创建时间
+    "updatedAt": "2025-11-20T20:30:00"              // 更新时间
+  }
 }
 ```
 
@@ -357,6 +479,35 @@
 
 **功能描述**: 更新角色信息
 
+**请求参数**:
+```json
+{
+  "roleName": "班主任",                               // 角色名称
+  "roleCode": "head_teacher",                        // 角色编码
+  "roleDesc": "负责班级管理的班主任",                 // 角色描述
+  "sortOrder": 5,                                    // 显示排序
+  "status": 1                                        // 状态：0-禁用 1-启用
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "更新成功",
+  "dataset": {
+    "id": 4,                                         // 角色ID
+    "roleName": "班主任",                             // 角色名称
+    "roleCode": "head_teacher",                      // 角色编码
+    "roleDesc": "负责班级管理的班主任",               // 角色描述
+    "sortOrder": 5,                                  // 显示排序
+    "status": 1,                                     // 状态：0-禁用 1-启用
+    "createdAt": "2025-11-15T10:13:40",             // 创建时间
+    "updatedAt": "2025-11-20T20:35:00"              // 更新时间
+  }
+}
+```
+
 **实现位置**: `RoleController.java:46`
 
 ---
@@ -366,6 +517,15 @@
 **接口地址**: `DELETE /api/roles/{id}`
 
 **功能描述**: 删除角色
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "删除成功",
+  "dataset": null
+}
+```
 
 **实现位置**: `RoleController.java:58`
 
@@ -377,6 +537,24 @@
 
 **功能描述**: 查询角色详细信息
 
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "id": 1,                                         // 角色ID
+    "roleName": "超级管理员",                         // 角色名称
+    "roleCode": "super_admin",                       // 角色编码
+    "roleDesc": "拥有系统所有权限",                   // 角色描述
+    "sortOrder": 1,                                  // 显示排序
+    "status": 1,                                     // 状态：0-禁用 1-启用
+    "createdAt": "2025-11-15T10:13:40",             // 创建时间
+    "updatedAt": "2025-11-15T10:13:40"              // 更新时间
+  }
+}
+```
+
 **实现位置**: `RoleController.java:69`
 
 ---
@@ -387,6 +565,46 @@
 
 **功能描述**: 查询所有角色列表
 
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": [
+    {
+      "id": 1,                                       // 角色ID
+      "roleName": "超级管理员",                       // 角色名称
+      "roleCode": "super_admin",                     // 角色编码
+      "roleDesc": "拥有系统所有权限",                 // 角色描述
+      "sortOrder": 1,                                // 显示排序
+      "status": 1,                                   // 状态：0-禁用 1-启用
+      "createdAt": "2025-11-15T10:13:40",           // 创建时间
+      "updatedAt": "2025-11-15T10:13:40"            // 更新时间
+    },
+    {
+      "id": 2,                                       // 角色ID
+      "roleName": "教务管理员",                       // 角色名称
+      "roleCode": "edu_admin",                       // 角色编码
+      "roleDesc": "负责教务管理工作",                 // 角色描述
+      "sortOrder": 2,                                // 显示排序
+      "status": 1,                                   // 状态：0-禁用 1-启用
+      "createdAt": "2025-11-15T10:13:40",           // 创建时间
+      "updatedAt": "2025-11-15T10:13:40"            // 更新时间
+    },
+    {
+      "id": 3,                                       // 角色ID
+      "roleName": "教师",                            // 角色名称
+      "roleCode": "teacher",                         // 角色编码
+      "roleDesc": "普通教师角色",                     // 角色描述
+      "sortOrder": 3,                                // 显示排序
+      "status": 1,                                   // 状态：0-禁用 1-启用
+      "createdAt": "2025-11-15T10:13:40",           // 创建时间
+      "updatedAt": "2025-11-15T10:13:40"            // 更新时间
+    }
+  ]
+}
+```
+
 **实现位置**: `RoleController.java:80`
 
 ---
@@ -396,6 +614,31 @@
 **接口地址**: `GET /api/roles/{id}/users`
 
 **功能描述**: 查询角色下的用户列表
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": [
+    {
+      "id": 1,                                       // 用户ID
+      "username": "admin",                           // 登录账号
+      "realName": "系统管理员",                       // 真实姓名
+      "userType": 1,                                 // 用户类型：1-管理员 2-教师 3-学生 4-家长
+      "avatar": null,                                // 头像URL
+      "phone": "13900139000",                        // 联系电话
+      "email": "admin@school.com",                   // 邮箱
+      "gender": 1,                                   // 性别：1-男 2-女
+      "status": 1,                                   // 状态：0-禁用 1-启用
+      "lastLoginTime": "2025-11-20T18:57:23",       // 最后登录时间
+      "lastLoginIp": "0:0:0:0:0:0:0:1",             // 最后登录IP
+      "createdAt": "2025-11-15T10:13:40",           // 创建时间
+      "updatedAt": "2025-11-17T20:10:11"            // 更新时间
+    }
+  ]
+}
+```
 
 **实现位置**: `RoleController.java:91`
 
