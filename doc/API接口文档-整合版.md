@@ -656,6 +656,65 @@
 
 **功能描述**: 获取系统菜单树形结构
 
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": [
+    {
+      "id": 1,                                       // 菜单ID
+      "parentId": 0,                                 // 父菜单ID，0表示顶级菜单
+      "menuName": "首页",                            // 菜单名称
+      "menuCode": "home",                            // 菜单编码
+      "menuType": 1,                                 // 菜单类型：1-目录 2-菜单 3-按钮
+      "routePath": "/home",                          // 路由地址
+      "componentPath": null,                         // 组件路径
+      "permission": null,                            // 权限标识
+      "icon": "home",                                // 菜单图标
+      "sortOrder": 1,                                // 显示排序
+      "remark": null,                                // 备注
+      "createdAt": "2025-11-15T10:13:40",           // 创建时间
+      "updatedAt": "2025-11-15T10:13:40",           // 更新时间
+      "children": []                                 // 子菜单列表
+    },
+    {
+      "id": 10,                                      // 菜单ID
+      "parentId": 0,                                 // 父菜单ID，0表示顶级菜单
+      "menuName": "用户管理",                         // 菜单名称
+      "menuCode": "user_manage",                     // 菜单编码
+      "menuType": 1,                                 // 菜单类型：1-目录 2-菜单 3-按钮
+      "routePath": "/user",                          // 路由地址
+      "componentPath": null,                         // 组件路径
+      "permission": null,                            // 权限标识
+      "icon": "user",                                // 菜单图标
+      "sortOrder": 10,                               // 显示排序
+      "remark": null,                                // 备注
+      "createdAt": "2025-11-15T10:13:40",           // 创建时间
+      "updatedAt": "2025-11-15T10:13:40",           // 更新时间
+      "children": [                                  // 子菜单列表
+        {
+          "id": 11,                                  // 菜单ID
+          "parentId": 10,                            // 父菜单ID，0表示顶级菜单
+          "menuName": "用户列表",                     // 菜单名称
+          "menuCode": "user_list",                   // 菜单编码
+          "menuType": 2,                             // 菜单类型：1-目录 2-菜单 3-按钮
+          "routePath": "/user/list",                 // 路由地址
+          "componentPath": null,                     // 组件路径
+          "permission": null,                        // 权限标识
+          "icon": null,                              // 菜单图标
+          "sortOrder": 1,                            // 显示排序
+          "remark": null,                            // 备注
+          "createdAt": "2025-11-15T10:13:40",       // 创建时间
+          "updatedAt": "2025-11-15T10:13:40",       // 更新时间
+          "children": []                             // 子菜单列表
+        }
+      ]
+    }
+  ]
+}
+```
+
 **实现位置**: `MenuController.java:32`
 
 ---
@@ -670,6 +729,52 @@
 - `page` - 页码
 - `size` - 每页条数
 
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 2,
+    "list": [
+      {
+        "id": 1,                                     // 菜单ID
+        "parentId": 0,                               // 父菜单ID，0表示顶级菜单
+        "menuName": "首页",                          // 菜单名称
+        "menuCode": "home",                          // 菜单编码
+        "menuType": 1,                               // 菜单类型：1-目录 2-菜单 3-按钮
+        "routePath": "/home",                        // 路由地址
+        "componentPath": null,                       // 组件路径
+        "permission": null,                          // 权限标识
+        "icon": "home",                              // 菜单图标
+        "sortOrder": 1,                              // 显示排序
+        "remark": null,                              // 备注
+        "createdAt": "2025-11-15T10:13:40",         // 创建时间
+        "updatedAt": "2025-11-15T10:13:40"          // 更新时间
+      },
+      {
+        "id": 10,                                    // 菜单ID
+        "parentId": 0,                               // 父菜单ID，0表示顶级菜单
+        "menuName": "用户管理",                       // 菜单名称
+        "menuCode": "user_manage",                   // 菜单编码
+        "menuType": 1,                               // 菜单类型：1-目录 2-菜单 3-按钮
+        "routePath": "/user",                        // 路由地址
+        "componentPath": null,                       // 组件路径
+        "permission": null,                          // 权限标识
+        "icon": "user",                              // 菜单图标
+        "sortOrder": 10,                             // 显示排序
+        "remark": null,                              // 备注
+        "createdAt": "2025-11-15T10:13:40",         // 创建时间
+        "updatedAt": "2025-11-15T10:13:40"          // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
+
 **实现位置**: `MenuController.java:43`
 
 ---
@@ -677,6 +782,31 @@
 #### 获取菜单详情 ✅
 
 **接口地址**: `GET /api/menu/{id}`
+
+**功能描述**: 根据菜单ID查询菜单详细信息
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "id": 20,                                        // 菜单ID
+    "parentId": 0,                                   // 父菜单ID，0表示顶级菜单
+    "menuName": "菜单管理",                           // 菜单名称
+    "menuCode": "menu_manage",                       // 菜单编码
+    "menuType": 2,                                   // 菜单类型：1-目录 2-菜单 3-按钮
+    "routePath": "/menu",                            // 路由地址
+    "componentPath": null,                           // 组件路径
+    "permission": null,                              // 权限标识
+    "icon": "menu",                                  // 菜单图标
+    "sortOrder": 20,                                 // 显示排序
+    "remark": null,                                  // 备注
+    "createdAt": "2025-11-15T10:13:40",             // 创建时间
+    "updatedAt": "2025-11-15T10:13:40"              // 更新时间
+  }
+}
+```
 
 **实现位置**: `MenuController.java:54`
 
@@ -693,13 +823,39 @@
 **请求参数**:
 ```json
 {
-  "menuName": "教师管理",
-  "menuCode": "teacher_manage",
-  "menuType": 2,
-  "parentId": 0,
-  "routePath": "/teacher",
-  "icon": "teacher",
-  "sortOrder": 40
+  "menuName": "教师管理",                            // 菜单名称
+  "menuCode": "teacher_manage",                     // 菜单编码
+  "menuType": 2,                                    // 菜单类型：1-目录 2-菜单 3-按钮
+  "parentId": 0,                                    // 父菜单ID，0表示顶级菜单
+  "routePath": "/teacher",                          // 路由地址
+  "componentPath": null,                            // 组件路径
+  "permission": null,                               // 权限标识
+  "icon": "teacher",                                // 菜单图标
+  "sortOrder": 40,                                  // 显示排序
+  "remark": null                                    // 备注
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "添加成功",
+  "dataset": {
+    "id": 40,                                        // 菜单ID
+    "parentId": 0,                                   // 父菜单ID，0表示顶级菜单
+    "menuName": "教师管理",                           // 菜单名称
+    "menuCode": "teacher_manage",                    // 菜单编码
+    "menuType": 2,                                   // 菜单类型：1-目录 2-菜单 3-按钮
+    "routePath": "/teacher",                         // 路由地址
+    "componentPath": null,                           // 组件路径
+    "permission": null,                              // 权限标识
+    "icon": "teacher",                               // 菜单图标
+    "sortOrder": 40,                                 // 显示排序
+    "remark": null,                                  // 备注
+    "createdAt": "2025-11-20T20:45:00",             // 创建时间
+    "updatedAt": "2025-11-20T20:45:00"              // 更新时间
+  }
 }
 ```
 
@@ -715,6 +871,45 @@
 
 **权限要求**: 超级管理员
 
+**请求参数**:
+```json
+{
+  "menuName": "教师管理",                            // 菜单名称
+  "menuCode": "teacher_manage",                     // 菜单编码
+  "menuType": 2,                                    // 菜单类型：1-目录 2-菜单 3-按钮
+  "parentId": 0,                                    // 父菜单ID，0表示顶级菜单
+  "routePath": "/teacher",                          // 路由地址
+  "componentPath": null,                            // 组件路径
+  "permission": null,                               // 权限标识
+  "icon": "teacher",                                // 菜单图标
+  "sortOrder": 45,                                  // 显示排序
+  "remark": "教师管理模块"                           // 备注
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "修改成功",
+  "dataset": {
+    "id": 40,                                        // 菜单ID
+    "parentId": 0,                                   // 父菜单ID，0表示顶级菜单
+    "menuName": "教师管理",                           // 菜单名称
+    "menuCode": "teacher_manage",                    // 菜单编码
+    "menuType": 2,                                   // 菜单类型：1-目录 2-菜单 3-按钮
+    "routePath": "/teacher",                         // 路由地址
+    "componentPath": null,                           // 组件路径
+    "permission": null,                              // 权限标识
+    "icon": "teacher",                               // 菜单图标
+    "sortOrder": 45,                                 // 显示排序
+    "remark": "教师管理模块",                         // 备注
+    "createdAt": "2025-11-20T20:45:00",             // 创建时间
+    "updatedAt": "2025-11-20T20:50:00"              // 更新时间
+  }
+}
+```
+
 **实现位置**: `MenuController.java:78`
 
 ---
@@ -728,6 +923,15 @@
 **权限要求**: 超级管理员
 
 **注意事项**: 如果菜单下有子菜单，将无法删除
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "删除成功",
+  "dataset": null
+}
+```
 
 **实现位置**: `MenuController.java:90`
 
