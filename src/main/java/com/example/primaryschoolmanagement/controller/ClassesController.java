@@ -7,6 +7,8 @@ import com.example.primaryschoolmanagement.service.ClassesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(value="/api")
 public class ClassesController {
@@ -41,7 +43,10 @@ public class ClassesController {
     }
     //班级学生列表
     @GetMapping(value="/class/{id}/students")
-    public R classStudent(@RequestBody Classes classes, Student student){
-        return this.classesService.classStudent(classes,student);
+    public List<Student> classStudent(@PathVariable Integer id){
+        return (List<Student>) this.classesService.classStudent(id);
     }
+    //分配班主任
+
+
 }
