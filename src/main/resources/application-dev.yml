@@ -1,16 +1,9 @@
 # application.yml
 spring:
-  port: 8082
   datasource:
     url: jdbc:mysql://localhost:3306/school_management?useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: 123456
-
-  sql:
-    init:
-      mode: embedded             # 启动时执行SQL
-      schema-locations: classpath:db/database.sql
-      data-locations: classpath:db/database_init_data.sql
 
   data:
     redis:
@@ -55,7 +48,7 @@ mybatis-plus:
 com:
   jwt:
     user-secret-key: +kJ8A7Cw9b9hhPNULgUTYsXWLJI0TIsuLtGX99A+I3M=
-    user-ttl: 7200000  # 2小时
+    user-ttl: 72000000  # 20小时
     user-token-name: authentication
 
 # 文件上传自定义配置

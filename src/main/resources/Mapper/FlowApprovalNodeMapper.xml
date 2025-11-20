@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.primaryschoolmanagement.dao.FlowApprovalNodeMapper">
+
+    <resultMap id="ApprovalNodeVOMap" type="com.example.primaryschoolmanagement.vo.ApprovalNodeVO">
+        <id column="id" property="id"/>
+        <result column="approval_id" property="approvalId"/>
+        <result column="node_level" property="nodeLevel"/>
+        <result column="approver_id" property="approverId"/>
+        <result column="approver_name" property="approverName"/>
+        <result column="approval_status" property="approvalStatus"/>
+        <result column="approval_time" property="approvalTime"/>
+        <result column="approval_opinion" property="approvalOpinion"/>
+        <result column="approval_status_text" property="approvalStatusText"/>
+        <result column="business_type" property="businessType"/>
+        <result column="business_type_text" property="businessTypeText"/>
+        <result column="apply_reason" property="applyReason"/>
+        <result column="estimate_process_time" property="estimateProcessTime"/>
+    </resultMap>
+
+    <select id="selectApprovalNodes" resultMap="ApprovalNodeVOMap">
+        SELECT
+            fan.id,
+            fan.approval_id,
+            fan.node_level,
+            fan.approver_id,
+            fan.approver_name,
+            fan.approval_status,
+            fan.approval_time,
+            fan.approval_opinion,
+            CASE fan.approval_status
+                WHEN 1 THEN '待审批'
+                WHEN 2 THEN '已通过'
+                WHEN 3 THEN '已拒绝'
+                ELSE '未知状态'
+                END as approval_status_text,
+            fa.business_type,
+            CASE fa.business_type
+                WHEN 1 THEN '请假'
+                WHEN 2 THEN '调课'
+                WHEN 3 THEN '换课'
+                WHEN 4 THEN '调班'
+                ELSE '未知类型'
+                END as business_type_text,
+            fa.reason as apply_reason
+        FROM flow_approval_node fan
+                 LEFT JOIN flow_approval fa ON fan.approval_id = fa.id
+        WHERE fan.approval_id = #{approvalId}
+        ORDER BY fan.node_level ASC
+    </select>
+
+    <select id="selectCurrentPendingNode" resultType="com.example.primaryschoolmanagement.entity.FlowApprovalNode">
+        SELECT
+            fan.*
+        FROM flow_approval_node fan
+        WHERE fan.approval_id = #{approvalId}
+          AND fan.approval_status = 1
+        ORDER BY fan.node_level ASC
+            LIMIT 1
+    </select>
+
+    <select id="selectNextPendingNode" resultType="com.example.primaryschoolmanagement.entity.FlowApprovalNode">
+        SELECT
+            fan.*
+        FROM flow_approval_node fan
+        WHERE fan.approval_id = #{approvalId}
+          AND fan.approval_status = 1
+          AND fan.node_level > #{currentLevel}
+        ORDER BY fan.node_level ASC
+            LIMIT 1
+    </select>
+
+    <select id="selectApprovalNodeDetail" resultMap="ApprovalNodeVOMap">
+        SELECT
+            fan.id,
+            fan.approval_id,
+            fan.node_level,
+            fan.approver_id,
+            fan.approver_name,
+            fan.approval_status,
+            fan.approval_time,
+            fan.approval_opinion,
+            CASE fan.approval_status
+                WHEN 1 THEN '待审批'
+                WHEN 2 THEN '已通过'
+                WHEN 3 THEN '已拒绝'
+                ELSE '未知状态'
+                END as approval_status_text,
+            fa.business_type,
+            CASE fa.business_type
+                WHEN 1 THEN '请假'
+                WHEN 2 THEN '调课'
+                WHEN 3 THEN '换课'
+                WHEN 4 THEN '调班'
+                ELSE '未知类型'
+                END as business_type_text,
+            fa.reason as apply_reason
+        FROM flow_approval_node fan
+                 LEFT JOIN flow_approval fa ON fan.approval_id = fa.id
+        WHERE fan.id = #{nodeId}
+    </select>
+
+    <select id="selectApprovalNodesByApprovalIds" resultMap="ApprovalNodeVOMap">
+        SELECT
+        fan.id,
+        fan.approval_id,
+        fan.node_level,
+        fan.approver_id,
+        fan.approver_name,
+        fan.approval_status,
+        fan.approval_time,
+        fan.approval_opinion,
+        CASE fan.approval_status
+        WHEN 1 THEN '待审批'
+        WHEN 2 THEN '已通过'
+        WHEN 3 THEN '已拒绝'
+        ELSE '未知状态'
+        END as approval_status_text,
+        fa.business_type,
+        CASE fa.business_type
+        WHEN 1 THEN '请假'
+        WHEN 2 THEN '调课'
+        WHEN 3 THEN '换课'
+        WHEN 4 THEN '调班'
+        ELSE '未知类型'
+        END as business_type_text,
+        fa.reason as apply_reason
+        FROM flow_approval_node fan
+        LEFT JOIN flow_approval fa ON fan.approval_id = fa.id
+        WHERE fan.approval_id IN
+        <foreach collection="approvalIds" item="approvalId" open="(" separator="," close=")">
+            #{approvalId}
+        </foreach>
+        ORDER BY fan.approval_id, fan.node_level ASC
+    </select>
+
+    <update id="updateNodeStatus">
+        UPDATE flow_approval_node
+        SET approval_status = #{approvalStatus},
+            approval_time = #{approvalTime},
+            approval_opinion = #{approvalOpinion},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+</mapper>

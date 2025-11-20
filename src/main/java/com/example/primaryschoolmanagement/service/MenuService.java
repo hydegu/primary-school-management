@@ -1,6 +1,7 @@
 package com.example.primaryschoolmanagement.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dto.menu.MenuCreateRequest;
 import com.example.primaryschoolmanagement.dto.menu.MenuDTO;
 import com.example.primaryschoolmanagement.dto.menu.MenuUpdateRequest;
@@ -52,4 +53,12 @@ public interface MenuService extends IService<Menu> {
      * @return 菜单列表
      */
     List<MenuDTO> getAllMenus();
+
+    /**
+     * 分页获取所有菜单列表（扁平结构）
+     * @param page 页码
+     * @param size 每页条数
+     * @return 分页结果
+     */
+    R getAllMenusWithPagination(int page, int size);
 }

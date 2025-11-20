@@ -3,23 +3,21 @@ package com.example.primaryschoolmanagement.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.example.primaryschoolmanagement.common.base.BaseEntity;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.Date;
+
 /**
- * 科目实体类
+ * 科目教师关联实体类
  */
 @Data
-@TableName("edu_subject")
+@TableName("edu_subject_teacher")
 @Accessors(chain = true)
-public class Subject extends BaseEntity {
+public class SubjectTeacher {
     @TableId(type = IdType.AUTO)
     private Long id;
-    private String subjectName;
-    private String subjectCode;
-    private Integer sortOrder;
-    private Integer status;
-    private String remark;
-    private String avatar;
+    private Long subjectId;
+    private Long teacherId;
+    private Date createdAt;
 }

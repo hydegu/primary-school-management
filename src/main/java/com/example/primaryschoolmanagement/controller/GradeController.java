@@ -16,7 +16,7 @@ public class GradeController {
     private GradeService gradeService;
 
     //年级列表
-    @GetMapping(value="/grade/**")
+    @GetMapping(value="/grade/list")
     public R gradeList(Grade grade){
         return this.gradeService.gradeList();
     }

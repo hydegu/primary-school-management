@@ -1,13 +1,14 @@
 package com.example.primaryschoolmanagement.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dao.ClassesDao;
+import com.example.primaryschoolmanagement.dao.StudentDao;
 import com.example.primaryschoolmanagement.entity.Classes;
 import com.example.primaryschoolmanagement.entity.Student;
+import com.example.primaryschoolmanagement.entity.Teacher;
 import com.example.primaryschoolmanagement.service.ClassesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,13 +16,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implements ClassesService {
     private final ClassesDao classesDao;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private StudentDao studentDao; // 需在类中定义StudentDao的Autowired注入
 
     public ClassesServiceImpl(ClassesDao classesDao) {
         this.classesDao = classesDao;
@@ -59,7 +61,7 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
         // 2. 先查询记录是否存在（关键排查步骤）
         Classes existingClasses = classesDao.selectById(id);
         if (existingClasses == null) {
-            System.out.println("删除失败：未找到ID为" + id + "的教师记录");
+            System.out.println("删除失败：未找到ID为" + id + "的班级记录");
             return R.er();
         }
 
@@ -68,11 +70,11 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
         updateClasses.setId(id);
         updateClasses.setIsDeleted(Integer.valueOf(1));
         int row = this.classesDao.updateById(updateClasses);
-        System.out.println("删除ID为" + id + "的教师，影响行数：" + row);
+        System.out.println("删除ID为" + id + "的班级，影响行数：" + row);
 
         // 4. 根据结果返回明确信息
         if (row > 0) {
-            return R.ok("删除成功：已删除ID为" + id + "的教师");
+            return R.ok("删除成功：已删除ID为" + id + "的班级");
         } else {
             // 若走到这里，可能是逻辑删除或其他异常
             return R.er();
@@ -162,26 +164,18 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
         }
     }
 
+    //班级学生列表
     @Override
-    public R classStudent(Classes classes, Student student) {
-        Integer id = classes.getId();
-        Integer classid = student.getClassId();
-        QueryWrapper<Student> wrapper = new QueryWrapper<>();
-        wrapper.eq("student.class_id",id)//学生表class_id=class表的id
-                .eq("classes.id",id)
-                .select(
-                        "student.id",
-                        "student.studentNo",
-                        "student.studentName",
-                        "student.gender",
-                        "classes.classNo",
-                        "classes.className",
-                        "classes.headTeacherId"
-                )
-                .notIn("classes", "student.class_id = classes.id");
-        return R.ok();
+    public List<Student> classStudent(Integer id) {
+        if(id==null){
+            return (List<Student>) R.er(400, "班级ID不能为空");
+        }
+        return this.classesDao.classStudent(id);
     }
 
-
+    @Override
+    public Teacher classheadteacher(Integer id) {
+        return null;
+    }
 
 }

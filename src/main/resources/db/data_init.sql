@@ -11,7 +11,7 @@
  Target Server Version : 80043 (8.0.43)
  File Encoding         : 65001
 
- Date: 19/11/2025 10:04:31
+ Date: 20/11/2025 16:51:54
 */
 
 SET NAMES utf8mb4;
@@ -193,7 +193,7 @@ CREATE TABLE `edu_course`  (
   `subject_id` bigint NOT NULL COMMENT '科目ID',
   `class_id` bigint NOT NULL COMMENT '班级ID',
   `teacher_id` bigint NOT NULL COMMENT '任课教师ID',
-  `semester` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '学期（如：2023-2024-1）',
+  `semester` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '学期（如：2023-2024-1）',
   `weekly_hours` int NULL DEFAULT 0 COMMENT '每周课时数',
   `total_hours` int NULL DEFAULT 0 COMMENT '总课时数',
   `status` tinyint NULL DEFAULT 1 COMMENT '状态：0-停用 1-进行中 2-已结束',
@@ -267,7 +267,7 @@ CREATE TABLE `edu_schedule`  (
   INDEX `idx_teacher_id`(`teacher_id` ASC) USING BTREE,
   INDEX `idx_week_period`(`week_day` ASC, `period` ASC) USING BTREE,
   INDEX `idx_semester`(`semester` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '排课时间表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '排课时间表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of edu_schedule
@@ -316,6 +316,7 @@ CREATE TABLE `edu_subject`  (
   `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `is_deleted` tinyint NULL DEFAULT 0 COMMENT '是否删除：0-否 1-是',
+  `avatar` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '封面',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_subject_code`(`subject_code` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '科目表' ROW_FORMAT = Dynamic;
@@ -323,15 +324,31 @@ CREATE TABLE `edu_subject`  (
 -- ----------------------------
 -- Records of edu_subject
 -- ----------------------------
-INSERT INTO `edu_subject` VALUES (1, '语文', 'chinese', 1, 1, NULL, '2025-11-15 10:13:40', '2025-11-15 10:13:40', 0);
-INSERT INTO `edu_subject` VALUES (2, '数学', 'math', 2, 1, NULL, '2025-11-15 10:13:40', '2025-11-15 10:13:40', 0);
-INSERT INTO `edu_subject` VALUES (3, '英语', 'english', 3, 1, NULL, '2025-11-15 10:13:40', '2025-11-15 10:13:40', 0);
-INSERT INTO `edu_subject` VALUES (4, '科学', 'science', 4, 1, NULL, '2025-11-15 10:13:40', '2025-11-15 10:13:40', 0);
-INSERT INTO `edu_subject` VALUES (5, '道法', 'moral_law', 5, 1, NULL, '2025-11-15 10:13:40', '2025-11-15 10:13:40', 0);
-INSERT INTO `edu_subject` VALUES (6, '音乐', 'music', 6, 1, NULL, '2025-11-15 10:13:40', '2025-11-15 10:13:40', 0);
-INSERT INTO `edu_subject` VALUES (7, '体育', 'pe', 7, 1, NULL, '2025-11-15 10:13:40', '2025-11-15 10:13:40', 0);
-INSERT INTO `edu_subject` VALUES (8, '微机', 'computer', 8, 1, NULL, '2025-11-15 10:13:40', '2025-11-15 10:13:40', 0);
-INSERT INTO `edu_subject` VALUES (9, '美术', 'art', 9, 1, NULL, '2025-11-15 10:13:40', '2025-11-15 10:13:40', 0);
+INSERT INTO `edu_subject` VALUES (1, '语文', 'chinese', 1, 1, NULL, '2025-11-15 10:13:40', '2025-11-15 10:13:40', 0, NULL);
+INSERT INTO `edu_subject` VALUES (2, '数学', 'math', 2, 1, NULL, '2025-11-15 10:13:40', '2025-11-15 10:13:40', 0, NULL);
+INSERT INTO `edu_subject` VALUES (3, '英语', 'english', 3, 1, NULL, '2025-11-15 10:13:40', '2025-11-15 10:13:40', 0, NULL);
+INSERT INTO `edu_subject` VALUES (4, '科学', 'science', 4, 1, NULL, '2025-11-15 10:13:40', '2025-11-15 10:13:40', 0, NULL);
+INSERT INTO `edu_subject` VALUES (5, '道法', 'moral_law', 5, 1, NULL, '2025-11-15 10:13:40', '2025-11-15 10:13:40', 0, NULL);
+INSERT INTO `edu_subject` VALUES (6, '音乐', 'music', 6, 1, NULL, '2025-11-15 10:13:40', '2025-11-15 10:13:40', 0, NULL);
+INSERT INTO `edu_subject` VALUES (7, '体育', 'pe', 7, 1, NULL, '2025-11-15 10:13:40', '2025-11-15 10:13:40', 0, NULL);
+INSERT INTO `edu_subject` VALUES (8, '微机', 'computer', 8, 1, NULL, '2025-11-15 10:13:40', '2025-11-15 10:13:40', 0, NULL);
+INSERT INTO `edu_subject` VALUES (9, '美术', 'art', 9, 1, NULL, '2025-11-15 10:13:40', '2025-11-15 10:13:40', 0, NULL);
+
+-- ----------------------------
+-- Table structure for edu_subject_teacher
+-- ----------------------------
+DROP TABLE IF EXISTS `edu_subject_teacher`;
+CREATE TABLE `edu_subject_teacher`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `subject_id` bigint NOT NULL COMMENT '科目ID',
+  `teacher_id` bigint NOT NULL COMMENT '老师ID',
+  `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id` DESC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of edu_subject_teacher
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for edu_teacher
@@ -553,7 +570,7 @@ CREATE TABLE `sys_role_menu`  (
   UNIQUE INDEX `uk_role_menu`(`role_id` ASC, `menu_id` ASC) USING BTREE,
   INDEX `idx_role_id`(`role_id` ASC) USING BTREE,
   INDEX `idx_menu_id`(`menu_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色菜单关联表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色菜单关联表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_role_menu
@@ -588,7 +605,7 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 'admin', '$2a$10$ZUh.a8caUHfFwRkAtVep8eS6o75W2B1ubK4bPLWKvnlBH26wlh/tS', '系统管理员', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, '2025-11-15 10:13:40', '2025-11-17 20:10:11', 0);
+INSERT INTO `sys_user` VALUES (1, 'admin', '$2a$10$ZUh.a8caUHfFwRkAtVep8eS6o75W2B1ubK4bPLWKvnlBH26wlh/tS', '系统管理员', 1, NULL, NULL, NULL, 1, 1, '2025-11-20 16:36:54', '127.0.0.1', '2025-11-15 10:13:40', '2025-11-17 20:10:11', 0);
 
 -- ----------------------------
 -- Table structure for sys_user_role
