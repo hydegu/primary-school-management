@@ -1615,6 +1615,41 @@
 
 **请求参数**:
 - `subjectId` - 科目ID
+- `classId` - 班级ID
+- `teacherId` - 教师ID
+- `semester` - 学期
+- `page` - 页码，默认1
+- `size` - 每页条数，默认10
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 1,
+    "list": [
+      {
+        "id": 1,                                     // 课程ID
+        "courseName": "一年级数学",                  // 课程名称
+        "subjectId": 1,                              // 科目ID
+        "classId": 1,                                // 班级ID
+        "teacherId": 1,                              // 任课教师ID
+        "semester": "2023-2024-1",                   // 学期（如：2023-2024-1）
+        "weeklyHours": 5,                            // 每周课时数
+        "totalHours": 80,                            // 总课时数
+        "status": 1,                                 // 状态：0-停用 1-进行中 2-已结束
+        "remark": null,                              // 备注
+        "createdAt": "2025-11-20T10:00:00",         // 创建时间
+        "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
 
 **实现位置**: `CourseController.java:80`
 
@@ -1629,6 +1664,30 @@
 ##### 获取课程详情 ✅
 
 **接口地址**: `GET /api/course/{id}`
+
+**功能描述**: 根据课程ID查询课程详细信息
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "id": 1,                                     // 课程ID
+    "courseName": "一年级数学",                  // 课程名称
+    "subjectId": 1,                              // 科目ID
+    "classId": 1,                                // 班级ID
+    "teacherId": 1,                              // 任课教师ID
+    "semester": "2023-2024-1",                   // 学期（如：2023-2024-1）
+    "weeklyHours": 5,                            // 每周课时数
+    "totalHours": 80,                            // 总课时数
+    "status": 1,                                 // 状态：0-停用 1-进行中 2-已结束
+    "remark": null,                              // 备注
+    "createdAt": "2025-11-20T10:00:00",         // 创建时间
+    "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+  }
+}
+```
 
 **实现位置**: `CourseController.java:72`
 
@@ -1676,6 +1735,43 @@
 
 **路由**: `/course/add`
 
+**请求参数**:
+```json
+{
+  "courseName": "一年级数学",                    // 课程名称
+  "subjectId": 1,                                // 科目ID
+  "classId": 1,                                  // 班级ID
+  "teacherId": 1,                                // 任课教师ID
+  "semester": "2023-2024-1",                     // 学期（如：2023-2024-1）
+  "weeklyHours": 5,                              // 每周课时数
+  "totalHours": 80,                              // 总课时数
+  "status": 1,                                   // 状态：0-停用 1-进行中 2-已结束
+  "remark": null                                 // 备注
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "添加成功",
+  "dataset": {
+    "id": 1,                                     // 课程ID
+    "courseName": "一年级数学",                  // 课程名称
+    "subjectId": 1,                              // 科目ID
+    "classId": 1,                                // 班级ID
+    "teacherId": 1,                              // 任课教师ID
+    "semester": "2023-2024-1",                   // 学期（如：2023-2024-1）
+    "weeklyHours": 5,                            // 每周课时数
+    "totalHours": 80,                            // 总课时数
+    "status": 1,                                 // 状态：0-停用 1-进行中 2-已结束
+    "remark": null,                              // 备注
+    "createdAt": "2025-11-20T10:00:00",         // 创建时间
+    "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+  }
+}
+```
+
 **实现位置**: `CourseController.java:25`
 
 ---
@@ -1685,6 +1781,43 @@
 **接口地址**: `PUT /api/course/{id}`
 
 **路由**: `/course/change`
+
+**请求参数**:
+```json
+{
+  "courseName": "一年级数学",                    // 课程名称
+  "subjectId": 1,                                // 科目ID
+  "classId": 1,                                  // 班级ID
+  "teacherId": 1,                                // 任课教师ID
+  "semester": "2023-2024-1",                     // 学期（如：2023-2024-1）
+  "weeklyHours": 5,                              // 每周课时数
+  "totalHours": 80,                              // 总课时数
+  "status": 1,                                   // 状态：0-停用 1-进行中 2-已结束
+  "remark": null                                 // 备注
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "修改成功",
+  "dataset": {
+    "id": 1,                                     // 课程ID
+    "courseName": "一年级数学",                  // 课程名称
+    "subjectId": 1,                              // 科目ID
+    "classId": 1,                                // 班级ID
+    "teacherId": 1,                              // 任课教师ID
+    "semester": "2023-2024-1",                   // 学期（如：2023-2024-1）
+    "weeklyHours": 5,                            // 每周课时数
+    "totalHours": 80,                            // 总课时数
+    "status": 1,                                 // 状态：0-停用 1-进行中 2-已结束
+    "remark": null,                              // 备注
+    "createdAt": "2025-11-20T10:00:00",         // 创建时间
+    "updatedAt": "2025-11-20T10:15:00"          // 更新时间
+  }
+}
+```
 
 **实现位置**: `CourseController.java:49`
 
@@ -1697,6 +1830,15 @@
 **路由**: `/course/delete`
 
 **实现状态**: ⚠️ 部分实现（返回null）
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "删除成功",
+  "dataset": null
+}
+```
 
 **实现位置**: `CourseController.java:59`
 
