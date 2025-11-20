@@ -1,7 +1,7 @@
-
+server:
+  port: 8092
 # application.yml
 spring:
-  port: 8082
   datasource:
     url: jdbc:mysql://localhost:3306/school_management?useSSL=false&serverTimezone=Asia/Shanghai
     username: root

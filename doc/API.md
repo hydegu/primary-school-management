@@ -177,7 +177,7 @@ Authorization: Bearer <token>
 {
   "code": 200,              // 状态码：200表示成功
   "msg": "操作成功",         // 消息：操作结果描述
-  "data": {
+  "dataset": {
     "id": 10,                       // 用户ID（新创建的用户ID）
     "username": "teacher001",       // 用户名（登录账号）
     "realName": "张老师",            // 真实姓名
@@ -234,7 +234,7 @@ Authorization: Bearer <token>
 {
   "code": 200,
   "msg": "操作成功",
-  "data": {
+  "dataset": {
     "id": 10,
     "username": "teacher001",
     "realName": "李老师",
@@ -302,7 +302,7 @@ Authorization: Bearer <token>
 {
   "code": 200,
   "msg": "操作成功",
-  "data": {
+  "dataset": {
     "id": 10,
     "username": "teacher001",
     "realName": "张老师",
@@ -381,7 +381,7 @@ Authorization: Bearer <token>
 {
   "code": 200,
   "msg": "操作成功",
-  "data": ["teacher", "class_monitor"]
+  "dataset": ["teacher", "class_monitor"]
 }
 ```
 
@@ -403,7 +403,7 @@ Authorization: Bearer <token>
 {
   "code": 200,
   "msg": "操作成功",
-  "data": [
+  "dataset": [
     {
       "id": 1,
       "menuName": "系统管理",
