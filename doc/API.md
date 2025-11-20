@@ -53,7 +53,7 @@
 {
   "code": 200,              // 状态码：200表示成功
   "msg": "操作成功",         // 消息：操作结果描述
-  "data": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."  // JWT Token令牌，需保存用于后续请求
+  "dataset": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."  // JWT Token令牌，需保存用于后续请求
 }
 ```
 
@@ -121,7 +121,7 @@ Authorization: Bearer <token>
 {
   "code": 200,              // 状态码：200表示成功
   "msg": "操作成功",         // 消息：操作结果描述
-  "data": {
+  "dataset": {
     "total": 100,           // 总记录数
     "records": [            // 用户列表数据
       {
@@ -1407,10 +1407,6 @@ GET /api/menu/list?page=1&size=10
 - 403: 无权限访问
 - 404: 资源不存在
 - 500: 服务器内部错误
-
-**相关文档**
-- [数据字典](./DATA_DICTIONARY.md) - 枚举值、状态码说明
-- [前端对接规范](./FRONTEND_GUIDE.md) - 认证流程、拦截器配置
 
 ---
 
