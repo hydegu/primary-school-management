@@ -431,33 +431,78 @@ Authorization: Bearer <token>
 
 ---
 
-### 3.2 获取菜单列表
+### 3.2 获取菜单列表（分页）
 
-**接口说明**: 获取所有菜单列表（扁平结构），用于下拉选择
+**接口说明**: 分页获取所有菜单列表（扁平结构）
 
 **请求信息**
 - **请求方式**: `GET`
 - **请求路径**: `/api/menu/list`
 - **是否需要认证**: 是
 
+**查询参数**
+
+| 参数名 | 类型 | 必填 | 默认值 | 说明 |
+|--------|------|------|--------|------|
+| page | Integer | 否 | 1 | 页码 |
+| size | Integer | 否 | 10 | 每页条数 |
+
+**请求示例**
+```http
+GET /api/menu/list?page=1&size=10
+```
+
 **响应示例**
 ```json
 {
   "code": 200,
   "msg": "操作成功",
-  "data": [
-    {
-      "id": 1,
-      "menuName": "系统管理",
-      "menuPath": "/system",
-      "menuIcon": "system",
-      "menuType": 1,
-      "parentId": 0,
-      "sortOrder": 1
-    }
-  ]
+  "dataset": {
+    "total": 50,
+    "list": [
+      {
+        "id": 1,
+        "menuName": "系统管理",
+        "menuCode": "system",
+        "menuType": 1,
+        "parentId": 0,
+        "routePath": "/system",
+        "componentPath": null,
+        "permission": null,
+        "icon": "system",
+        "sortOrder": 1,
+        "remark": "系统管理模块"
+      },
+      {
+        "id": 2,
+        "menuName": "用户管理",
+        "menuCode": "user",
+        "menuType": 2,
+        "parentId": 1,
+        "routePath": "/system/user",
+        "componentPath": "system/user/index",
+        "permission": "system:user:list",
+        "icon": "user",
+        "sortOrder": 1,
+        "remark": "用户管理页面"
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 5
+  }
 }
 ```
+
+**响应字段说明**
+
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| total | Long | 总记录数 |
+| list | Array | 菜单数据列表 |
+| page | Integer | 当前页码 |
+| size | Integer | 每页条数 |
+| pages | Integer | 总页数 |
 
 ---
 
