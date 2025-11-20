@@ -51,4 +51,15 @@ public class TeacherController {
         return  this.teacherService.getcrouseByteacherId(id);
     }
 
+    /**
+     * 根据科目ID获取能教该科目的教师列表
+     * 用于排课时根据选择的科目动态加载对应的教师
+     * @param subjectId 科目ID
+     * @return 教师列表
+     */
+    @GetMapping("/teacher/subject/{subjectId}")
+    public R getTeachersBySubjectId(@PathVariable Long subjectId) {
+        return teacherService.getTeachersBySubjectId(subjectId);
+    }
+
 }

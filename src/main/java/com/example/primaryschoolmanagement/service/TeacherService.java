@@ -13,4 +13,11 @@ public interface TeacherService extends IService<Teacher>{
     R deleteTeacher(Teacher teacher, AppUser appuser,UserRole userrole);
     R updateTeacher(Teacher teacher,AppUser appuser,UserRole userrole);
     R getcrouseByteacherId(Integer id);
+
+    /**
+     * 根据科目ID获取能教该科目的教师列表
+     * @param subjectId 科目ID
+     * @return 教师列表
+     */
+    R getTeachersBySubjectId(Long subjectId);
 }

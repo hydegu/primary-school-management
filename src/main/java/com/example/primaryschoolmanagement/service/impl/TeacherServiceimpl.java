@@ -289,5 +289,26 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         return null;
     }
 
+    /**
+     * 根据科目ID获取能教该科目的教师列表
+     * @param subjectId 科目ID
+     * @return 教师列表
+     */
+    @Override
+    public R getTeachersBySubjectId(Long subjectId) {
+        // 1. 验证科目ID是否为空
+        if (subjectId == null) {
+            return R.er(400, "科目ID不能为空");
+        }
+
+        // 2. 查询能教该科目的教师列表
+        List<Teacher> teachers = teacherDao.findTeachersBySubjectId(subjectId);
+
+        // 3. 返回结果
+        if (teachers == null || teachers.isEmpty()) {
+            return R.ok(Collections.emptyList());  // 返回空列表而不是错误
+        }
+        return R.ok(teachers);
+    }
 
 }
