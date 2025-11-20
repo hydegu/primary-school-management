@@ -1,5 +1,6 @@
 package com.example.primaryschoolmanagement.controller;
 
+import com.example.primaryschoolmanagement.common.exception.ApiException;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dto.StudentDto;
 import com.example.primaryschoolmanagement.entity.AppUser;
@@ -7,6 +8,7 @@ import com.example.primaryschoolmanagement.entity.Student;
 import com.example.primaryschoolmanagement.service.StudentService;
 import com.example.primaryschoolmanagement.service.UserService;
 import jakarta.annotation.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -45,18 +47,16 @@ public class StudentController {
         }
     }
     @PutMapping(value = "/{id}")
-    public R updateStudent(@RequestBody StudentDto dto){
-        if(dto == null || !StringUtils.hasText(dto.getStudentNo()) || !StringUtils.hasText(dto.getStudentName())){
-            return R.er(400,"学号不能为空");
+    public R updateStudent(@RequestBody Student dto){
+        if(dto == null){
+            return R.er(400,"更改信息不能为空");
         }
-        try {
-            int row = studentService.updateStudent(dto);
-            return row > 0 ? R.ok("更新成功"):R.er();
-        }catch (Exception e){
-            return R.er(500,"更新异常"+e.getMessage());
+        if(!studentService.updateStudent(dto)){
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR,"更新失败");
         }
-
+        return R.ok();
     }
+
     @DeleteMapping(value = "/{id}")
     public R delete(@PathVariable Integer id){
 
