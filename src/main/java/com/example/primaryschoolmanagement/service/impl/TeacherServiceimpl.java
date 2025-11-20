@@ -122,11 +122,11 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         if (userrow <= 0) {
             throw new RuntimeException("用户信息插入失败");
         }
-        userrole.setUserId(appuser.getId());
+        userrole.setUserId(Math.toIntExact(appuser.getId()));
         if("班主任".equals(teacher.getTitle())){
-            userrole.setRoleId(4L);
+            userrole.setRoleId(4);
         }else{
-            userrole.setRoleId(3L);
+            userrole.setRoleId(3);
         }
         int userRoleRow = this.userRoleDao.insert(userrole);
         if (userRoleRow <= 0) {
@@ -197,7 +197,7 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         // 1. 验证主键id是否存在（必须传入id才能确定更新哪条记录）
         Integer id = teacher.getId();
         Integer userid = teacher.getUserId();
-        long roleid = userrole.getRoleId();
+        Integer roleid = userrole.getRoleId();
         if (id == null) {
             return R.er(400, "教师ID不能为空");
         }
@@ -268,7 +268,7 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
 //            System.out.println("appuser.getphone"+appuser.getPhone());
             appuserrow = this.userDao.update(null, wrapper);
 
-//        System.out.println("userid: " + userid + ", role_id: " + roleid);
+        System.out.println("userid: " + userid + ", role_id: " + roleid);
         int userrolerow = 0;
             userwrapper.eq("user_id", userid);
             userrolerow = this.userRoleDao.update(null, userwrapper);
@@ -278,7 +278,10 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
                 : R.er(ResultCode.ERROR);
     }
 
-
+    @Override
+    public R getTeachersBySubjectId(Long subjectId) {
+        return null;
+    }
 
 
     @Override
@@ -289,26 +292,5 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         return null;
     }
 
-    /**
-     * 根据科目ID获取能教该科目的教师列表
-     * @param subjectId 科目ID
-     * @return 教师列表
-     */
-    @Override
-    public R getTeachersBySubjectId(Long subjectId) {
-        // 1. 验证科目ID是否为空
-        if (subjectId == null) {
-            return R.er(400, "科目ID不能为空");
-        }
-
-        // 2. 查询能教该科目的教师列表
-        List<Teacher> teachers = teacherDao.findTeachersBySubjectId(subjectId);
-
-        // 3. 返回结果
-        if (teachers == null || teachers.isEmpty()) {
-            return R.ok(Collections.emptyList());  // 返回空列表而不是错误
-        }
-        return R.ok(teachers);
-    }
 
 }
