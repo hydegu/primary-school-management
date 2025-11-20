@@ -82,7 +82,7 @@
 {
   "code": 200,           // 状态码：200表示成功
   "msg": "操作成功",      // 消息：操作结果描述
-  "data": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."  // JWT Token令牌，需要保存用于后续请求
+  "dataset": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."  // JWT Token令牌，需要保存用于后续请求
 }
 ```
 
@@ -160,7 +160,7 @@ username=admin&userType=1&status=1&page=1&size=10
 {
   "code": 200,           // 状态码：200表示成功
   "msg": "操作成功",      // 消息：操作结果描述
-  "data": {
+  "dataset": {
     "total": 100,        // 总记录数
     "records": [         // 用户列表数据
       {
@@ -238,7 +238,7 @@ curl -X POST http://localhost:8082/api/users \
 {
   "code": 200,           // 状态码：200表示成功
   "msg": "操作成功",      // 消息：操作结果描述
-  "data": {
+  "dataset": {
     "id": 10,                       // 用户ID（新创建的用户ID）
     "username": "teacher001",       // 用户名（登录账号）
     "realName": "张老师",            // 真实姓名
@@ -311,7 +311,7 @@ curl -X PUT http://localhost:8082/api/users/10 \
 {
   "code": 200,           // 状态码：200表示成功
   "msg": "操作成功",      // 消息：操作结果描述
-  "data": {
+  "dataset": {
     "id": 10,                       // 用户ID
     "username": "teacher001",       // 用户名（登录账号）
     "realName": "张老师",            // 真实姓名
@@ -399,7 +399,7 @@ curl -X PUT http://localhost:8082/api/users/10 \
 {
   "code": 200,           // 状态码：200表示成功
   "msg": "操作成功",      // 消息：操作结果描述
-  "data": {
+  "dataset": {
     "id": 10,                       // 用户ID
     "username": "teacher001",       // 用户名（登录账号）
     "realName": "张老师",            // 真实姓名
@@ -476,7 +476,7 @@ curl -X PUT http://localhost:8082/api/users/10 \
 {
   "code": 200,           // 状态码：200表示成功
   "msg": "操作成功",      // 消息：操作结果描述
-  "data": ["teacher", "class_monitor"]  // 角色代码列表
+  "dataset": ["teacher", "class_monitor"]  // 角色代码列表
 }
 ```
 
@@ -522,7 +522,7 @@ curl -X PUT http://localhost:8082/api/users/10 \
 {
   "code": 200,           // 状态码：200表示成功
   "msg": "操作成功",      // 消息：操作结果描述
-  "data": [              // 菜单树形数据
+  "dataset": [              // 菜单树形数据
     {
       "id": 1,                    // 菜单ID
       "menuName": "系统管理",      // 菜单名称
@@ -912,7 +912,7 @@ teacherName=张&teacherNo=T001&title=语文教师
 {
   "code": 200,           // 状态码：200表示成功
   "msg": "操作成功",      // 消息：操作结果描述
-  "data": {
+  "dataset": {
     "id": 1,                        // 教师ID
     "teacherNo": "T001",            // 教师工号
     "teacherName": "张老师",         // 教师姓名
@@ -1337,7 +1337,7 @@ classId=1&page=1&size=10
 {
   "code": 200,           // 状态码：200表示成功
   "msg": "操作成功",      // 消息：操作结果描述
-  "data": 1              // 调课申请ID（新创建的申请记录ID）
+  "dataset": 1              // 调课申请ID（新创建的申请记录ID）
 }
 ```
 
@@ -1366,7 +1366,7 @@ classId=1&page=1&size=10
 {
   "code": 200,           // 状态码：200表示成功
   "msg": "操作成功",      // 消息：操作结果描述
-  "data": {
+  "dataset": {
     "id": 1,                     // 调课申请ID
     "teacherId": 10,             // 教师ID
     "teacherName": "张老师",      // 教师姓名
@@ -1410,7 +1410,7 @@ teacherId=10&page=1&size=10
 {
   "code": 200,           // 状态码：200表示成功
   "msg": "操作成功",      // 消息：操作结果描述
-  "data": {
+  "dataset": {
     "records": [         // 调课记录列表
       {
         "id": 1,                     // 调课申请ID
@@ -1473,7 +1473,7 @@ teacherId=10&page=1&size=10
 {
   "code": 200,           // 状态码：200表示成功
   "msg": "操作成功",      // 消息：操作结果描述
-  "data": 1              // 换课申请ID（新创建的申请记录ID）
+  "dataset": 1              // 换课申请ID（新创建的申请记录ID）
 }
 ```
 
@@ -1548,7 +1548,7 @@ teacherId=10&page=1&size=10
 {
   "code": 200,           // 状态码：200表示成功
   "msg": "操作成功",      // 消息：操作结果描述
-  "data": {
+  "dataset": {
     "records": [         // 换课记录列表
       {
         "id": 1,                      // 换课申请ID
@@ -1613,7 +1613,7 @@ teacherId=10&page=1&size=10
 {
   "code": 200,           // 状态码：200表示成功
   "msg": "操作成功",      // 消息：操作结果描述
-  "data": 1              // 调班申请ID（新创建的申请记录ID）
+  "dataset": 1              // 调班申请ID（新创建的申请记录ID）
 }
 ```
 
@@ -1642,7 +1642,7 @@ teacherId=10&page=1&size=10
 {
   "code": 200,           // 状态码：200表示成功
   "msg": "操作成功",      // 消息：操作结果描述
-  "data": {
+  "dataset": {
     "id": 1,                        // 调班申请ID
     "studentId": 100,               // 学生ID
     "studentName": "小明",           // 学生姓名
@@ -1687,7 +1687,7 @@ studentId=100&page=1&size=10
 {
   "code": 200,           // 状态码：200表示成功
   "msg": "操作成功",      // 消息：操作结果描述
-  "data": {
+  "dataset": {
     "records": [         // 调班记录列表
       {
         "id": 1,                        // 调班申请ID
@@ -1747,7 +1747,7 @@ studentId=100&page=1&size=10
 {
   "code": 200,
   "msg": "操作成功",
-  "data": {}
+  "dataset": {}
 }
 ```
 
@@ -1775,7 +1775,7 @@ studentId=100&page=1&size=10
 {
   "code": 200,
   "msg": "操作成功",
-  "data": {
+  "dataset": {
     "total": 100,
     "list": []
   }
