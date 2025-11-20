@@ -188,20 +188,20 @@
     "total": 1,
     "list": [
       {
-        "id": 1,
-        "username": "admin",
-        "realName": "系统管理员",
-        "userType": 1,
-        "avatar": null,
-        "phone": null,
-        "email": null,
-        "gender": 1,
-        "status": 1,
-        "lastLoginTime": "2025-11-20T18:57:23",
-        "lastLoginIp": "0:0:0:0:0:0:0:1",
-        "createdAt": "2025-11-15T10:13:40",
-        "updatedAt": "2025-11-17T20:10:11",
-        "roles": [
+        "id": 1,                                      // 用户ID
+        "username": "admin",                          // 登录账号
+        "realName": "系统管理员",                      // 真实姓名
+        "userType": 1,                                // 用户类型：1-管理员 2-教师 3-学生 4-家长
+        "avatar": null,                               // 头像URL
+        "phone": null,                                // 联系电话
+        "email": null,                                // 邮箱
+        "gender": 1,                                  // 性别：1-男 2-女
+        "status": 1,                                  // 状态：0-禁用 1-启用
+        "lastLoginTime": "2025-11-20T18:57:23",      // 最后登录时间
+        "lastLoginIp": "0:0:0:0:0:0:0:1",            // 最后登录IP
+        "createdAt": "2025-11-15T10:13:40",          // 创建时间
+        "updatedAt": "2025-11-17T20:10:11",          // 更新时间
+        "roles": [                                    // 角色列表
           "super_admin"
         ]
       }
@@ -236,28 +236,31 @@
 - `phone` (可选) - 手机号
 - `email` (可选) - 邮箱
 - `gender` (可选) - 性别：1-男 2-女
+
+**响应示例**:
 ```json
 {
   "code": 200,
   "msg": "操作成功",
   "dataset": {
-    "id": 2,
-    "username": "123",
-    "realName": "123",
-    "userType": 123,
-    "avatar": null,
-    "phone": null,
-    "email": null,
-    "gender": null,
-    "status": 1,
-    "lastLoginTime": null,
-    "lastLoginIp": null,
-    "createdAt": "2025-11-20T19:00:59.2740925",
-    "updatedAt": "2025-11-20T19:00:59.2740925",
-    "roles": []
+    "id": 2,                                          // 用户ID
+    "username": "123",                                // 登录账号
+    "realName": "123",                                // 真实姓名
+    "userType": 123,                                  // 用户类型：1-管理员 2-教师 3-学生 4-家长
+    "avatar": null,                                   // 头像URL
+    "phone": null,                                    // 联系电话
+    "email": null,                                    // 邮箱
+    "gender": null,                                   // 性别：1-男 2-女
+    "status": 1,                                      // 状态：0-禁用 1-启用
+    "lastLoginTime": null,                            // 最后登录时间
+    "lastLoginIp": null,                              // 最后登录IP
+    "createdAt": "2025-11-20T19:00:59.2740925",      // 创建时间
+    "updatedAt": "2025-11-20T19:00:59.2740925",      // 更新时间
+    "roles": []                                       // 角色列表
   }
 }
 ```
+
 **实现位置**: `UserManagementController.java:38`
 
 ---
@@ -269,6 +272,43 @@
 **路由**: `/user/list/change`
 
 **功能描述**: 修改用户信息，支持更新头像
+
+**请求格式**: `multipart/form-data`
+
+**请求参数**:
+- `username` (可选) - 登录账号
+- `password` (可选) - 密码
+- `realName` (可选) - 真实姓名
+- `userType` (可选) - 用户类型
+- `avatarFile` (可选) - 头像文件
+- `phone` (可选) - 联系电话
+- `email` (可选) - 邮箱
+- `gender` (可选) - 性别：1-男 2-女
+- `status` (可选) - 状态：0-禁用 1-启用
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "id": 2,                                          // 用户ID
+    "username": "teacher01",                          // 登录账号
+    "realName": "张老师",                             // 真实姓名
+    "userType": 2,                                    // 用户类型：1-管理员 2-教师 3-学生 4-家长
+    "avatar": "/uploads/avatar/teacher01.jpg",        // 头像URL
+    "phone": "13800138000",                           // 联系电话
+    "email": "teacher01@school.com",                  // 邮箱
+    "gender": 1,                                      // 性别：1-男 2-女
+    "status": 1,                                      // 状态：0-禁用 1-启用
+    "lastLoginTime": null,                            // 最后登录时间
+    "lastLoginIp": null,                              // 最后登录IP
+    "createdAt": "2025-11-20T19:00:59",              // 创建时间
+    "updatedAt": "2025-11-20T20:15:30",              // 更新时间
+    "roles": ["teacher"]                              // 角色列表
+  }
+}
+```
 
 **实现位置**: `UserManagementController.java:96`
 
@@ -282,6 +322,15 @@
 
 **功能描述**: 删除用户（软删除）
 
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "删除成功",
+  "dataset": null
+}
+```
+
 **实现位置**: `UserManagementController.java:144`
 
 ---
@@ -291,6 +340,32 @@
 **接口地址**: `GET /api/users/{id}`
 
 **功能描述**: 查询用户详细信息，包括角色信息
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "id": 1,                                          // 用户ID
+    "username": "admin",                              // 登录账号
+    "realName": "系统管理员",                          // 真实姓名
+    "userType": 1,                                    // 用户类型：1-管理员 2-教师 3-学生 4-家长
+    "avatar": null,                                   // 头像URL
+    "phone": "13900139000",                           // 联系电话
+    "email": "admin@school.com",                      // 邮箱
+    "gender": 1,                                      // 性别：1-男 2-女
+    "status": 1,                                      // 状态：0-禁用 1-启用
+    "lastLoginTime": "2025-11-20T18:57:23",          // 最后登录时间
+    "lastLoginIp": "0:0:0:0:0:0:0:1",                // 最后登录IP
+    "createdAt": "2025-11-15T10:13:40",              // 创建时间
+    "updatedAt": "2025-11-17T20:10:11",              // 更新时间
+    "roles": [                                        // 角色列表
+      "super_admin"
+    ]
+  }
+}
+```
 
 **实现位置**: `UserManagementController.java:152`
 
@@ -311,7 +386,16 @@
 **请求参数**:
 ```json
 {
-  "roleIds": [1, 2, 3]
+  "roleIds": [1, 2, 3]                                // 角色ID列表
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "分配成功",
+  "dataset": null
 }
 ```
 
@@ -324,6 +408,26 @@
 **接口地址**: `GET /api/users/{id}/roles`
 
 **功能描述**: 查询用户的角色列表
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": [
+    {
+      "id": 1,                                        // 角色ID
+      "roleName": "超级管理员",                        // 角色名称
+      "roleCode": "super_admin",                      // 角色编码
+      "roleDesc": "拥有系统所有权限",                  // 角色描述
+      "sortOrder": 1,                                 // 显示排序
+      "status": 1,                                    // 状态：0-禁用 1-启用
+      "createdAt": "2025-11-15T10:13:40",            // 创建时间
+      "updatedAt": "2025-11-15T10:13:40"             // 更新时间
+    }
+  ]
+}
+```
 
 **实现位置**: `UserManagementController.java:207`
 
@@ -340,10 +444,28 @@
 **请求参数**:
 ```json
 {
-  "roleName": "班主任",
-  "roleCode": "head_teacher",
-  "roleDesc": "班主任角色",
-  "sortOrder": 4
+  "roleName": "班主任",                               // 角色名称
+  "roleCode": "head_teacher",                        // 角色编码
+  "roleDesc": "班主任角色",                           // 角色描述
+  "sortOrder": 4                                     // 显示排序
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "创建成功",
+  "dataset": {
+    "id": 6,                                         // 角色ID
+    "roleName": "班主任",                             // 角色名称
+    "roleCode": "head_teacher",                      // 角色编码
+    "roleDesc": "班主任角色",                         // 角色描述
+    "sortOrder": 4,                                  // 显示排序
+    "status": 1,                                     // 状态：0-禁用 1-启用
+    "createdAt": "2025-11-20T20:30:00",             // 创建时间
+    "updatedAt": "2025-11-20T20:30:00"              // 更新时间
+  }
 }
 ```
 
@@ -357,6 +479,35 @@
 
 **功能描述**: 更新角色信息
 
+**请求参数**:
+```json
+{
+  "roleName": "班主任",                               // 角色名称
+  "roleCode": "head_teacher",                        // 角色编码
+  "roleDesc": "负责班级管理的班主任",                 // 角色描述
+  "sortOrder": 5,                                    // 显示排序
+  "status": 1                                        // 状态：0-禁用 1-启用
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "更新成功",
+  "dataset": {
+    "id": 4,                                         // 角色ID
+    "roleName": "班主任",                             // 角色名称
+    "roleCode": "head_teacher",                      // 角色编码
+    "roleDesc": "负责班级管理的班主任",               // 角色描述
+    "sortOrder": 5,                                  // 显示排序
+    "status": 1,                                     // 状态：0-禁用 1-启用
+    "createdAt": "2025-11-15T10:13:40",             // 创建时间
+    "updatedAt": "2025-11-20T20:35:00"              // 更新时间
+  }
+}
+```
+
 **实现位置**: `RoleController.java:46`
 
 ---
@@ -366,6 +517,15 @@
 **接口地址**: `DELETE /api/roles/{id}`
 
 **功能描述**: 删除角色
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "删除成功",
+  "dataset": null
+}
+```
 
 **实现位置**: `RoleController.java:58`
 
@@ -377,6 +537,24 @@
 
 **功能描述**: 查询角色详细信息
 
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "id": 1,                                         // 角色ID
+    "roleName": "超级管理员",                         // 角色名称
+    "roleCode": "super_admin",                       // 角色编码
+    "roleDesc": "拥有系统所有权限",                   // 角色描述
+    "sortOrder": 1,                                  // 显示排序
+    "status": 1,                                     // 状态：0-禁用 1-启用
+    "createdAt": "2025-11-15T10:13:40",             // 创建时间
+    "updatedAt": "2025-11-15T10:13:40"              // 更新时间
+  }
+}
+```
+
 **实现位置**: `RoleController.java:69`
 
 ---
@@ -387,6 +565,46 @@
 
 **功能描述**: 查询所有角色列表
 
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": [
+    {
+      "id": 1,                                       // 角色ID
+      "roleName": "超级管理员",                       // 角色名称
+      "roleCode": "super_admin",                     // 角色编码
+      "roleDesc": "拥有系统所有权限",                 // 角色描述
+      "sortOrder": 1,                                // 显示排序
+      "status": 1,                                   // 状态：0-禁用 1-启用
+      "createdAt": "2025-11-15T10:13:40",           // 创建时间
+      "updatedAt": "2025-11-15T10:13:40"            // 更新时间
+    },
+    {
+      "id": 2,                                       // 角色ID
+      "roleName": "教务管理员",                       // 角色名称
+      "roleCode": "edu_admin",                       // 角色编码
+      "roleDesc": "负责教务管理工作",                 // 角色描述
+      "sortOrder": 2,                                // 显示排序
+      "status": 1,                                   // 状态：0-禁用 1-启用
+      "createdAt": "2025-11-15T10:13:40",           // 创建时间
+      "updatedAt": "2025-11-15T10:13:40"            // 更新时间
+    },
+    {
+      "id": 3,                                       // 角色ID
+      "roleName": "教师",                            // 角色名称
+      "roleCode": "teacher",                         // 角色编码
+      "roleDesc": "普通教师角色",                     // 角色描述
+      "sortOrder": 3,                                // 显示排序
+      "status": 1,                                   // 状态：0-禁用 1-启用
+      "createdAt": "2025-11-15T10:13:40",           // 创建时间
+      "updatedAt": "2025-11-15T10:13:40"            // 更新时间
+    }
+  ]
+}
+```
+
 **实现位置**: `RoleController.java:80`
 
 ---
@@ -396,6 +614,31 @@
 **接口地址**: `GET /api/roles/{id}/users`
 
 **功能描述**: 查询角色下的用户列表
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": [
+    {
+      "id": 1,                                       // 用户ID
+      "username": "admin",                           // 登录账号
+      "realName": "系统管理员",                       // 真实姓名
+      "userType": 1,                                 // 用户类型：1-管理员 2-教师 3-学生 4-家长
+      "avatar": null,                                // 头像URL
+      "phone": "13900139000",                        // 联系电话
+      "email": "admin@school.com",                   // 邮箱
+      "gender": 1,                                   // 性别：1-男 2-女
+      "status": 1,                                   // 状态：0-禁用 1-启用
+      "lastLoginTime": "2025-11-20T18:57:23",       // 最后登录时间
+      "lastLoginIp": "0:0:0:0:0:0:0:1",             // 最后登录IP
+      "createdAt": "2025-11-15T10:13:40",           // 创建时间
+      "updatedAt": "2025-11-17T20:10:11"            // 更新时间
+    }
+  ]
+}
+```
 
 **实现位置**: `RoleController.java:91`
 
@@ -413,6 +656,65 @@
 
 **功能描述**: 获取系统菜单树形结构
 
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": [
+    {
+      "id": 1,                                       // 菜单ID
+      "parentId": 0,                                 // 父菜单ID，0表示顶级菜单
+      "menuName": "首页",                            // 菜单名称
+      "menuCode": "home",                            // 菜单编码
+      "menuType": 1,                                 // 菜单类型：1-目录 2-菜单 3-按钮
+      "routePath": "/home",                          // 路由地址
+      "componentPath": null,                         // 组件路径
+      "permission": null,                            // 权限标识
+      "icon": "home",                                // 菜单图标
+      "sortOrder": 1,                                // 显示排序
+      "remark": null,                                // 备注
+      "createdAt": "2025-11-15T10:13:40",           // 创建时间
+      "updatedAt": "2025-11-15T10:13:40",           // 更新时间
+      "children": []                                 // 子菜单列表
+    },
+    {
+      "id": 10,                                      // 菜单ID
+      "parentId": 0,                                 // 父菜单ID，0表示顶级菜单
+      "menuName": "用户管理",                         // 菜单名称
+      "menuCode": "user_manage",                     // 菜单编码
+      "menuType": 1,                                 // 菜单类型：1-目录 2-菜单 3-按钮
+      "routePath": "/user",                          // 路由地址
+      "componentPath": null,                         // 组件路径
+      "permission": null,                            // 权限标识
+      "icon": "user",                                // 菜单图标
+      "sortOrder": 10,                               // 显示排序
+      "remark": null,                                // 备注
+      "createdAt": "2025-11-15T10:13:40",           // 创建时间
+      "updatedAt": "2025-11-15T10:13:40",           // 更新时间
+      "children": [                                  // 子菜单列表
+        {
+          "id": 11,                                  // 菜单ID
+          "parentId": 10,                            // 父菜单ID，0表示顶级菜单
+          "menuName": "用户列表",                     // 菜单名称
+          "menuCode": "user_list",                   // 菜单编码
+          "menuType": 2,                             // 菜单类型：1-目录 2-菜单 3-按钮
+          "routePath": "/user/list",                 // 路由地址
+          "componentPath": null,                     // 组件路径
+          "permission": null,                        // 权限标识
+          "icon": null,                              // 菜单图标
+          "sortOrder": 1,                            // 显示排序
+          "remark": null,                            // 备注
+          "createdAt": "2025-11-15T10:13:40",       // 创建时间
+          "updatedAt": "2025-11-15T10:13:40",       // 更新时间
+          "children": []                             // 子菜单列表
+        }
+      ]
+    }
+  ]
+}
+```
+
 **实现位置**: `MenuController.java:32`
 
 ---
@@ -427,6 +729,52 @@
 - `page` - 页码
 - `size` - 每页条数
 
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 2,
+    "list": [
+      {
+        "id": 1,                                     // 菜单ID
+        "parentId": 0,                               // 父菜单ID，0表示顶级菜单
+        "menuName": "首页",                          // 菜单名称
+        "menuCode": "home",                          // 菜单编码
+        "menuType": 1,                               // 菜单类型：1-目录 2-菜单 3-按钮
+        "routePath": "/home",                        // 路由地址
+        "componentPath": null,                       // 组件路径
+        "permission": null,                          // 权限标识
+        "icon": "home",                              // 菜单图标
+        "sortOrder": 1,                              // 显示排序
+        "remark": null,                              // 备注
+        "createdAt": "2025-11-15T10:13:40",         // 创建时间
+        "updatedAt": "2025-11-15T10:13:40"          // 更新时间
+      },
+      {
+        "id": 10,                                    // 菜单ID
+        "parentId": 0,                               // 父菜单ID，0表示顶级菜单
+        "menuName": "用户管理",                       // 菜单名称
+        "menuCode": "user_manage",                   // 菜单编码
+        "menuType": 1,                               // 菜单类型：1-目录 2-菜单 3-按钮
+        "routePath": "/user",                        // 路由地址
+        "componentPath": null,                       // 组件路径
+        "permission": null,                          // 权限标识
+        "icon": "user",                              // 菜单图标
+        "sortOrder": 10,                             // 显示排序
+        "remark": null,                              // 备注
+        "createdAt": "2025-11-15T10:13:40",         // 创建时间
+        "updatedAt": "2025-11-15T10:13:40"          // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
+
 **实现位置**: `MenuController.java:43`
 
 ---
@@ -434,6 +782,31 @@
 #### 获取菜单详情 ✅
 
 **接口地址**: `GET /api/menu/{id}`
+
+**功能描述**: 根据菜单ID查询菜单详细信息
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "id": 20,                                        // 菜单ID
+    "parentId": 0,                                   // 父菜单ID，0表示顶级菜单
+    "menuName": "菜单管理",                           // 菜单名称
+    "menuCode": "menu_manage",                       // 菜单编码
+    "menuType": 2,                                   // 菜单类型：1-目录 2-菜单 3-按钮
+    "routePath": "/menu",                            // 路由地址
+    "componentPath": null,                           // 组件路径
+    "permission": null,                              // 权限标识
+    "icon": "menu",                                  // 菜单图标
+    "sortOrder": 20,                                 // 显示排序
+    "remark": null,                                  // 备注
+    "createdAt": "2025-11-15T10:13:40",             // 创建时间
+    "updatedAt": "2025-11-15T10:13:40"              // 更新时间
+  }
+}
+```
 
 **实现位置**: `MenuController.java:54`
 
@@ -450,13 +823,39 @@
 **请求参数**:
 ```json
 {
-  "menuName": "教师管理",
-  "menuCode": "teacher_manage",
-  "menuType": 2,
-  "parentId": 0,
-  "routePath": "/teacher",
-  "icon": "teacher",
-  "sortOrder": 40
+  "menuName": "教师管理",                            // 菜单名称
+  "menuCode": "teacher_manage",                     // 菜单编码
+  "menuType": 2,                                    // 菜单类型：1-目录 2-菜单 3-按钮
+  "parentId": 0,                                    // 父菜单ID，0表示顶级菜单
+  "routePath": "/teacher",                          // 路由地址
+  "componentPath": null,                            // 组件路径
+  "permission": null,                               // 权限标识
+  "icon": "teacher",                                // 菜单图标
+  "sortOrder": 40,                                  // 显示排序
+  "remark": null                                    // 备注
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "添加成功",
+  "dataset": {
+    "id": 40,                                        // 菜单ID
+    "parentId": 0,                                   // 父菜单ID，0表示顶级菜单
+    "menuName": "教师管理",                           // 菜单名称
+    "menuCode": "teacher_manage",                    // 菜单编码
+    "menuType": 2,                                   // 菜单类型：1-目录 2-菜单 3-按钮
+    "routePath": "/teacher",                         // 路由地址
+    "componentPath": null,                           // 组件路径
+    "permission": null,                              // 权限标识
+    "icon": "teacher",                               // 菜单图标
+    "sortOrder": 40,                                 // 显示排序
+    "remark": null,                                  // 备注
+    "createdAt": "2025-11-20T20:45:00",             // 创建时间
+    "updatedAt": "2025-11-20T20:45:00"              // 更新时间
+  }
 }
 ```
 
@@ -472,6 +871,45 @@
 
 **权限要求**: 超级管理员
 
+**请求参数**:
+```json
+{
+  "menuName": "教师管理",                            // 菜单名称
+  "menuCode": "teacher_manage",                     // 菜单编码
+  "menuType": 2,                                    // 菜单类型：1-目录 2-菜单 3-按钮
+  "parentId": 0,                                    // 父菜单ID，0表示顶级菜单
+  "routePath": "/teacher",                          // 路由地址
+  "componentPath": null,                            // 组件路径
+  "permission": null,                               // 权限标识
+  "icon": "teacher",                                // 菜单图标
+  "sortOrder": 45,                                  // 显示排序
+  "remark": "教师管理模块"                           // 备注
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "修改成功",
+  "dataset": {
+    "id": 40,                                        // 菜单ID
+    "parentId": 0,                                   // 父菜单ID，0表示顶级菜单
+    "menuName": "教师管理",                           // 菜单名称
+    "menuCode": "teacher_manage",                    // 菜单编码
+    "menuType": 2,                                   // 菜单类型：1-目录 2-菜单 3-按钮
+    "routePath": "/teacher",                         // 路由地址
+    "componentPath": null,                           // 组件路径
+    "permission": null,                              // 权限标识
+    "icon": "teacher",                               // 菜单图标
+    "sortOrder": 45,                                 // 显示排序
+    "remark": "教师管理模块",                         // 备注
+    "createdAt": "2025-11-20T20:45:00",             // 创建时间
+    "updatedAt": "2025-11-20T20:50:00"              // 更新时间
+  }
+}
+```
+
 **实现位置**: `MenuController.java:78`
 
 ---
@@ -485,6 +923,15 @@
 **权限要求**: 超级管理员
 
 **注意事项**: 如果菜单下有子菜单，将无法删除
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "删除成功",
+  "dataset": null
+}
+```
 
 **实现位置**: `MenuController.java:90`
 
@@ -504,6 +951,43 @@
 
 **功能描述**: 查询学生列表，支持条件筛选
 
+**请求参数**:
+- `studentName` - 学生姓名（模糊查询）
+- `studentNo` - 学号
+- `classId` - 班级ID
+- `gradeId` - 年级ID
+- `page` - 页码，默认1
+- `size` - 每页条数，默认10
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 1,
+    "list": [
+      {
+        "id": 1,                                     // 学生ID
+        "userId": 10,                                // 关联用户ID
+        "studentNo": "S2024001",                     // 学号
+        "studentName": "小明",                       // 学生姓名
+        "gender": 1,                                 // 性别：1-男 2-女
+        "birthDate": "2016-05-20",                   // 出生日期
+        "idCard": "110101201605200011",              // 身份证号
+        "classId": 1,                                // 当前班级ID
+        "gradeId": 1,                                // 当前年级ID
+        "createdAt": "2025-11-20T10:00:00",         // 创建时间
+        "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
+
 **实现位置**: `StudentController.java:35`
 
 ---
@@ -517,13 +1001,34 @@
 **请求参数**:
 ```json
 {
-  "studentNo": "S2024001",
-  "studentName": "小明",
-  "gender": 1,
-  "birthDate": "2016-05-20",
-  "idCard": "110101201605200011",
-  "gradeId": 1,
-  "classId": 1
+  "studentNo": "S2024001",                          // 学号
+  "studentName": "小明",                            // 学生姓名
+  "gender": 1,                                      // 性别：1-男 2-女
+  "birthDate": "2016-05-20",                        // 出生日期
+  "idCard": "110101201605200011",                   // 身份证号
+  "gradeId": 1,                                     // 当前年级ID
+  "classId": 1                                      // 当前班级ID
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "添加成功",
+  "dataset": {
+    "id": 1,                                        // 学生ID
+    "userId": 10,                                   // 关联用户ID
+    "studentNo": "S2024001",                        // 学号
+    "studentName": "小明",                          // 学生姓名
+    "gender": 1,                                    // 性别：1-男 2-女
+    "birthDate": "2016-05-20",                      // 出生日期
+    "idCard": "110101201605200011",                 // 身份证号
+    "classId": 1,                                   // 当前班级ID
+    "gradeId": 1,                                   // 当前年级ID
+    "createdAt": "2025-11-20T10:00:00",            // 创建时间
+    "updatedAt": "2025-11-20T10:00:00"             // 更新时间
+  }
 }
 ```
 
@@ -537,6 +1042,40 @@
 
 **路由**: `/student/change`
 
+**请求参数**:
+```json
+{
+  "studentNo": "S2024001",                          // 学号
+  "studentName": "小明",                            // 学生姓名
+  "gender": 1,                                      // 性别：1-男 2-女
+  "birthDate": "2016-05-20",                        // 出生日期
+  "idCard": "110101201605200011",                   // 身份证号
+  "gradeId": 1,                                     // 当前年级ID
+  "classId": 1                                      // 当前班级ID
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "修改成功",
+  "dataset": {
+    "id": 1,                                        // 学生ID
+    "userId": 10,                                   // 关联用户ID
+    "studentNo": "S2024001",                        // 学号
+    "studentName": "小明",                          // 学生姓名
+    "gender": 1,                                    // 性别：1-男 2-女
+    "birthDate": "2016-05-20",                      // 出生日期
+    "idCard": "110101201605200011",                 // 身份证号
+    "classId": 1,                                   // 当前班级ID
+    "gradeId": 1,                                   // 当前年级ID
+    "createdAt": "2025-11-20T10:00:00",            // 创建时间
+    "updatedAt": "2025-11-20T11:30:00"             // 更新时间
+  }
+}
+```
+
 **实现位置**: `StudentController.java:44`
 
 ---
@@ -546,6 +1085,15 @@
 **接口地址**: `DELETE /api/student/{id}`
 
 **路由**: `/student/delete`
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "删除成功",
+  "dataset": null
+}
+```
 
 **实现位置**: `StudentController.java:57`
 
@@ -577,6 +1125,39 @@
 - `teacherName` - 教师姓名（模糊查询）
 - `teacherNo` - 教师工号
 - `title` - 职称
+- `page` - 页码，默认1
+- `size` - 每页条数，默认10
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 1,
+    "list": [
+      {
+        "id": 1,                                     // 教师ID
+        "userId": 20,                                // 关联用户ID
+        "teacherNo": "T100",                         // 教师编号
+        "teacherName": "李老师",                     // 教师姓名
+        "gender": 1,                                 // 性别：1-男 2-女
+        "birthDate": "1985-03-15",                   // 出生日期
+        "idCard": "110101198503150011",              // 身份证号
+        "phone": "13900139000",                      // 联系电话
+        "email": "teacher100@school.com",            // 邮箱
+        "title": "数学教师",                         // 职称（如：班主任/语文老师）
+        "hireDate": "2024-09-01",                    // 入职日期
+        "createdAt": "2025-11-20T10:00:00",         // 创建时间
+        "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
 
 **实现位置**: `TeacherController.java:24`
 
@@ -587,6 +1168,29 @@
 **接口地址**: `GET /api/teacher/{id}`
 
 **功能描述**: 根据教师ID查询教师详细信息
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "id": 1,                                     // 教师ID
+    "userId": 20,                                // 关联用户ID
+    "teacherNo": "T100",                         // 教师编号
+    "teacherName": "李老师",                     // 教师姓名
+    "gender": 1,                                 // 性别：1-男 2-女
+    "birthDate": "1985-03-15",                   // 出生日期
+    "idCard": "110101198503150011",              // 身份证号
+    "phone": "13900139000",                      // 联系电话
+    "email": "teacher100@school.com",            // 邮箱
+    "title": "数学教师",                         // 职称（如：班主任/语文老师）
+    "hireDate": "2024-09-01",                    // 入职日期
+    "createdAt": "2025-11-20T10:00:00",         // 创建时间
+    "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+  }
+}
+```
 
 **实现位置**: `TeacherController.java:18`
 
@@ -601,15 +1205,38 @@
 **请求参数**:
 ```json
 {
-  "teacherNo": "T100",
-  "teacherName": "李老师",
-  "gender": 1,
-  "birthDate": "1985-03-15",
-  "idCard": "110101198503150011",
-  "phone": "13900139000",
-  "email": "teacher100@school.com",
-  "title": "数学教师",
-  "hireDate": "2024-09-01"
+  "teacherNo": "T100",                           // 教师编号
+  "teacherName": "李老师",                       // 教师姓名
+  "gender": 1,                                   // 性别：1-男 2-女
+  "birthDate": "1985-03-15",                     // 出生日期
+  "idCard": "110101198503150011",                // 身份证号
+  "phone": "13900139000",                        // 联系电话
+  "email": "teacher100@school.com",              // 邮箱
+  "title": "数学教师",                           // 职称（如：班主任/语文老师）
+  "hireDate": "2024-09-01"                       // 入职日期
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "添加成功",
+  "dataset": {
+    "id": 1,                                     // 教师ID
+    "userId": 20,                                // 关联用户ID
+    "teacherNo": "T100",                         // 教师编号
+    "teacherName": "李老师",                     // 教师姓名
+    "gender": 1,                                 // 性别：1-男 2-女
+    "birthDate": "1985-03-15",                   // 出生日期
+    "idCard": "110101198503150011",              // 身份证号
+    "phone": "13900139000",                      // 联系电话
+    "email": "teacher100@school.com",            // 邮箱
+    "title": "数学教师",                         // 职称（如：班主任/语文老师）
+    "hireDate": "2024-09-01",                    // 入职日期
+    "createdAt": "2025-11-20T10:00:00",         // 创建时间
+    "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+  }
 }
 ```
 
@@ -623,6 +1250,44 @@
 
 **路由**: `/teacher/change`
 
+**请求参数**:
+```json
+{
+  "teacherNo": "T100",                           // 教师编号
+  "teacherName": "李老师",                       // 教师姓名
+  "gender": 1,                                   // 性别：1-男 2-女
+  "birthDate": "1985-03-15",                     // 出生日期
+  "idCard": "110101198503150011",                // 身份证号
+  "phone": "13900139000",                        // 联系电话
+  "email": "teacher100@school.com",              // 邮箱
+  "title": "数学教师",                           // 职称（如：班主任/语文老师）
+  "hireDate": "2024-09-01"                       // 入职日期
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "修改成功",
+  "dataset": {
+    "id": 1,                                     // 教师ID
+    "userId": 20,                                // 关联用户ID
+    "teacherNo": "T100",                         // 教师编号
+    "teacherName": "李老师",                     // 教师姓名
+    "gender": 1,                                 // 性别：1-男 2-女
+    "birthDate": "1985-03-15",                   // 出生日期
+    "idCard": "110101198503150011",              // 身份证号
+    "phone": "13900139000",                      // 联系电话
+    "email": "teacher100@school.com",            // 邮箱
+    "title": "数学教师",                         // 职称（如：班主任/语文老师）
+    "hireDate": "2024-09-01",                    // 入职日期
+    "createdAt": "2025-11-20T10:00:00",         // 创建时间
+    "updatedAt": "2025-11-20T10:05:00"          // 更新时间
+  }
+}
+```
+
 **实现位置**: `TeacherController.java:45`
 
 ---
@@ -632,6 +1297,15 @@
 **接口地址**: `DELETE /api/teacher/{id}`
 
 **路由**: `/teacher/delete`
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "删除成功",
+  "dataset": null
+}
+```
 
 **实现位置**: `TeacherController.java:40`
 
@@ -651,6 +1325,31 @@
 
 **功能描述**: 根据科目ID获取能教该科目的教师列表（用于排课）
 
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": [
+    {
+      "id": 1,                                     // 教师ID
+      "userId": 20,                                // 关联用户ID
+      "teacherNo": "T100",                         // 教师编号
+      "teacherName": "李老师",                     // 教师姓名
+      "gender": 1,                                 // 性别：1-男 2-女
+      "birthDate": "1985-03-15",                   // 出生日期
+      "idCard": "110101198503150011",              // 身份证号
+      "phone": "13900139000",                      // 联系电话
+      "email": "teacher100@school.com",            // 邮箱
+      "title": "数学教师",                         // 职称（如：班主任/语文老师）
+      "hireDate": "2024-09-01",                    // 入职日期
+      "createdAt": "2025-11-20T10:00:00",         // 创建时间
+      "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+    }
+  ]
+}
+```
+
 **实现位置**: `TeacherController.java:60`
 
 ---
@@ -660,6 +1359,30 @@
 **接口地址**: `GET /api/teacher/crouses`
 
 **功能描述**: 获取教师的课程列表
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": [
+    {
+      "id": 1,                                     // 课程ID
+      "courseName": "一年级数学",                  // 课程名称
+      "subjectId": 1,                              // 科目ID
+      "classId": 1,                                // 班级ID
+      "teacherId": 1,                              // 任课教师ID
+      "semester": "2023-2024-1",                   // 学期（如：2023-2024-1）
+      "weeklyHours": 5,                            // 每周课时数
+      "totalHours": 80,                            // 总课时数
+      "status": 1,                                 // 状态：0-停用 1-进行中 2-已结束
+      "remark": null,                              // 备注
+      "createdAt": "2025-11-20T10:00:00",         // 创建时间
+      "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+    }
+  ]
+}
+```
 
 **实现位置**: `TeacherController.java:49`
 
@@ -675,6 +1398,46 @@
 
 **接口地址**: `GET /api/class/list`
 
+**功能描述**: 查询班级列表，支持条件筛选（班级名称、年级ID、学年）
+
+**请求参数**:
+- `className` - 班级名称（模糊查询）
+- `gradeId` - 年级ID
+- `schoolYear` - 学年（如：2023-2024）
+- `page` - 页码，默认1
+- `size` - 每页条数，默认10
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 1,
+    "list": [
+      {
+        "id": 1,                                     // 班级ID
+        "classNo": "C2024001",                       // 班级编号
+        "className": "一年一班",                     // 班级名称（如：一年一班）
+        "gradeId": 1,                                // 年级ID
+        "headTeacherId": 1,                          // 班主任ID（教师ID）
+        "classroom": "101",                          // 上课教室
+        "maxStudents": 50,                           // 最大学生数
+        "currentStudents": 30,                       // 当前学生数
+        "schoolYear": "2023-2024",                   // 学年（如：2023-2024）
+        "status": 1,                                 // 状态：0-停用 1-启用
+        "remark": null,                              // 备注
+        "createdAt": "2025-11-20T10:00:00",         // 创建时间
+        "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
+
 **实现位置**: `ClassesController.java:16`
 
 ---
@@ -684,6 +1447,44 @@
 **接口地址**: `POST /api/class`
 
 **路由**: `/class/add`
+
+**请求参数**:
+```json
+{
+  "classNo": "C2024001",                         // 班级编号
+  "className": "一年一班",                       // 班级名称（如：一年一班）
+  "gradeId": 1,                                  // 年级ID
+  "headTeacherId": 1,                            // 班主任ID（教师ID）
+  "classroom": "101",                            // 上课教室
+  "maxStudents": 50,                             // 最大学生数
+  "schoolYear": "2023-2024",                     // 学年（如：2023-2024）
+  "status": 1,                                   // 状态：0-停用 1-启用
+  "remark": null                                 // 备注
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "添加成功",
+  "dataset": {
+    "id": 1,                                     // 班级ID
+    "classNo": "C2024001",                       // 班级编号
+    "className": "一年一班",                     // 班级名称（如：一年一班）
+    "gradeId": 1,                                // 年级ID
+    "headTeacherId": 1,                          // 班主任ID（教师ID）
+    "classroom": "101",                          // 上课教室
+    "maxStudents": 50,                           // 最大学生数
+    "currentStudents": 0,                        // 当前学生数
+    "schoolYear": "2023-2024",                   // 学年（如：2023-2024）
+    "status": 1,                                 // 状态：0-停用 1-启用
+    "remark": null,                              // 备注
+    "createdAt": "2025-11-20T10:00:00",         // 创建时间
+    "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+  }
+}
+```
 
 **实现位置**: `ClassesController.java:20`
 
@@ -695,6 +1496,44 @@
 
 **路由**: `/class/change`
 
+**请求参数**:
+```json
+{
+  "classNo": "C2024001",                         // 班级编号
+  "className": "一年一班",                       // 班级名称（如：一年一班）
+  "gradeId": 1,                                  // 年级ID
+  "headTeacherId": 1,                            // 班主任ID（教师ID）
+  "classroom": "101",                            // 上课教室
+  "maxStudents": 50,                             // 最大学生数
+  "schoolYear": "2023-2024",                     // 学年（如：2023-2024）
+  "status": 1,                                   // 状态：0-停用 1-启用
+  "remark": null                                 // 备注
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "修改成功",
+  "dataset": {
+    "id": 1,                                     // 班级ID
+    "classNo": "C2024001",                       // 班级编号
+    "className": "一年一班",                     // 班级名称（如：一年一班）
+    "gradeId": 1,                                // 年级ID
+    "headTeacherId": 1,                          // 班主任ID（教师ID）
+    "classroom": "101",                          // 上课教室
+    "maxStudents": 50,                           // 最大学生数
+    "currentStudents": 30,                       // 当前学生数
+    "schoolYear": "2023-2024",                   // 学年（如：2023-2024）
+    "status": 1,                                 // 状态：0-停用 1-启用
+    "remark": null,                              // 备注
+    "createdAt": "2025-11-20T10:00:00",         // 创建时间
+    "updatedAt": "2025-11-20T10:05:00"          // 更新时间
+  }
+}
+```
+
 **实现位置**: `ClassesController.java:28`
 
 ---
@@ -704,6 +1543,15 @@
 **接口地址**: `DELETE /api/class/{id}`
 
 **路由**: `/class/delete`
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "删除成功",
+  "dataset": null
+}
+```
 
 **实现位置**: `ClassesController.java:24`
 
@@ -767,6 +1615,41 @@
 
 **请求参数**:
 - `subjectId` - 科目ID
+- `classId` - 班级ID
+- `teacherId` - 教师ID
+- `semester` - 学期
+- `page` - 页码，默认1
+- `size` - 每页条数，默认10
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 1,
+    "list": [
+      {
+        "id": 1,                                     // 课程ID
+        "courseName": "一年级数学",                  // 课程名称
+        "subjectId": 1,                              // 科目ID
+        "classId": 1,                                // 班级ID
+        "teacherId": 1,                              // 任课教师ID
+        "semester": "2023-2024-1",                   // 学期（如：2023-2024-1）
+        "weeklyHours": 5,                            // 每周课时数
+        "totalHours": 80,                            // 总课时数
+        "status": 1,                                 // 状态：0-停用 1-进行中 2-已结束
+        "remark": null,                              // 备注
+        "createdAt": "2025-11-20T10:00:00",         // 创建时间
+        "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
 
 **实现位置**: `CourseController.java:80`
 
@@ -781,6 +1664,30 @@
 ##### 获取课程详情 ✅
 
 **接口地址**: `GET /api/course/{id}`
+
+**功能描述**: 根据课程ID查询课程详细信息
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "id": 1,                                     // 课程ID
+    "courseName": "一年级数学",                  // 课程名称
+    "subjectId": 1,                              // 科目ID
+    "classId": 1,                                // 班级ID
+    "teacherId": 1,                              // 任课教师ID
+    "semester": "2023-2024-1",                   // 学期（如：2023-2024-1）
+    "weeklyHours": 5,                            // 每周课时数
+    "totalHours": 80,                            // 总课时数
+    "status": 1,                                 // 状态：0-停用 1-进行中 2-已结束
+    "remark": null,                              // 备注
+    "createdAt": "2025-11-20T10:00:00",         // 创建时间
+    "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+  }
+}
+```
 
 **实现位置**: `CourseController.java:72`
 
@@ -828,6 +1735,43 @@
 
 **路由**: `/course/add`
 
+**请求参数**:
+```json
+{
+  "courseName": "一年级数学",                    // 课程名称
+  "subjectId": 1,                                // 科目ID
+  "classId": 1,                                  // 班级ID
+  "teacherId": 1,                                // 任课教师ID
+  "semester": "2023-2024-1",                     // 学期（如：2023-2024-1）
+  "weeklyHours": 5,                              // 每周课时数
+  "totalHours": 80,                              // 总课时数
+  "status": 1,                                   // 状态：0-停用 1-进行中 2-已结束
+  "remark": null                                 // 备注
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "添加成功",
+  "dataset": {
+    "id": 1,                                     // 课程ID
+    "courseName": "一年级数学",                  // 课程名称
+    "subjectId": 1,                              // 科目ID
+    "classId": 1,                                // 班级ID
+    "teacherId": 1,                              // 任课教师ID
+    "semester": "2023-2024-1",                   // 学期（如：2023-2024-1）
+    "weeklyHours": 5,                            // 每周课时数
+    "totalHours": 80,                            // 总课时数
+    "status": 1,                                 // 状态：0-停用 1-进行中 2-已结束
+    "remark": null,                              // 备注
+    "createdAt": "2025-11-20T10:00:00",         // 创建时间
+    "updatedAt": "2025-11-20T10:00:00"          // 更新时间
+  }
+}
+```
+
 **实现位置**: `CourseController.java:25`
 
 ---
@@ -837,6 +1781,43 @@
 **接口地址**: `PUT /api/course/{id}`
 
 **路由**: `/course/change`
+
+**请求参数**:
+```json
+{
+  "courseName": "一年级数学",                    // 课程名称
+  "subjectId": 1,                                // 科目ID
+  "classId": 1,                                  // 班级ID
+  "teacherId": 1,                                // 任课教师ID
+  "semester": "2023-2024-1",                     // 学期（如：2023-2024-1）
+  "weeklyHours": 5,                              // 每周课时数
+  "totalHours": 80,                              // 总课时数
+  "status": 1,                                   // 状态：0-停用 1-进行中 2-已结束
+  "remark": null                                 // 备注
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "修改成功",
+  "dataset": {
+    "id": 1,                                     // 课程ID
+    "courseName": "一年级数学",                  // 课程名称
+    "subjectId": 1,                              // 科目ID
+    "classId": 1,                                // 班级ID
+    "teacherId": 1,                              // 任课教师ID
+    "semester": "2023-2024-1",                   // 学期（如：2023-2024-1）
+    "weeklyHours": 5,                            // 每周课时数
+    "totalHours": 80,                            // 总课时数
+    "status": 1,                                 // 状态：0-停用 1-进行中 2-已结束
+    "remark": null,                              // 备注
+    "createdAt": "2025-11-20T10:00:00",         // 创建时间
+    "updatedAt": "2025-11-20T10:15:00"          // 更新时间
+  }
+}
+```
 
 **实现位置**: `CourseController.java:49`
 
@@ -849,6 +1830,15 @@
 **路由**: `/course/delete`
 
 **实现状态**: ⚠️ 部分实现（返回null）
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "删除成功",
+  "dataset": null
+}
+```
 
 **实现位置**: `CourseController.java:59`
 
@@ -870,8 +1860,43 @@
 
 **请求参数**:
 - `studentId` - 学生ID
-- `page` - 页码
-- `size` - 每页条数
+- `page` - 页码，默认1
+- `size` - 每页条数，默认10
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 1,
+    "list": [
+      {
+        "id": 1,                                         // 请假ID
+        "leaveNo": "L2024112000001",                     // 请假单号
+        "studentId": 1,                                  // 学生ID
+        "studentName": "小明",                           // 学生姓名
+        "classId": 1,                                    // 班级ID
+        "leaveType": 1,                                  // 请假类型：1-病假 2-事假 3-其他
+        "startDate": "2024-11-20",                       // 开始日期
+        "endDate": "2024-11-22",                         // 结束日期
+        "leaveDays": 3.0,                                // 请假天数
+        "reason": "感冒发烧",                            // 请假原因
+        "proofFiles": [],                                // 证明材料（JSON数组）
+        "applyTime": "2024-11-19T10:00:00",             // 申请时间
+        "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+        "approvalId": null,                              // 关联审批记录ID
+        "remark": null,                                  // 备注
+        "createdAt": "2024-11-19T10:00:00",             // 创建时间
+        "updatedAt": "2024-11-19T10:00:00"              // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
 
 **实现位置**: `LeaveController.java:39`
 
@@ -885,8 +1910,43 @@
 
 **请求参数**:
 - `classId` - 班级ID
-- `page` - 页码
-- `size` - 每页条数
+- `page` - 页码，默认1
+- `size` - 每页条数，默认10
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 1,
+    "list": [
+      {
+        "id": 1,                                         // 请假ID
+        "leaveNo": "L2024112000001",                     // 请假单号
+        "studentId": 1,                                  // 学生ID
+        "studentName": "小明",                           // 学生姓名
+        "classId": 1,                                    // 班级ID
+        "leaveType": 1,                                  // 请假类型：1-病假 2-事假 3-其他
+        "startDate": "2024-11-20",                       // 开始日期
+        "endDate": "2024-11-22",                         // 结束日期
+        "leaveDays": 3.0,                                // 请假天数
+        "reason": "感冒发烧",                            // 请假原因
+        "proofFiles": [],                                // 证明材料（JSON数组）
+        "applyTime": "2024-11-19T10:00:00",             // 申请时间
+        "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+        "approvalId": null,                              // 关联审批记录ID
+        "remark": null,                                  // 备注
+        "createdAt": "2024-11-19T10:00:00",             // 创建时间
+        "updatedAt": "2024-11-19T10:00:00"              // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
 
 **实现位置**: `LeaveController.java:58`
 
@@ -903,13 +1963,40 @@
 **请求参数**:
 ```json
 {
-  "studentId": 1,
-  "leaveType": 1,
-  "startDate": "2024-11-20",
-  "endDate": "2024-11-22",
-  "leaveDays": 3,
-  "reason": "感冒发烧",
-  "proofFiles": []
+  "studentId": 1,                                    // 学生ID
+  "leaveType": 1,                                    // 请假类型：1-病假 2-事假 3-其他
+  "startDate": "2024-11-20",                         // 开始日期
+  "endDate": "2024-11-22",                           // 结束日期
+  "leaveDays": 3.0,                                  // 请假天数
+  "reason": "感冒发烧",                              // 请假原因
+  "proofFiles": []                                   // 证明材料（JSON数组）
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "申请成功",
+  "dataset": {
+    "id": 1,                                         // 请假ID
+    "leaveNo": "L2024112000001",                     // 请假单号
+    "studentId": 1,                                  // 学生ID
+    "studentName": "小明",                           // 学生姓名
+    "classId": 1,                                    // 班级ID
+    "leaveType": 1,                                  // 请假类型：1-病假 2-事假 3-其他
+    "startDate": "2024-11-20",                       // 开始日期
+    "endDate": "2024-11-22",                         // 结束日期
+    "leaveDays": 3.0,                                // 请假天数
+    "reason": "感冒发烧",                            // 请假原因
+    "proofFiles": [],                                // 证明材料（JSON数组）
+    "applyTime": "2024-11-19T10:00:00",             // 申请时间
+    "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalId": null,                              // 关联审批记录ID
+    "remark": null,                                  // 备注
+    "createdAt": "2024-11-19T10:00:00",             // 创建时间
+    "updatedAt": "2024-11-19T10:00:00"              // 更新时间
+  }
 }
 ```
 
@@ -923,6 +2010,35 @@
 
 **路由**: `/leave/detail`
 
+**功能描述**: 查询请假详细信息
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "id": 1,                                         // 请假ID
+    "leaveNo": "L2024112000001",                     // 请假单号
+    "studentId": 1,                                  // 学生ID
+    "studentName": "小明",                           // 学生姓名
+    "classId": 1,                                    // 班级ID
+    "leaveType": 1,                                  // 请假类型：1-病假 2-事假 3-其他
+    "startDate": "2024-11-20",                       // 开始日期
+    "endDate": "2024-11-22",                         // 结束日期
+    "leaveDays": 3.0,                                // 请假天数
+    "reason": "感冒发烧",                            // 请假原因
+    "proofFiles": [],                                // 证明材料（JSON数组）
+    "applyTime": "2024-11-19T10:00:00",             // 申请时间
+    "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalId": null,                              // 关联审批记录ID
+    "remark": null,                                  // 备注
+    "createdAt": "2024-11-19T10:00:00",             // 创建时间
+    "updatedAt": "2024-11-19T10:00:00"              // 更新时间
+  }
+}
+```
+
 **实现位置**: `LeaveController.java:32`
 
 ---
@@ -932,6 +2048,15 @@
 **接口地址**: `PUT /api/leave/{id}/cancel`
 
 **功能描述**: 撤回请假申请
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "撤回成功",
+  "dataset": null
+}
+```
 
 **实现位置**: `LeaveController.java:49`
 
@@ -974,10 +2099,40 @@
 **请求参数**:
 ```json
 {
-  "scheduleId": 123,
-  "originalDate": "2024-11-20",
-  "newDate": "2024-11-21",
-  "reason": "临时有事"
+  "scheduleId": 123,                                 // 原课程表ID
+  "originalDate": "2024-11-20",                      // 原上课日期
+  "originalPeriod": 3,                               // 原上课节次
+  "newDate": "2024-11-21",                           // 新上课日期
+  "newPeriod": 3,                                    // 新上课节次
+  "newClassroom": "201",                             // 新教室
+  "reason": "临时有事"                                // 调课原因
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "申请成功",
+  "dataset": {
+    "id": 1,                                         // 调课ID
+    "changeNo": "CC2024112000001",                   // 调课单号
+    "applyTeacherId": 1,                             // 申请教师ID
+    "applyTeacherName": "李老师",                    // 申请教师姓名
+    "originalScheduleId": 123,                       // 原课程表ID
+    "originalDate": "2024-11-20",                    // 原上课日期
+    "originalPeriod": 3,                             // 原上课节次
+    "newDate": "2024-11-21",                         // 新上课日期
+    "newPeriod": 3,                                  // 新上课节次
+    "newClassroom": "201",                           // 新教室
+    "reason": "临时有事",                            // 调课原因
+    "applyTime": "2024-11-19T10:00:00",             // 申请时间
+    "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalId": null,                              // 关联审批记录ID
+    "remark": null,                                  // 备注
+    "createdAt": "2024-11-19T10:00:00",             // 创建时间
+    "updatedAt": "2024-11-19T10:00:00"              // 更新时间
+  }
 }
 ```
 
@@ -989,6 +2144,35 @@
 
 **接口地址**: `GET /api/course-change/{id}`
 
+**功能描述**: 根据ID查询调课详细信息
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "id": 1,                                         // 调课ID
+    "changeNo": "CC2024112000001",                   // 调课单号
+    "applyTeacherId": 1,                             // 申请教师ID
+    "applyTeacherName": "李老师",                    // 申请教师姓名
+    "originalScheduleId": 123,                       // 原课程表ID
+    "originalDate": "2024-11-20",                    // 原上课日期
+    "originalPeriod": 3,                             // 原上课节次
+    "newDate": "2024-11-21",                         // 新上课日期
+    "newPeriod": 3,                                  // 新上课节次
+    "newClassroom": "201",                           // 新教室
+    "reason": "临时有事",                            // 调课原因
+    "applyTime": "2024-11-19T10:00:00",             // 申请时间
+    "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalId": null,                              // 关联审批记录ID
+    "remark": null,                                  // 备注
+    "createdAt": "2024-11-19T10:00:00",             // 创建时间
+    "updatedAt": "2024-11-19T10:00:00"              // 更新时间
+  }
+}
+```
+
 **实现位置**: `CourseChangeController.java:33`
 
 ---
@@ -997,10 +2181,47 @@
 
 **接口地址**: `GET /api/course-change/my`
 
+**功能描述**: 查询教师的调课记录
+
 **请求参数**:
 - `teacherId` - 教师ID
-- `page` - 页码
-- `size` - 每页条数
+- `page` - 页码，默认1
+- `size` - 每页条数，默认10
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 1,
+    "list": [
+      {
+        "id": 1,                                         // 调课ID
+        "changeNo": "CC2024112000001",                   // 调课单号
+        "applyTeacherId": 1,                             // 申请教师ID
+        "applyTeacherName": "李老师",                    // 申请教师姓名
+        "originalScheduleId": 123,                       // 原课程表ID
+        "originalDate": "2024-11-20",                    // 原上课日期
+        "originalPeriod": 3,                             // 原上课节次
+        "newDate": "2024-11-21",                         // 新上课日期
+        "newPeriod": 3,                                  // 新上课节次
+        "newClassroom": "201",                           // 新教室
+        "reason": "临时有事",                            // 调课原因
+        "applyTime": "2024-11-19T10:00:00",             // 申请时间
+        "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+        "approvalId": null,                              // 关联审批记录ID
+        "remark": null,                                  // 备注
+        "createdAt": "2024-11-19T10:00:00",             // 创建时间
+        "updatedAt": "2024-11-19T10:00:00"              // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
 
 **实现位置**: `CourseChangeController.java:40`
 
@@ -1021,10 +2242,37 @@
 **请求参数**:
 ```json
 {
-  "myScheduleId": 123,
-  "targetScheduleId": 456,
-  "targetTeacherId": 20,
-  "reason": "时间冲突"
+  "myScheduleId": 123,          // 申请方课程表ID
+  "targetScheduleId": 456,      // 对方课程表ID
+  "targetTeacherId": 20,        // 对方教师ID
+  "reason": "时间冲突"           // 换课原因
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "申请成功",
+  "dataset": {
+    "id": 1,                                         // 换课ID
+    "swapNo": "CS2024112000001",                     // 换课单号
+    "applyTeacherId": 1,                             // 申请教师ID
+    "applyTeacherName": "李老师",                    // 申请教师姓名
+    "applyScheduleId": 123,                          // 申请方课程表ID
+    "targetTeacherId": 20,                           // 对方教师ID
+    "targetTeacherName": "王老师",                   // 对方教师姓名
+    "targetScheduleId": 456,                         // 对方课程表ID
+    "reason": "时间冲突",                            // 换课原因
+    "applyTime": "2024-11-20T10:00:00",             // 申请时间
+    "confirmStatus": 1,                              // 确认状态：1-待确认 2-已同意 3-已拒绝
+    "confirmTime": null,                             // 确认时间
+    "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalId": null,                              // 关联审批记录ID
+    "remark": null,                                  // 备注
+    "createdAt": "2024-11-20T10:00:00",             // 创建时间
+    "updatedAt": "2024-11-20T10:00:00"              // 更新时间
+  }
 }
 ```
 
@@ -1037,7 +2285,38 @@
 **接口地址**: `PUT /api/course-swap/{id}/confirm`
 
 **请求参数**:
-- `confirm` - true-同意 false-拒绝
+```json
+{
+  "confirm": true              // true-同意 false-拒绝
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "确认成功",
+  "dataset": {
+    "id": 1,                                         // 换课ID
+    "swapNo": "CS2024112000001",                     // 换课单号
+    "applyTeacherId": 1,                             // 申请教师ID
+    "applyTeacherName": "李老师",                    // 申请教师姓名
+    "applyScheduleId": 123,                          // 申请方课程表ID
+    "targetTeacherId": 20,                           // 对方教师ID
+    "targetTeacherName": "王老师",                   // 对方教师姓名
+    "targetScheduleId": 456,                         // 对方课程表ID
+    "reason": "时间冲突",                            // 换课原因
+    "applyTime": "2024-11-20T10:00:00",             // 申请时间
+    "confirmStatus": 2,                              // 确认状态：1-待确认 2-已同意 3-已拒绝
+    "confirmTime": "2024-11-20T14:30:00",           // 确认时间
+    "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalId": null,                              // 关联审批记录ID
+    "remark": null,                                  // 备注
+    "createdAt": "2024-11-20T10:00:00",             // 创建时间
+    "updatedAt": "2024-11-20T14:30:00"              // 更新时间
+  }
+}
+```
 
 **实现位置**: `CourseSwapController.java:44`
 
@@ -1051,6 +2330,41 @@
 - `teacherId` - 教师ID
 - `page` - 页码
 - `size` - 每页条数
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 1,
+    "list": [
+      {
+        "id": 1,                                         // 换课ID
+        "swapNo": "CS2024112000001",                     // 换课单号
+        "applyTeacherId": 1,                             // 申请教师ID
+        "applyTeacherName": "李老师",                    // 申请教师姓名
+        "applyScheduleId": 123,                          // 申请方课程表ID
+        "targetTeacherId": 20,                           // 对方教师ID
+        "targetTeacherName": "王老师",                   // 对方教师姓名
+        "targetScheduleId": 456,                         // 对方课程表ID
+        "reason": "时间冲突",                            // 换课原因
+        "applyTime": "2024-11-20T10:00:00",             // 申请时间
+        "confirmStatus": 2,                              // 确认状态：1-待确认 2-已同意 3-已拒绝
+        "confirmTime": "2024-11-20T14:30:00",           // 确认时间
+        "approvalStatus": 2,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+        "approvalId": 1,                                 // 关联审批记录ID
+        "remark": null,                                  // 备注
+        "createdAt": "2024-11-20T10:00:00",             // 创建时间
+        "updatedAt": "2024-11-20T15:00:00"              // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
 
 **实现位置**: `CourseSwapController.java:34`
 
@@ -1071,10 +2385,35 @@
 **请求参数**:
 ```json
 {
-  "studentId": 100,
-  "currentClassId": 1,
-  "targetClassId": 2,
-  "reason": "家庭住址变更"
+  "studentId": 100,              // 学生ID
+  "currentClassId": 1,           // 当前班级ID
+  "targetClassId": 2,            // 目标班级ID
+  "reason": "家庭住址变更"        // 调班原因
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "申请成功",
+  "dataset": {
+    "id": 1,                                         // 调班ID
+    "transferNo": "CT2024112000001",                 // 调班单号
+    "studentId": 100,                                // 学生ID
+    "studentName": "小明",                           // 学生姓名
+    "currentClassId": 1,                             // 当前班级ID
+    "currentClassName": "一年级1班",                 // 当前班级名称
+    "targetClassId": 2,                              // 目标班级ID
+    "targetClassName": "一年级2班",                  // 目标班级名称
+    "reason": "家庭住址变更",                        // 调班原因
+    "applyTime": "2024-11-20T10:00:00",             // 申请时间
+    "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalId": null,                              // 关联审批记录ID
+    "remark": null,                                  // 备注
+    "createdAt": "2024-11-20T10:00:00",             // 创建时间
+    "updatedAt": "2024-11-20T10:00:00"              // 更新时间
+  }
 }
 ```
 
@@ -1085,6 +2424,31 @@
 ##### 查询调班详情 ✅
 
 **接口地址**: `GET /api/class-transfer/{id}`
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "id": 1,                                         // 调班ID
+    "transferNo": "CT2024112000001",                 // 调班单号
+    "studentId": 100,                                // 学生ID
+    "studentName": "小明",                           // 学生姓名
+    "currentClassId": 1,                             // 当前班级ID
+    "currentClassName": "一年级1班",                 // 当前班级名称
+    "targetClassId": 2,                              // 目标班级ID
+    "targetClassName": "一年级2班",                  // 目标班级名称
+    "reason": "家庭住址变更",                        // 调班原因
+    "applyTime": "2024-11-20T10:00:00",             // 申请时间
+    "approvalStatus": 2,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalId": 1,                                 // 关联审批记录ID
+    "remark": "同意转班",                            // 备注
+    "createdAt": "2024-11-20T10:00:00",             // 创建时间
+    "updatedAt": "2024-11-20T15:00:00"              // 更新时间
+  }
+}
+```
 
 **实现位置**: `ClassTransferController.java:33`
 
@@ -1098,6 +2462,39 @@
 - `studentId` - 学生ID
 - `page` - 页码
 - `size` - 每页条数
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 1,
+    "list": [
+      {
+        "id": 1,                                         // 调班ID
+        "transferNo": "CT2024112000001",                 // 调班单号
+        "studentId": 100,                                // 学生ID
+        "studentName": "小明",                           // 学生姓名
+        "currentClassId": 1,                             // 当前班级ID
+        "currentClassName": "一年级1班",                 // 当前班级名称
+        "targetClassId": 2,                              // 目标班级ID
+        "targetClassName": "一年级2班",                  // 目标班级名称
+        "reason": "家庭住址变更",                        // 调班原因
+        "applyTime": "2024-11-20T10:00:00",             // 申请时间
+        "approvalStatus": 2,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+        "approvalId": 1,                                 // 关联审批记录ID
+        "remark": "同意转班",                            // 备注
+        "createdAt": "2024-11-20T10:00:00",             // 创建时间
+        "updatedAt": "2024-11-20T15:00:00"              // 更新时间
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 1
+  }
+}
+```
 
 **实现位置**: `ClassTransferController.java:40`
 
