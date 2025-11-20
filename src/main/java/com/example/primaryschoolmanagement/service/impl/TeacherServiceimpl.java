@@ -11,9 +11,11 @@ import com.example.primaryschoolmanagement.dao.TeacherDao;
 import com.example.primaryschoolmanagement.dao.UserDao;
 import com.example.primaryschoolmanagement.entity.AppUser;
 import com.example.primaryschoolmanagement.entity.Course;
+import com.example.primaryschoolmanagement.entity.Role;
 import com.example.primaryschoolmanagement.entity.Teacher;
 import com.example.primaryschoolmanagement.service.TeacherService;
 import io.swagger.models.auth.In;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,12 +100,10 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
 
 
     @Override
-
-    public R addTeacher(Teacher teacher, AppUser appuser){
+    public R addTeacher(Teacher teacher, AppUser appuser, Role role){
         LocalDateTime currentTime = LocalDateTime.now();
         teacher.setCreatedAt(currentTime);
         teacher.setUpdatedAt(currentTime);
-
         int teacherrow = this.teacherDao.insert(teacher);
         if (teacherrow <= 0) {
             throw new RuntimeException("教师信息插入失败");
@@ -125,51 +125,71 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         if (userrow <= 0) {
             throw new RuntimeException("用户信息插入失败");
         }
-        return R.ok("教师及用户信息添加成功");
+        return R.ok("信息添加成功");
     }
 
     @Override
-    public R deleteTeacher(Integer id) {
+    public R deleteTeacher(Teacher teacher, AppUser appuser) {
         // 1. 校验id非空
-        if (id == null) {
+        Integer teacherid = teacher.getId();
+        Integer appuserid = Math.toIntExact(appuser.getId());
+        if (teacherid == null) {
             return R.er(400, "教师ID不能为空");
         }
         // 2. 查询记录是否存在
-        Teacher existingTeacher = teacherDao.selectById(id);
+        Teacher existingTeacher = teacherDao.selectById(teacherid);
         if (existingTeacher == null) {
-            return R.er(404, "未找到ID为" + id + "的教师记录");
+            return R.er(404, "未找到ID为" + teacherid + "的教师记录");
         }
         // 3. 执行逻辑删除（更新isDeleted为true）
         //教师表
         Teacher updateTeacher = new Teacher();
-        updateTeacher.setId(id);
+        updateTeacher.setId(teacherid);
         updateTeacher.setIsDeleted(true);
-        int row = teacherDao.deleteById(updateTeacher);
+        int teacherrow = teacherDao.deleteById(updateTeacher);
+        //用户表
+        int appuserrow = 0;
+        if (teacherid == appuserid) {
+            if (appuserid == null) {
+                return R.er(400, "教师ID不能为空");
+            }
+            AppUser existingAppUser = userDao.selectById(appuserid);
+            if (existingAppUser == null) {
+                return R.er(404, "未找到ID为" + appuserid + "的用户记录");
+            }
+            AppUser updateAppUser = new AppUser();
+            updateAppUser.setId(Long.valueOf(appuserid));
+            updateAppUser.setIsDeleted(true);
+            appuserrow = userDao.deleteById(updateAppUser);
+        }
         // 4. 返回结果
-        return row > 0 ? R.ok("删除成功") : R.er(ResultCode.ERROR);
+        // 两个条件都满足才返回成功，否则失败
+        return (teacherrow > 0 && appuserrow > 0)
+                ? R.ok("删除成功")
+                : R.er(ResultCode.ERROR);
     }
 
 
 
     @Override
-    public R updateTeacher(Teacher teacher) {
+    public R updateTeacher(Teacher teacher,AppUser appuser) {
         // 1. 验证主键id是否存在（必须传入id才能确定更新哪条记录）
         Integer id = teacher.getId();
+        Integer userid = Math.toIntExact(appuser.getId());
         if (id == null) {
             return R.er(400, "教师ID不能为空");
         }
-
         // 2. 验证要更新的记录是否存在
         Teacher existingTeacher = teacherDao.selectById(id);
         if (existingTeacher == null) {
             return R.er(404, "未找到ID为" + id + "的教师记录");
         }
-
         // 3. 设置更新时间（无论是否修改其他字段，更新时间都要刷新）
         teacher.setUpdatedAt(LocalDateTime.now());
 
         // 4. 使用条件更新，仅更新非空字段（核心逻辑）
         UpdateWrapper<Teacher> updateWrapper = new UpdateWrapper<>();
+        UpdateWrapper<AppUser> wrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", id); // 条件：根据id更新
 
         // 逐个判断字段是否为null，非null则加入更新条件
@@ -188,11 +208,16 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         if (teacher.getIdCard() != null && !teacher.getIdCard().isEmpty()) {
             updateWrapper.set("id_card", teacher.getIdCard());
         }
+        System.out.println(teacher.getPhone());
         if (teacher.getPhone() != null && !teacher.getPhone().isEmpty()) {
             updateWrapper.set("phone", teacher.getPhone());
+            appuser.setPhone(teacher.getPhone());
+            wrapper.set("phone", appuser.getPhone());
         }
         if (teacher.getEmail() != null && !teacher.getEmail().isEmpty()) {
             updateWrapper.set("email", teacher.getEmail());
+            appuser.setEmail(teacher.getEmail());
+            wrapper.set("email", appuser.getEmail());
         }
         if (teacher.getTitle() != null && !teacher.getTitle().isEmpty()) {
             updateWrapper.set("title", teacher.getTitle());
@@ -204,21 +229,31 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         updateWrapper.set("updated_at", teacher.getUpdatedAt());
 
         // 5. 执行更新操作（只更新非空字段）
-        int row = this.teacherDao.update(null, updateWrapper);
-
+        int teacherrow = this.teacherDao.update(null, updateWrapper);
+//        System.out.println("id: " + id + ", userid: " + userid);
+        int appuserrow = 0;
+        if (id == userid) {
+            wrapper.eq("id", userid); // 条件：更新指定ID的用户
+            // 检查phone字段，非空则添加更新
+//            System.out.println("appuser.getphone"+appuser.getPhone());
+            appuserrow = this.userDao.update(null, wrapper);
+        }
         // 6. 根据结果返回信息
-        return row > 0 ? R.ok("更新成功") : R.er();
+        return (teacherrow > 0 && appuserrow > 0)
+                ? R.ok("更新")
+                : R.er(ResultCode.ERROR);
     }
 
-//    @Override
-//    public R getcrouseByteacherId(Integer id) {
-//        if(id==null){
-//            return R.er(400, "教师ID不能为空");
-//        }
-//        LambdaQueryWrapper<Course> queryWrapper = new LambdaQueryWrapper<>();
-//
-//        return null;
-//    }
+
+
+
+    @Override
+    public R getcrouseByteacherId(Integer id) {
+        if(id==null){
+            return R.er(400, "教师ID不能为空");
+        }
+        return null;
+    }
 
 
 }
