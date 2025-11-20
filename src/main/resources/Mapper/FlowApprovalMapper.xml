@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.primaryschoolmanagement.dao.FlowApprovalMapper">
+
+    <resultMap id="ApprovalVOMap" type="com.example.primaryschoolmanagement.vo.ApprovalVO">
+        <id column="id" property="id"/>
+        <result column="approval_no" property="approvalNo"/>
+        <result column="process_id" property="processId"/>
+        <result column="process_name" property="processName"/>
+        <result column="apply_user_id" property="applyUserId"/>
+        <result column="apply_user_name" property="applyUserName"/>
+        <result column="apply_time" property="applyTime"/>
+        <result column="business_type" property="businessType"/>
+        <result column="business_id" property="businessId"/>
+        <result column="approval_status" property="approvalStatus"/>
+        <result column="current_approver_id" property="currentApproverId"/>
+        <result column="current_approver_name" property="currentApproverName"/>
+        <result column="reason" property="reason"/>
+    </resultMap>
+
+    <select id="selectApprovalDetail" resultMap="ApprovalVOMap">
+        SELECT
+            fa.*,
+            fp.process_name,
+            au.username as apply_user_name,
+            cu.username as current_approver_name
+        FROM flow_approval fa
+                 LEFT JOIN flow_process fp ON fa.process_id = fp.id
+                 LEFT JOIN sys_user au ON fa.apply_user_id = au.id
+                 LEFT JOIN sys_user cu ON fa.current_approver_id = cu.id
+        WHERE fa.id = #{id} AND fa.is_deleted = 0
+    </select>
+
+    <select id="selectPendingApprovals" resultMap="ApprovalVOMap">
+        SELECT
+            fa.*,
+            fp.process_name,
+            au.username as apply_user_name
+        FROM flow_approval fa
+                 LEFT JOIN flow_process fp ON fa.process_id = fp.id
+                 LEFT JOIN sys_user au ON fa.apply_user_id = au.id
+        WHERE fa.current_approver_id = #{approverId}
+          AND fa.approval_status = 1
+          AND fa.is_deleted = 0
+        ORDER BY fa.apply_time DESC
+    </select>
+
+    <select id="selectApprovalHistory" resultMap="ApprovalVOMap">
+        SELECT
+            fa.*,
+            fp.process_name,
+            au.username as apply_user_name
+        FROM flow_approval fa
+                 LEFT JOIN flow_process fp ON fa.process_id = fp.id
+                 LEFT JOIN sys_user au ON fa.apply_user_id = au.id
+        WHERE fa.apply_user_id = #{applyUserId}
+          AND fa.is_deleted = 0
+        ORDER BY fa.apply_time DESC
+    </select>
+
+</mapper>
