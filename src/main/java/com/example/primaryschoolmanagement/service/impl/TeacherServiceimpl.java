@@ -122,11 +122,11 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         if (userrow <= 0) {
             throw new RuntimeException("用户信息插入失败");
         }
-        userrole.setUserId(Math.toIntExact(appuser.getId()));
+        userrole.setUserId(appuser.getId());
         if("班主任".equals(teacher.getTitle())){
-            userrole.setRoleId(4);
+            userrole.setRoleId(4L);
         }else{
-            userrole.setRoleId(3);
+            userrole.setRoleId(3L);
         }
         int userRoleRow = this.userRoleDao.insert(userrole);
         if (userRoleRow <= 0) {
@@ -160,27 +160,27 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         int appuserrow = 0;
         int userRoleRow = 0;
 
-            if (appuserid == null) {
-                return R.er(400, "用户ID不能为空");
-            }
-            AppUser existingAppUser = userDao.selectById(appuserid);
-            if (existingAppUser == null) {
-                return R.er(404, "未找到ID为" + appuserid + "的用户记录");
-            }
-            AppUser updateAppUser = new AppUser();
-            updateAppUser.setId(Long.valueOf(appuserid));
-            updateAppUser.setIsDeleted(true);
-            appuserrow = userDao.deleteById(updateAppUser);
-                if (appuserid == null) {
-                    return R.er(400, "角色用户ID不能为空");
-                }
-                QueryWrapper<UserRole> queryWrapper = new QueryWrapper<>();
-                queryWrapper.eq("user_id", appuserid); // 按用户ID查询关联的角色记录
-                List<UserRole> existingUserRoles = userRoleDao.selectList(queryWrapper);
-                if (existingUserRoles == null || existingUserRoles.isEmpty()) {
-                    return R.er(404, "未找到用户ID为" + appuserid + "的角色关联记录");
-                }
-                userRoleRow = userRoleDao.delete(queryWrapper);
+        if (appuserid == null) {
+            return R.er(400, "用户ID不能为空");
+        }
+        AppUser existingAppUser = userDao.selectById(appuserid);
+        if (existingAppUser == null) {
+            return R.er(404, "未找到ID为" + appuserid + "的用户记录");
+        }
+        AppUser updateAppUser = new AppUser();
+        updateAppUser.setId(Long.valueOf(appuserid));
+        updateAppUser.setIsDeleted(true);
+        appuserrow = userDao.deleteById(updateAppUser);
+        if (appuserid == null) {
+            return R.er(400, "角色用户ID不能为空");
+        }
+        QueryWrapper<UserRole> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", appuserid); // 按用户ID查询关联的角色记录
+        List<UserRole> existingUserRoles = userRoleDao.selectList(queryWrapper);
+        if (existingUserRoles == null || existingUserRoles.isEmpty()) {
+            return R.er(404, "未找到用户ID为" + appuserid + "的角色关联记录");
+        }
+        userRoleRow = userRoleDao.delete(queryWrapper);
 
 
         // 4. 返回结果
@@ -197,7 +197,7 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         // 1. 验证主键id是否存在（必须传入id才能确定更新哪条记录）
         Integer id = teacher.getId();
         Integer userid = teacher.getUserId();
-        Integer roleid = userrole.getRoleId();
+        long roleid = userrole.getRoleId();
         if (id == null) {
             return R.er(400, "教师ID不能为空");
         }
@@ -263,34 +263,41 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         System.out.println("id: " + id + ", userid: " + userid);
         //更新用户表
         int appuserrow = 0;
-            wrapper.eq("id", userid); // 条件：更新指定ID的用户
-            // 检查phone字段，非空则添加更新
+        wrapper.eq("id", userid); // 条件：更新指定ID的用户
+        // 检查phone字段，非空则添加更新
 //            System.out.println("appuser.getphone"+appuser.getPhone());
-            appuserrow = this.userDao.update(null, wrapper);
+        appuserrow = this.userDao.update(null, wrapper);
 
-        System.out.println("userid: " + userid + ", role_id: " + roleid);
+//        System.out.println("userid: " + userid + ", role_id: " + roleid);
         int userrolerow = 0;
-            userwrapper.eq("user_id", userid);
-            userrolerow = this.userRoleDao.update(null, userwrapper);
+        userwrapper.eq("user_id", userid);
+        userrolerow = this.userRoleDao.update(null, userwrapper);
         // 6. 根据结果返回信息
         return (teacherrow > 0 && appuserrow > 0 && userrolerow>0)
                 ? R.ok("更新")
                 : R.er(ResultCode.ERROR);
     }
 
+    /**
+     * 根据科目ID获取能教该科目的教师列表
+     * @param subjectId 科目ID
+     * @return 教师列表
+     */
     @Override
     public R getTeachersBySubjectId(Long subjectId) {
-        return null;
-    }
-
-
-    @Override
-    public R getcrouseByteacherId(Integer id) {
-        if(id==null){
-            return R.er(400, "教师ID不能为空");
+        // 1. 验证科目ID是否为空
+        if (subjectId == null) {
+            return R.er(400, "科目ID不能为空");
         }
-        return null;
-    }
 
+        // 2. 查询能教该科目的教师列表
+        List<Teacher> teachers = teacherDao.findTeachersBySubjectId(subjectId);
+
+        // 3. 返回结果
+        if (teachers == null || teachers.isEmpty()) {
+            return R.ok(Collections.emptyList());  // 返回空列表而不是错误
+        }
+        return R.ok(teachers);
+    }
 
 }
