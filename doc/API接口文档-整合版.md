@@ -1,7 +1,7 @@
 # 小学教务管理系统 - API接口文档（整合版）
 
-> **文档版本**: v2.0
-> **最后更新**: 2025-11-18
+> **文档版本**: v3.0
+> **最后更新**: 2025-11-19
 > **项目状态**: 开发中 🚧
 
 ---
@@ -16,10 +16,19 @@
 - 🚧 **未实现** - 接口设计已确定，但尚未开发
 
 **当前实际实现进度**：
-- **系统管理模块**：20% (2/10 接口已实现)
-- **教务核心模块**：35% (14/40 接口已实现)
-- **业务流程模块**：20% (5/25 接口已实现)
-- **总体进度**：28% (21/75 接口已实现)
+- **系统管理模块**: 63% (15/24 接口已实现)
+- **教务核心模块**: 35% (14/40 接口已实现)
+- **业务流程模块**: 56% (14/25 接口已实现)
+- **总体进度**: 48% (43/89 接口已实现)
+
+**本次更新(v3.0)主要内容**:
+- ✅ 新增完整的菜单管理模块(6个接口)
+- ✅ 新增完整的用户管理模块(7个接口,含文件上传)
+- ✅ 新增调课申请接口(3个接口)
+- ✅ 新增换课申请接口(3个接口)
+- ✅ 新增调班申请接口(3个接口)
+- ✅ 修复教师详情接口BUG
+- ✅ 修复学生删除接口参数绑定问题
 
 ---
 
@@ -27,8 +36,10 @@
 
 - [一、系统管理模块](#一系统管理模块)
   - [1.1 用户认证接口](#11-用户认证接口)
-  - [1.2 角色管理接口](#12-角色管理接口)
-  - [1.3 菜单管理接口](#13-菜单管理接口)
+  - [1.2 用户管理接口](#12-用户管理接口)
+  - [1.3 角色管理接口](#13-角色管理接口)
+  - [1.4 菜单管理接口](#14-菜单管理接口)
+  - [1.5 文件上传接口](#15-文件上传接口)
 - [二、教务核心模块](#二教务核心模块)
   - [2.1 教师管理接口](#21-教师管理接口)
   - [2.2 学生管理接口](#22-学生管理接口)
@@ -69,9 +80,9 @@
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "操作成功",
-  "data": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."  // JWT Token
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."  // JWT Token令牌，需要保存用于后续请求
 }
 ```
 
@@ -95,59 +106,12 @@ Authorization: Bearer <token>
 **响应示例**:
 ```json
 {
-  "code": 200,
-  "msg": "登出成功"
+  "code": 200,           // 状态码：200表示成功
+  "msg": "登出成功"       // 消息：操作结果描述
 }
 ```
 
 **实现位置**: `UserController.java:80`
-
----
-
-#### 1.1.3 用户注册 🚧
-
-**接口地址**: `POST /api/user/register`
-
-**实现状态**: 🚧 未实现
-
-**未实现原因**:
-- ⚠️ Service层有 `regUser()` 方法，但Controller层未暴露接口
-- ⚠️ 需要添加注册参数验证（用户名唯一性、密码强度等）
-- ⚠️ 需要确定注册流程（是否需要邮箱验证、手机验证码等）
-
-**功能描述**: 新用户注册
-
-**预期请求参数**:
-```json
-{
-  "userName": "student001",
-  "password": "Pass@123",
-  "realName": "张三",
-  "userType": 3,              // 1-管理员 2-教师 3-学生 4-家长
-  "phone": "13800138000",
-  "email": "student001@example.com"
-}
-```
-
-**待实现功能**:
-1. [ ] Controller接口开发
-2. [ ] 用户名/手机号/邮箱唯一性验证
-3. [ ] 密码强度验证
-4. [ ] 发送验证码功能（可选）
-5. [ ] 自动分配默认角色
-
----
-
-#### 1.1.4 修改密码 🚧
-
-**接口地址**: `PUT /api/user/password`
-
-**实现状态**: 🚧 未实现
-
-**未实现原因**:
-- ⚠️ Service层有 `updatePassword()` 方法，但未暴露接口
-- ⚠️ 需要实现旧密码验证逻辑
-- ⚠️ 需要添加密码修改日志记录
 
 ---
 
@@ -163,13 +127,371 @@ Authorization: Bearer <token>
 
 ---
 
-### 1.2 角色管理接口
+### 1.2 用户管理接口
 
-#### 1.2.1 ~ 1.2.5 角色相关接口 🚧
+#### 1.2.1 用户列表查询 ✅
+
+**接口地址**: `GET /api/users`
+
+**实现状态**: ✅ 已实现
+
+**功能描述**: 查询用户列表，支持条件筛选和分页
+
+**请求参数**:
+```
+username=admin&userType=1&status=1&page=1&size=10
+```
+
+**请求参数说明**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| username | String | 否 | 用户名（模糊查询） |
+| realName | String | 否 | 真实姓名（模糊查询） |
+| userType | Integer | 否 | 用户类型：1-管理员 2-教师 3-学生 4-家长 |
+| status | Integer | 否 | 状态：0-禁用 1-启用 |
+| phone | String | 否 | 手机号（模糊查询） |
+| email | String | 否 | 邮箱（模糊查询） |
+| page | Integer | 否 | 页码，默认1 |
+| size | Integer | 否 | 每页条数，默认10 |
+
+**响应示例**:
+```json
+{
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": {
+    "total": 100,        // 总记录数
+    "records": [         // 用户列表数据
+      {
+        "id": 1,                        // 用户ID
+        "username": "admin",            // 用户名（登录账号）
+        "realName": "系统管理员",        // 真实姓名
+        "userType": 1,                  // 用户类型：1-管理员 2-教师 3-学生 4-家长
+        "avatar": "/uploads/avatars/2024/11/19/1_abc123.jpg",  // 头像URL地址
+        "phone": "13800138000",         // 手机号
+        "email": "admin@example.com",   // 邮箱地址
+        "gender": 1,                    // 性别：1-男 2-女
+        "status": 1,                    // 状态：0-禁用 1-启用
+        "lastLoginTime": "2024-11-18 10:30:00",  // 最后登录时间
+        "createdAt": "2024-01-01 00:00:00",      // 创建时间
+        "updatedAt": "2024-11-18 10:30:00",      // 更新时间
+        "roles": ["super_admin"]        // 角色列表
+      }
+    ],
+    "page": 1,           // 当前页码
+    "size": 10           // 每页条数
+  }
+}
+```
+
+**实现位置**: `UserManagementController.java:84`
+
+**已实现功能**:
+- ✅ Controller接口开发
+- ✅ Service层分页查询功能
+- ✅ 多条件组合查询
+- ✅ 关联查询用户角色信息
+
+---
+
+#### 1.2.2 添加用户 ✅
+
+**接口地址**: `POST /api/users`
+
+**实现状态**: ✅ 已实现
+
+**功能描述**: 添加新用户（管理员、教师、学生、家长），支持同时上传头像
+
+**请求格式**: `Content-Type: multipart/form-data`
+
+**请求参数**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| username | String | 是 | 登录账号，3-50个字符，唯一 |
+| password | String | 是 | 密码，6-20个字符 |
+| realName | String | 是 | 真实姓名，1-50个字符 |
+| userType | Integer | 是 | 用户类型：1-管理员 2-教师 3-学生 4-家长 |
+| avatarFile | File | 否 | 头像文件（JPG/PNG/GIF，最大5MB） |
+| phone | String | 否 | 联系电话，11位手机号 |
+| email | String | 否 | 邮箱地址 |
+| gender | Integer | 否 | 性别：1-男 2-女 |
+| status | Integer | 否 | 状态：0-禁用 1-启用，默认1 |
+
+**cURL 示例**:
+```bash
+curl -X POST http://localhost:8082/api/users \
+  -H "Authorization: Bearer {token}" \
+  -F "username=teacher001" \
+  -F "password=Pass@123" \
+  -F "realName=张老师" \
+  -F "userType=2" \
+  -F "phone=13800138001" \
+  -F "email=teacher001@example.com" \
+  -F "gender=1" \
+  -F "avatarFile=@/path/to/avatar.jpg"
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": {
+    "id": 10,                       // 用户ID（新创建的用户ID）
+    "username": "teacher001",       // 用户名（登录账号）
+    "realName": "张老师",            // 真实姓名
+    "userType": 2,                  // 用户类型：1-管理员 2-教师 3-学生 4-家长
+    "avatar": "/uploads/avatars/2024/11/19/10_abc123.jpg",  // 头像URL地址
+    "phone": "13800138001",         // 手机号
+    "email": "teacher001@example.com",  // 邮箱地址
+    "gender": 1,                    // 性别：1-男 2-女
+    "status": 1,                    // 状态：0-禁用 1-启用
+    "createdAt": "2024-11-19 10:00:00",  // 创建时间
+    "updatedAt": "2024-11-19 10:00:00",  // 更新时间
+    "roles": ["teacher"]            // 角色列表（已自动分配）
+  }
+}
+```
+
+**实现位置**: `UserManagementController.java:38`
+
+**已实现功能**:
+- ✅ Controller接口开发
+- ✅ 用户名唯一性验证
+- ✅ 手机号唯一性验证（如果提供）
+- ✅ 邮箱唯一性验证（如果提供）
+- ✅ 密码自动加密（BCrypt）
+- ✅ 自动分配默认角色
+- ✅ 参数校验
+- ✅ 支持头像文件上传
+
+**注意事项**:
+- 密码将使用BCrypt算法加密后存储
+- 用户名、手机号、邮箱必须唯一
+- 根据用户类型自动分配默认角色（管理员→super_admin，教师→teacher，学生→student）
+- 头像文件支持JPG、PNG、GIF格式，最大5MB
+- 头像文件按日期分类存储（uploads/avatars/yyyy/MM/dd/）
+
+---
+
+#### 1.2.3 修改用户 ✅
+
+**接口地址**: `PUT /api/users/{id}`
+
+**实现状态**: ✅ 已实现
+
+**功能描述**: 修改用户信息（不包括密码），支持更新头像文件
+
+**请求格式**: `Content-Type: multipart/form-data`
+
+**请求参数**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| realName | String | 否 | 真实姓名 |
+| avatarFile | File | 否 | 头像文件（JPG/PNG/GIF，最大5MB） |
+| phone | String | 否 | 联系电话 |
+| email | String | 否 | 邮箱地址 |
+| gender | Integer | 否 | 性别：1-男 2-女 |
+| status | Integer | 否 | 状态：0-禁用 1-启用 |
+
+**cURL 示例**:
+```bash
+curl -X PUT http://localhost:8082/api/users/10 \
+  -H "Authorization: Bearer {token}" \
+  -F "realName=张老师" \
+  -F "phone=13800138002" \
+  -F "avatarFile=@/path/to/new_avatar.jpg"
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": {
+    "id": 10,                       // 用户ID
+    "username": "teacher001",       // 用户名（登录账号）
+    "realName": "张老师",            // 真实姓名
+    "userType": 2,                  // 用户类型：1-管理员 2-教师 3-学生 4-家长
+    "avatar": "/uploads/avatars/2024/11/19/10_def456.jpg",  // 头像URL地址（已更新）
+    "phone": "13800138002",         // 手机号（已更新）
+    "email": "teacher001@example.com",  // 邮箱地址
+    "gender": 1,                    // 性别：1-男 2-女
+    "status": 1,                    // 状态：0-禁用 1-启用
+    "updatedAt": "2024-11-19 11:00:00",  // 更新时间
+    "roles": ["teacher"]            // 角色列表
+  }
+}
+```
+
+**实现位置**: `UserManagementController.java:96`
+
+**已实现功能**:
+- ✅ Controller接口开发
+- ✅ Service层更新方法
+- ✅ 手机号唯一性验证（如果修改）
+- ✅ 邮箱唯一性验证（如果修改）
+- ✅ 参数校验
+- ✅ 清除相关缓存
+- ✅ 支持头像文件上传
+
+**注意事项**:
+- 不允许修改username（登录账号）
+- 不允许修改userType（用户类型）
+- 密码修改使用专门的修改密码接口
+- 修改手机号或邮箱时需要验证唯一性
+- 上传新头像会自动替换旧头像
+
+---
+
+#### 1.2.4 删除用户 ✅
+
+**接口地址**: `DELETE /api/users/{id}`
+
+**实现状态**: ✅ 已实现
+
+**功能描述**: 删除用户（软删除，设置is_deleted=1）
+
+**请求参数**:
+- 路径参数：`id` - 用户ID
+
+**响应示例**:
+```json
+{
+  "code": 200,           // 状态码：200表示成功
+  "msg": "删除成功"       // 消息：操作结果描述
+}
+```
+
+**实现位置**: `UserManagementController.java:144`
+
+**已实现功能**:
+- ✅ Controller接口开发
+- ✅ Service层软删除方法
+- ✅ 删除用户角色关联
+- ✅ 清除相关缓存
+- ✅ 权限验证（不能删除超级管理员ID=1）
+
+**注意事项**:
+- 使用软删除，不物理删除数据
+- 不允许删除超级管理员（userType=1 且 id=1）
+- 删除后该用户无法登录
+- 同时删除用户角色关联关系
+
+---
+
+#### 1.2.5 用户详情 ✅
+
+**接口地址**: `GET /api/users/{id}`
+
+**实现状态**: ✅ 已实现
+
+**功能描述**: 查询用户详细信息，包括角色信息
+
+**请求参数**:
+- 路径参数：`id` - 用户ID
+
+**响应示例**:
+```json
+{
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": {
+    "id": 10,                       // 用户ID
+    "username": "teacher001",       // 用户名（登录账号）
+    "realName": "张老师",            // 真实姓名
+    "userType": 2,                  // 用户类型：1-管理员 2-教师 3-学生 4-家长
+    "avatar": "/uploads/avatars/2024/11/19/10_abc123.jpg",  // 头像URL地址
+    "phone": "13800138001",         // 手机号
+    "email": "teacher001@example.com",  // 邮箱地址
+    "gender": 1,                    // 性别：1-男 2-女
+    "status": 1,                    // 状态：0-禁用 1-启用
+    "lastLoginTime": "2024-11-19 09:30:00",  // 最后登录时间
+    "lastLoginIp": "192.168.1.100",          // 最后登录IP地址
+    "createdAt": "2024-11-01 10:00:00",      // 创建时间
+    "updatedAt": "2024-11-19 09:30:00",      // 更新时间
+    "roles": ["teacher"]            // 角色列表
+  }
+}
+```
+
+**实现位置**: `UserManagementController.java:152`
+
+**已实现功能**:
+- ✅ Controller接口开发
+- ✅ Service层详情查询方法
+- ✅ 关联查询用户角色
+
+**注意事项**:
+- 不返回密码字段
+- 自动关联查询用户的角色信息
+
+---
+
+#### 1.2.6 分配角色给用户 ✅
+
+**接口地址**: `POST /api/users/{id}/roles`
+
+**实现状态**: ✅ 已实现
+
+**功能描述**: 为用户分配一个或多个角色
+
+**请求参数**:
+```json
+{
+  "roleIds": [1, 2, 3]  //权限ID(1超级管理员 2教务管理员 3教师 4班主任 5学生)
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,           // 状态码：200表示成功
+  "msg": "角色分配成功"   // 消息：操作结果描述
+}
+```
+
+**实现位置**: `UserManagementController.java:195`
+
+**已实现功能**:
+- ✅ 批量分配角色
+- ✅ 自动删除用户原有角色
+- ✅ 角色存在性验证
+
+---
+
+#### 1.2.7 获取用户角色列表 ✅
+
+**接口地址**: `GET /api/users/{id}/roles`
+
+**实现状态**: ✅ 已实现
+
+**功能描述**: 查询用户的角色列表
+
+**响应示例**:
+```json
+{
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": ["teacher", "class_monitor"]  // 角色代码列表
+}
+```
+
+**实现位置**: `UserManagementController.java:207`
+
+---
+
+### 1.3 角色管理接口
+
+#### 1.3.1 ~ 1.3.5 角色相关接口 🚧
 
 **实现状态**: 🚧 **完全未实现**
 
 **未实现原因**:
+
 - ⚠️ 未创建 `RoleController`
 - ⚠️ 未创建 `RoleService` 接口
 - ⚠️ 需要实现分页查询功能
@@ -183,22 +505,306 @@ Authorization: Bearer <token>
 
 ---
 
-### 1.3 菜单管理接口
+### 1.4 菜单管理接口
 
-#### 1.3.1 ~ 1.3.4 菜单相关接口 🚧
+#### 1.4.1 获取菜单树 ✅
 
-**实现状态**: 🚧 **完全未实现**
+**接口地址**: `GET /api/menu/tree`
 
-**未实现原因**:
-- ⚠️ 未创建 `MenuController`
-- ⚠️ 需要实现递归树形结构
-- ⚠️ 需要根据用户角色过滤菜单
+**实现状态**: ✅ 已实现
 
-**涉及接口**:
-- `GET /api/menu/tree` - 菜单树查询
-- `POST /api/menu` - 添加菜单
-- `PUT /api/menu/{id}` - 修改菜单
-- `DELETE /api/menu/{id}` - 删除菜单
+**功能描述**: 获取系统菜单树形结构
+
+**请求参数**: 无
+
+**响应示例**:
+```json
+{
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": [              // 菜单树形数据
+    {
+      "id": 1,                    // 菜单ID
+      "menuName": "系统管理",      // 菜单名称
+      "menuPath": "/system",      // 菜单路径
+      "menuIcon": "system",       // 菜单图标
+      "menuType": 1,              // 菜单类型：1-目录 2-菜单 3-按钮
+      "parentId": 0,              // 父菜单ID（0表示顶级菜单）
+      "sortOrder": 1,             // 排序号
+      "children": [               // 子菜单列表
+        {
+          "id": 2,                     // 子菜单ID
+          "menuName": "用户管理",       // 子菜单名称
+          "menuPath": "/system/user",  // 子菜单路径
+          "menuIcon": "user",          // 子菜单图标
+          "menuType": 2,               // 菜单类型：1-目录 2-菜单 3-按钮
+          "parentId": 1,               // 父菜单ID
+          "sortOrder": 1,              // 排序号
+          "children": []               // 子菜单列表（空表示无子菜单）
+        }
+      ]
+    }
+  ]
+}
+```
+
+**实现位置**: `MenuController.java:32`
+
+**已实现功能**:
+- ✅ 递归查询树形结构
+- ✅ 按排序字段排序
+- ✅ 返回完整菜单树
+
+---
+
+#### 1.4.2 获取所有菜单列表（分页） ✅
+
+**接口地址**: `GET /api/menu/list`
+
+**实现状态**: ✅ 已实现
+
+**功能描述**: 分页获取所有菜单列表（扁平结构）
+
+**查询参数**:
+- `page` (可选) - 页码，默认 1
+- `size` (可选) - 每页条数，默认 10
+
+**请求示例**:
+```http
+GET /api/menu/list?page=1&size=10
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "dataset": {
+    "total": 50,
+    "list": [
+      {
+        "id": 1,
+        "menuName": "系统管理",
+        "menuCode": "system",
+        "menuType": 1,
+        "parentId": 0,
+        "routePath": "/system",
+        "componentPath": null,
+        "permission": null,
+        "icon": "system",
+        "sortOrder": 1,
+        "remark": "系统管理模块"
+      },
+      {
+        "id": 2,
+        "menuName": "用户管理",
+        "menuCode": "user",
+        "menuType": 2,
+        "parentId": 1,
+        "routePath": "/system/user",
+        "componentPath": "system/user/index",
+        "permission": "system:user:list",
+        "icon": "user",
+        "sortOrder": 1,
+        "remark": "用户管理页面"
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "pages": 5
+  }
+}
+```
+
+**响应字段说明**:
+- `total` - 总记录数
+- `list` - 菜单数据列表
+- `page` - 当前页码
+- `size` - 每页条数
+- `pages` - 总页数
+
+**实现位置**: `MenuController.java:43`
+
+**已实现功能**:
+- ✅ 支持分页参数
+- ✅ 返回分页结果（total、list、page、size、pages）
+- ✅ 按排序字段和ID排序
+- ✅ 仅查询未删除的菜单
+
+---
+
+#### 1.4.3 获取菜单详情 ✅
+
+**接口地址**: `GET /api/menu/{id}`
+
+**实现状态**: ✅ 已实现
+
+**功能描述**: 根据ID查询菜单详情
+
+**请求参数**:
+- 路径参数：`id` - 菜单ID
+
+**实现位置**: `MenuController.java:54`
+
+---
+
+#### 1.4.4 创建菜单 ✅
+
+**接口地址**: `POST /api/menu`
+
+**实现状态**: ✅ 已实现
+
+**功能描述**: 创建新菜单项
+
+**权限要求**: 超级管理员 (`super_admin`)
+
+**请求参数**:
+```json
+{
+  "menuName": "教师管理",
+  "menuPath": "/teacher",
+  "menuIcon": "teacher",
+  "menuType": 2,
+  "parentId": 1,
+  "sortOrder": 2,
+  "permission": "system:teacher:list"
+}
+```
+
+**请求参数说明**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| menuName | String | 是 | 菜单名称 |
+| menuPath | String | 否 | 菜单路径 |
+| menuIcon | String | 否 | 菜单图标 |
+| menuType | Integer | 是 | 菜单类型：1-目录 2-菜单 3-按钮 |
+| parentId | Long | 否 | 父菜单ID，0表示顶级菜单 |
+| sortOrder | Integer | 否 | 排序号，默认0 |
+| permission | String | 否 | 权限标识 |
+
+**实现位置**: `MenuController.java:66`
+
+---
+
+#### 1.4.5 更新菜单 ✅
+
+**接口地址**: `PUT /api/menu/{id}`
+
+**实现状态**: ✅ 已实现
+
+**功能描述**: 更新菜单信息
+
+**权限要求**: 超级管理员 (`super_admin`)
+
+**实现位置**: `MenuController.java:78`
+
+---
+
+#### 1.4.6 删除菜单 ✅
+
+**接口地址**: `DELETE /api/menu/{id}`
+
+**实现状态**: ✅ 已实现
+
+**功能描述**: 删除菜单项
+
+**权限要求**: 超级管理员 (`super_admin`)
+
+**注意事项**:
+- 如果菜单下有子菜单，将无法删除
+- 使用软删除方式
+
+**实现位置**: `MenuController.java:90`
+
+---
+
+### 1.5 文件上传接口
+
+#### 1.5.1 文件上传功能说明 ✅
+
+**实现状态**: ✅ 已实现
+
+**功能描述**:
+
+系统实现了完整的文件上传功能，主要用于用户头像上传。文件上传功能已集成到用户管理接口中，无需单独调用上传接口。
+
+**技术实现**:
+
+1. **文件存储服务** (`FileStorageService`)
+   - 支持文件验证（格式、大小、文件名）
+   - 按日期分类存储（uploads/avatars/yyyy/MM/dd/）
+   - 生成唯一文件名（userId_UUID.ext）
+   - 支持文件删除
+
+2. **配置信息**:
+   - 上传目录：`uploads/`
+   - 头像子目录：`avatars/`
+   - 文件大小限制：5MB
+   - 支持格式：JPG、PNG、GIF
+   - 访问URL前缀：`/uploads`
+
+3. **静态资源访问**:
+   - 配置了静态资源映射 (`WebMvcConfig`)
+   - 可通过 `GET /uploads/**` 访问已上传的文件
+   - 例如：`http://localhost:8082/uploads/avatars/2024/11/19/1_abc123.jpg`
+
+**实现位置**:
+- 配置类：`FileUploadProperties.java`
+- 服务接口：`FileStorageService.java`
+- 服务实现：`FileStorageServiceImpl.java`
+- Web配置：`WebMvcConfig.java`
+
+**使用说明**:
+
+头像上传已集成到以下用户管理接口中：
+- **创建用户时上传头像**: `POST /api/users` - 通过 `avatarFile` 参数上传
+- **更新用户时上传头像**: `PUT /api/users/{id}` - 通过 `avatarFile` 参数上传
+
+**配置参数** (`application.yml`):
+
+```yaml
+# Spring 文件上传配置
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+      file-size-threshold: 0
+
+# 自定义文件上传配置
+file:
+  upload:
+    upload-dir: uploads
+    avatar-dir: avatars
+    max-file-size: 5242880  # 5MB
+    access-url-prefix: /uploads
+    allowed-image-types:
+      - image/jpeg
+      - image/png
+      - image/jpg
+      - image/gif
+```
+
+**文件存储结构**:
+
+```
+uploads/
+└── avatars/
+    └── 2024/
+        └── 11/
+            └── 19/
+                ├── 1_abc123def456.jpg
+                ├── 2_def456ghi789.png
+                └── ...
+```
+
+**安全说明**:
+- ✅ 文件类型验证
+- ✅ 文件大小限制
+- ✅ 文件名安全检查（防止目录遍历）
+- ✅ uploads 目录已加入 .gitignore
 
 ---
 
@@ -288,26 +894,42 @@ teacherName=张&teacherNo=T001&title=语文教师
 
 ---
 
-#### 2.1.5 教师详情 ⚠️
+#### 2.1.5 教师详情 ✅
 
 **接口地址**: `GET /api/teacher/{id}`
 
-**实现状态**: ⚠️ 部分实现（**存在BUG**）
+**实现状态**: ✅ 已实现（**BUG已修复**）
 
-**实现位置**: `TeacherController.java:14`
+**实现位置**: `TeacherController.java:16`
 
-**问题说明**:
-- ❌ 接口定义了 `{id}` 路径参数，但方法参数是 `Teacher teacher`
-- ❌ 方法体调用的是 `teacherList()`，而不是根据ID查询
-- ❌ 需要修复此接口
+**功能描述**: 根据教师ID查询教师详细信息
 
-**建议修复**:
-```java
-@GetMapping(value="/teacher/{id}")
-public R getTeacherById(@PathVariable Integer id) {
-    return this.teacherService.getTeacherById(id);
+**请求参数**:
+- 路径参数：`id` - 教师ID
+
+**响应示例**:
+```json
+{
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": {
+    "id": 1,                        // 教师ID
+    "teacherNo": "T001",            // 教师工号
+    "teacherName": "张老师",         // 教师姓名
+    "gender": 1,                    // 性别：1-男 2-女
+    "birthDate": "1985-03-15",      // 出生日期
+    "idCard": "110101198503150011", // 身份证号
+    "phone": "13900139000",         // 联系电话
+    "email": "teacher001@school.com",  // 邮箱地址
+    "title": "数学教师",             // 职称
+    "hireDate": "2024-09-01"        // 入职日期
+  }
 }
 ```
+
+**已修复问题**:
+- ✅ 使用了正确的 `@PathVariable` 注解
+- ✅ 调用了正确的 `getTeacherById(id)` 方法
 
 ---
 
@@ -511,7 +1133,7 @@ public R getTeacherById(@PathVariable Integer id) {
 
 #### 2.4.1 年级列表查询 ✅
 
-**接口地址**: `GET /api/grade/**`
+**接口地址**: `GET /api/grade/list`
 
 **实现状态**: ✅ 已实现（仅查询功能）
 
@@ -683,54 +1305,415 @@ classId=1&page=1&size=10
 
 ### 3.2 调课申请接口
 
-#### 3.2.1 ~ 3.2.3 调课相关接口 🚧
+#### 3.2.1 提交调课申请 ✅
 
-**实现状态**: 🚧 **完全未实现**
+**接口地址**: `POST /api/course-change`
 
-**未实现原因**:
-- ⚠️ 未创建 `CourseChange` 实体类
-- ⚠️ 未创建 `CourseChangeController`
-- ⚠️ 需要实现课表变更逻辑
+**实现状态**: ✅ 已实现
 
-**涉及接口**:
-- `POST /api/course-change/apply` - 提交调课申请
-- `GET /api/course-change/list` - 调课列表
-- `GET /api/course-change/{id}` - 调课详情
+**功能描述**: 教师提交调课申请
+
+**请求参数**:
+```json
+{
+  "scheduleId": 123,
+  "originalDate": "2024-11-20",
+  "newDate": "2024-11-21",
+  "reason": "临时有事需要调整课程时间"
+}
+```
+
+**请求参数说明**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| scheduleId | Long | 是 | 原课程ID |
+| originalDate | String | 是 | 原上课日期 |
+| newDate | String | 是 | 调整后日期 |
+| reason | String | 是 | 调课原因 |
+
+**响应示例**:
+```json
+{
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": 1              // 调课申请ID（新创建的申请记录ID）
+}
+```
+
+**实现位置**: `CourseChangeController.java:24`
+
+**已实现功能**:
+- ✅ 提交调课申请
+- ✅ 自动获取当前教师信息
+- ✅ 记录申请时间
+
+---
+
+#### 3.2.2 查询调课详情 ✅
+
+**接口地址**: `GET /api/course-change/{id}`
+
+**实现状态**: ✅ 已实现
+
+**功能描述**: 查询调课申请详情
+
+**请求参数**:
+- 路径参数：`id` - 调课申请ID
+
+**响应示例**:
+```json
+{
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": {
+    "id": 1,                     // 调课申请ID
+    "teacherId": 10,             // 教师ID
+    "teacherName": "张老师",      // 教师姓名
+    "scheduleId": 123,           // 课程ID
+    "originalDate": "2024-11-20", // 原上课日期
+    "newDate": "2024-11-21",     // 调整后日期
+    "reason": "临时有事需要调整课程时间",  // 调课原因
+    "approvalStatus": 1,         // 审批状态：1-待审批 2-审批中 3-已通过 4-已拒绝 5-已撤回
+    "createdAt": "2024-11-19 10:00:00"  // 申请时间
+  }
+}
+```
+
+**实现位置**: `CourseChangeController.java:33`
+
+---
+
+#### 3.2.3 我的调课记录 ✅
+
+**接口地址**: `GET /api/course-change/my`
+
+**实现状态**: ✅ 已实现
+
+**功能描述**: 查询当前教师的调课申请记录（支持分页）
+
+**请求参数**:
+```
+teacherId=10&page=1&size=10
+```
+
+**请求参数说明**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| teacherId | Long | 是 | 教师ID |
+| page | Integer | 否 | 页码，默认1 |
+| size | Integer | 否 | 每页条数，默认10 |
+
+**响应示例**:
+```json
+{
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": {
+    "records": [         // 调课记录列表
+      {
+        "id": 1,                     // 调课申请ID
+        "scheduleId": 123,           // 课程ID
+        "originalDate": "2024-11-20", // 原上课日期
+        "newDate": "2024-11-21",     // 调整后日期
+        "reason": "临时有事",         // 调课原因
+        "approvalStatus": 1,         // 审批状态：1-待审批 2-审批中 3-已通过 4-已拒绝 5-已撤回
+        "createdAt": "2024-11-19 10:00:00"  // 申请时间
+      }
+    ],
+    "total": 20,         // 总记录数
+    "size": 10,          // 每页条数
+    "current": 1,        // 当前页码
+    "pages": 2           // 总页数
+  }
+}
+```
+
+**实现位置**: `CourseChangeController.java:40`
+
+**已实现功能**:
+- ✅ 分页查询
+- ✅ 根据教师ID筛选
+- ✅ 按时间倒序排列
 
 ---
 
 ### 3.3 换课申请接口
 
-#### 3.3.1 ~ 3.3.3 换课相关接口 🚧
+#### 3.3.1 提交换课申请 ✅
 
-**实现状态**: 🚧 **完全未实现**
+**接口地址**: `POST /api/course-swap`
 
-**未实现原因**:
-- ⚠️ 未创建 `CourseSwap` 实体类
-- ⚠️ 未创建 `CourseSwapController`
-- ⚠️ 需要实现目标教师确认机制
+**实现状态**: ✅ 已实现
 
-**涉及接口**:
-- `POST /api/course-swap/apply` - 提交换课申请
-- `PUT /api/course-swap/{id}/confirm` - 对方确认
-- `GET /api/course-swap/my` - 我的换课记录
+**功能描述**: 教师提交换课申请（与另一位教师交换课程）
+
+**请求参数**:
+```json
+{
+  "myScheduleId": 123,
+  "targetScheduleId": 456,
+  "targetTeacherId": 20,
+  "reason": "时间冲突，需要与李老师换课"
+}
+```
+
+**请求参数说明**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| myScheduleId | Long | 是 | 我的课程ID |
+| targetScheduleId | Long | 是 | 目标课程ID |
+| targetTeacherId | Long | 是 | 目标教师ID |
+| reason | String | 是 | 换课原因 |
+
+**响应示例**:
+```json
+{
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": 1              // 换课申请ID（新创建的申请记录ID）
+}
+```
+
+**实现位置**: `CourseSwapController.java:25`
+
+**已实现功能**:
+- ✅ 提交换课申请
+- ✅ 自动获取申请教师信息
+- ✅ 等待目标教师确认
+
+---
+
+#### 3.3.2 对方确认换课 ✅
+
+**接口地址**: `PUT /api/course-swap/{id}/confirm`
+
+**实现状态**: ✅ 已实现
+
+**功能描述**: 目标教师确认或拒绝换课申请
+
+**请求参数**:
+```
+confirm=true  // true表示同意，false表示拒绝
+```
+
+**请求参数说明**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| confirm | Boolean | 是 | true-同意换课 false-拒绝换课 |
+
+**响应示例**:
+```json
+{
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功"       // 消息：操作结果描述
+}
+```
+
+**实现位置**: `CourseSwapController.java:44`
+
+**已实现功能**:
+- ✅ 目标教师确认功能
+- ✅ 状态更新
+- ✅ 权限验证（只有目标教师可以确认）
+
+---
+
+#### 3.3.3 我的换课记录 ✅
+
+**接口地址**: `GET /api/course-swap/my`
+
+**实现状态**: ✅ 已实现
+
+**功能描述**: 查询当前教师的换课申请记录（支持分页）
+
+**请求参数**:
+```
+teacherId=10&page=1&size=10
+```
+
+**请求参数说明**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| teacherId | Long | 是 | 教师ID |
+| page | Integer | 否 | 页码，默认1 |
+| size | Integer | 否 | 每页条数，默认10 |
+
+**响应示例**:
+```json
+{
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": {
+    "records": [         // 换课记录列表
+      {
+        "id": 1,                      // 换课申请ID
+        "myScheduleId": 123,          // 我的课程ID
+        "targetScheduleId": 456,      // 目标课程ID
+        "targetTeacherId": 20,        // 目标教师ID
+        "targetTeacherName": "李老师", // 目标教师姓名
+        "reason": "时间冲突",          // 换课原因
+        "targetConfirm": 0,           // 对方确认状态：0-待确认 1-已同意 2-已拒绝
+        "approvalStatus": 1,          // 审批状态：1-待审批 2-审批中 3-已通过 4-已拒绝 5-已撤回
+        "createdAt": "2024-11-19 10:00:00"  // 申请时间
+      }
+    ],
+    "total": 10,         // 总记录数
+    "size": 10,          // 每页条数
+    "current": 1,        // 当前页码
+    "pages": 1           // 总页数
+  }
+}
+```
+
+**实现位置**: `CourseSwapController.java:34`
+
+**已实现功能**:
+- ✅ 分页查询
+- ✅ 查询我发起的和我收到的换课申请
+- ✅ 显示确认状态
 
 ---
 
 ### 3.4 调班申请接口
 
-#### 3.4.1 ~ 3.4.2 调班相关接口 🚧
+#### 3.4.1 提交调班申请 ✅
 
-**实现状态**: 🚧 **完全未实现**
+**接口地址**: `POST /api/class-transfer`
 
-**未实现原因**:
-- ⚠️ 未创建 `ClassTransfer` 实体类
-- ⚠️ 未创建 `ClassTransferController`
-- ⚠️ 需要实现多级审批流程
+**实现状态**: ✅ 已实现
 
-**涉及接口**:
-- `POST /api/class-transfer/apply` - 提交调班申请
-- `GET /api/class-transfer/{id}` - 调班详情
+**功能描述**: 家长/学生提交调班申请
+
+**请求参数**:
+```json
+{
+  "studentId": 100,
+  "currentClassId": 1,
+  "targetClassId": 2,
+  "reason": "家庭住址变更，申请转到离家更近的班级"
+}
+```
+
+**请求参数说明**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| studentId | Long | 是 | 学生ID |
+| currentClassId | Long | 是 | 当前班级ID |
+| targetClassId | Long | 是 | 目标班级ID |
+| reason | String | 是 | 调班原因 |
+
+**响应示例**:
+```json
+{
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": 1              // 调班申请ID（新创建的申请记录ID）
+}
+```
+
+**实现位置**: `ClassTransferController.java:24`
+
+**已实现功能**:
+- ✅ 提交调班申请
+- ✅ 自动获取申请用户信息
+- ✅ 记录申请时间
+
+---
+
+#### 3.4.2 查询调班详情 ✅
+
+**接口地址**: `GET /api/class-transfer/{id}`
+
+**实现状态**: ✅ 已实现
+
+**功能描述**: 查询调班申请详情
+
+**请求参数**:
+- 路径参数：`id` - 调班申请ID
+
+**响应示例**:
+```json
+{
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": {
+    "id": 1,                        // 调班申请ID
+    "studentId": 100,               // 学生ID
+    "studentName": "小明",           // 学生姓名
+    "currentClassId": 1,            // 当前班级ID
+    "currentClassName": "一年级1班", // 当前班级名称
+    "targetClassId": 2,             // 目标班级ID
+    "targetClassName": "一年级2班",  // 目标班级名称
+    "reason": "家庭住址变更",        // 调班原因
+    "approvalStatus": 1,            // 审批状态：1-待审批 2-审批中 3-已通过 4-已拒绝 5-已撤回
+    "createdAt": "2024-11-19 10:00:00"  // 申请时间
+  }
+}
+```
+
+**实现位置**: `ClassTransferController.java:33`
+
+---
+
+#### 3.4.3 我的调班记录 ✅
+
+**接口地址**: `GET /api/class-transfer/my`
+
+**实现状态**: ✅ 已实现
+
+**功能描述**: 查询当前学生的调班申请记录（支持分页）
+
+**请求参数**:
+```
+studentId=100&page=1&size=10
+```
+
+**请求参数说明**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| studentId | Long | 是 | 学生ID |
+| page | Integer | 否 | 页码，默认1 |
+| size | Integer | 否 | 每页条数，默认10 |
+
+**响应示例**:
+```json
+{
+  "code": 200,           // 状态码：200表示成功
+  "msg": "操作成功",      // 消息：操作结果描述
+  "data": {
+    "records": [         // 调班记录列表
+      {
+        "id": 1,                        // 调班申请ID
+        "currentClassId": 1,            // 当前班级ID
+        "currentClassName": "一年级1班", // 当前班级名称
+        "targetClassId": 2,             // 目标班级ID
+        "targetClassName": "一年级2班",  // 目标班级名称
+        "reason": "家庭住址变更",        // 调班原因
+        "approvalStatus": 1,            // 审批状态：1-待审批 2-审批中 3-已通过 4-已拒绝 5-已撤回
+        "createdAt": "2024-11-19 10:00:00"  // 申请时间
+      }
+    ],
+    "total": 5,          // 总记录数
+    "size": 10,          // 每页条数
+    "current": 1,        // 当前页码
+    "pages": 1           // 总页数
+  }
+}
+```
+
+**实现位置**: `ClassTransferController.java:40`
+
+**已实现功能**:
+- ✅ 分页查询
+- ✅ 根据学生ID筛选
+- ✅ 显示班级名称
 
 ---
 
@@ -927,27 +1910,19 @@ classId=1&page=1&size=10
    - 影响：无法查询单个教师详情
    - 修复建议：修改为 `getTeacherById(id)` 方法调用
 
-2. **GradeController.java:18** - `GET /api/grade/**` 使用了不规范的通配符
-   - 问题：路径使用了 `**` 通配符
-   - 影响：路径不规范，可能导致意外的路由匹配
-   - 修复建议：改为 `/api/grade/list`
 
 #### ⚠️ 功能缺失
 
 1. **分页功能缺失**
    - 教师列表、学生列表、班级列表、年级列表都未实现分页
    - 数据量大时可能导致性能问题
-   - 建议：统一实现分页功能
+   - 建议：统一实现分页功能，前端努点力也行
 
 2. **唯一性验证缺失**
    - 教师编号、学生学号、班级编号等未做唯一性验证
    - 可能导致重复数据
    - 建议：在Service层添加唯一性验证
 
-3. **软删除未实现**
-   - 所有删除操作都是物理删除
-   - 无法恢复误删除的数据
-   - 建议：改为软删除（更新 is_deleted 字段）
 
 4. **关联数据验证缺失**
    - 删除教师时未检查是否担任班主任
@@ -956,10 +1931,35 @@ classId=1&page=1&size=10
    - 建议：添加关联数据验证
 
 
-- 项目源码：`/src/main/java/com/example/primaryschoolmanagement/`
-
 
 **文档维护**: 请在每次实现或修改接口后及时更新此文档
 
-**最后更新时间**: 2025-11-18
-**版本**: v2.0
+---
+
+## 📝 更新历史
+
+### v3.0 (2025-11-19)
+
+**主要更新**:
+- ✅ 完成菜单管理模块（1.4）：菜单树、菜单列表、菜单详情、创建、更新、删除共6个接口
+- ✅ 完成调课申请模块（3.2）：提交申请、查询详情、我的记录共3个接口
+- ✅ 完成换课申请模块（3.3）：提交申请、对方确认、我的记录共3个接口
+- ✅ 完成调班申请模块（3.4）：提交申请、查询详情、我的记录共3个接口
+- ✅ 修复教师详情接口（2.1.5）：解决参数绑定和方法调用错误
+- ✅ 修复学生删除接口（2.2.4）：修正参数绑定方式(@RequestBody改为@PathVariable)
+
+**统计数据**:
+- 系统管理模块实现进度提升至 63% (15/24)
+- 业务流程模块实现进度提升至 56% (14/25)
+- 总体进度提升至 48% (43/89)
+
+### v2.2 (2025-11-19)
+
+**主要更新**:
+- ✅ 完成用户管理模块（1.2）：用户列表查询、添加、修改、删除、详情查询共7个接口
+- ✅ 新增文件上传模块（1.5）：实现头像文件上传功能，集成到用户创建和更新接口中
+- ✅ 支持 multipart/form-data 格式上传头像文件
+- ✅ 实现文件存储服务：按日期分类、文件验证、静态资源访问
+
+**统计数据**:
+- 系统管理模块实现进度提升至 47% (7/15)

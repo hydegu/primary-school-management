@@ -45,6 +45,56 @@ public class GlobalExceptionHandler {
                 .body(R.er(ResultCode.BAD_REQUEST.getCode(), ex.getMessage()));
     }
 
+    /**
+     * 处理用户未找到异常
+     */
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<R> handleUserNotFoundException(UserNotFoundException ex) {
+        log.warn("用户未找到异常：{}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(R.er(ResultCode.NOT_FOUND.getCode(), ex.getMessage()));
+    }
+
+    /**
+     * 处理角色未找到异常
+     */
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ResponseEntity<R> handleRoleNotFoundException(RoleNotFoundException ex) {
+        log.warn("角色未找到异常：{}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(R.er(ResultCode.NOT_FOUND.getCode(), ex.getMessage()));
+    }
+
+    /**
+     * 处理菜单未找到异常
+     */
+    @ExceptionHandler(MenuNotFoundException.class)
+    public ResponseEntity<R> handleMenuNotFoundException(MenuNotFoundException ex) {
+        log.warn("菜单未找到异常：{}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(R.er(ResultCode.NOT_FOUND.getCode(), ex.getMessage()));
+    }
+
+    /**
+     * 处理数据重复异常
+     */
+    @ExceptionHandler(DuplicateException.class)
+    public ResponseEntity<R> handleDuplicateException(DuplicateException ex) {
+        log.warn("数据重复异常：{}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(R.er(ResultCode.CONFLICT.getCode(), ex.getMessage()));
+    }
+
+    /**
+     * 处理业务异常
+     */
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<R> handleBusinessException(BusinessException ex) {
+        log.warn("业务异常：{}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(R.er(ResultCode.BAD_REQUEST.getCode(), ex.getMessage()));
+    }
+
     private ResultCode convertStatusToCode(HttpStatus status) {
         return switch (status) {
             case BAD_REQUEST -> ResultCode.BAD_REQUEST;

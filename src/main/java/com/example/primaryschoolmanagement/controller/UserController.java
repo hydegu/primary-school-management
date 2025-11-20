@@ -45,30 +45,12 @@ public class UserController {
      * 用户登录 - 返回Token
      *
      * @param loginRequest 登录请求
+     * @param request HTTP请求对象
      * @return 令牌
      */
     @PostMapping("/login")
-    public R login(@Valid @RequestBody LoginRequest loginRequest) {
-        // 查找用户
-        AppUser user = userService.findByIdentifier(loginRequest.getIdentifier())
-                .orElseThrow(() -> new IllegalArgumentException("用户名或密码错误"));
-        // 验证密码
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("用户名或密码错误");
-        }
-        // 检查用户状态
-        if (user.getStatus() != 1) {
-            throw new IllegalArgumentException("用户已被禁用");
-        }
-        // 获取用户角色
-        Role role = userService.selectRolesByUserId(user.getId());
-        String roleCode = role != null ? role.getRoleCode() : "student";
-        // 生成令牌
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("username", user.getUsername());
-        claims.put("userId", user.getId());
-        claims.put("roles", roleCode);
-        String token = JwtUtils.createJwt(jwtProperties.getUserSecretKey(), jwtProperties.getUserTtl(), claims);
+    public R login(@Valid @RequestBody LoginRequest loginRequest, HttpServletRequest request) {
+        String token = userService.login(loginRequest, request);
         return R.ok(token);
     }
 

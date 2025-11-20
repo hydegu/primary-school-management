@@ -10,7 +10,7 @@ import lombok.Data;
 @TableName("edu_course")
 public class Course extends BaseEntity {
     @TableId(type = IdType.AUTO)
-    private Integer id;
+    private Long id;
     private String courseName;
     private Integer subjectId;
     private Integer classId;
