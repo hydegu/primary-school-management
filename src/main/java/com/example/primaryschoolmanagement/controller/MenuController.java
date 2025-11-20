@@ -40,10 +40,11 @@ public class MenuController {
      * 权限要求：任何认证用户
      */
     @GetMapping("/list")
-    public R getAllMenus() {
-        log.info("查询所有菜单列表");
-        List<MenuDTO> menus = menuService.getAllMenus();
-        return R.ok(menus);
+    public R getAllMenus(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        log.info("查询所有菜单列表，page={}, size={}", page, size);
+        return menuService.getAllMenusWithPagination(page, size);
     }
 
     /**
