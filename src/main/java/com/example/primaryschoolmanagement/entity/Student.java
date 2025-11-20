@@ -13,7 +13,7 @@ public class Student extends BaseEntity {
 
     @TableId(type = IdType.AUTO)
     private Integer id;
-    private Integer userId;
+    private Long userId;
     private String studentNo;
     private String studentName;
     private Integer gender;//性别

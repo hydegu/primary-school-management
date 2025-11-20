@@ -66,6 +66,16 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 处理菜单未找到异常
+     */
+    @ExceptionHandler(MenuNotFoundException.class)
+    public ResponseEntity<R> handleMenuNotFoundException(MenuNotFoundException ex) {
+        log.warn("菜单未找到异常：{}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(R.er(ResultCode.NOT_FOUND.getCode(), ex.getMessage()));
+    }
+
+    /**
      * 处理数据重复异常
      */
     @ExceptionHandler(DuplicateException.class)
