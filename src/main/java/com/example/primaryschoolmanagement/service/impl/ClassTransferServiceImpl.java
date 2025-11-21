@@ -77,6 +77,16 @@ public class ClassTransferServiceImpl extends ServiceImpl<ClassTransferMapper, C
         return classTransferPage.convert(this::convertToVO);
     }
 
+    @Override
+    public IPage<ClassTransferVO> getClassTransferList(int page, int size) {
+        Page<ClassTransfer> pageParam = new Page<>(page, size);
+        LambdaQueryWrapper<ClassTransfer> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.orderByDesc(ClassTransfer::getApplyTime);
+
+        IPage<ClassTransfer> classTransferPage = classTransferMapper.selectPage(pageParam, queryWrapper);
+        return classTransferPage.convert(this::convertToVO);
+    }
+
     private void validateClassTransferDTO(ClassTransferDTO classTransferDTO) {
         if (classTransferDTO.getStudentId() == null) {
             throw new IllegalArgumentException("学生ID不能为空");

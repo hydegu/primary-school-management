@@ -2,7 +2,6 @@ package com.example.primaryschoolmanagement.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dao.ClassesDao;
@@ -11,14 +10,13 @@ import com.example.primaryschoolmanagement.entity.Classes;
 import com.example.primaryschoolmanagement.entity.Student;
 import com.example.primaryschoolmanagement.entity.Teacher;
 import com.example.primaryschoolmanagement.service.ClassesService;
+import com.example.primaryschoolmanagement.vo.ClassesVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implements ClassesService {
@@ -31,34 +29,25 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
     public ClassesServiceImpl(ClassesDao classesDao) {
         this.classesDao = classesDao;
     }
-
-    /**
-     * 班级列表
-     * @return
-     */
     @Override
     public R classesList() {
-        Page<Classes> page = new Page<>();
-        page.setCurrent(1);
-        page.setSize(5);
-        LambdaQueryWrapper<Classes> queryWrapper = new LambdaQueryWrapper<>();
-//        List<Classes> classesList = this.classesDao.selectList(queryWrapper);
-        Page<Classes> pageInfo = this.classesDao.selectPage(page, queryWrapper);
-        List<Classes> records = pageInfo.getRecords();
-        long total = pageInfo.getTotal();
-        Map<String, Object> map = new HashMap<>();
-        map.put("total", total);
-        map.put("teacher", records);
-        return R.ok(map);
-//        if (classesList.isEmpty()) {
-//            return R.er();
-//        } else {
-//            return R.ok(classesList);
-//        }
+       LambdaQueryWrapper<Classes> queryWrapper = new LambdaQueryWrapper<>();
+        List<Classes> classesList = this.classesDao.selectList(queryWrapper);
+        if (classesList.isEmpty()) {
+            return R.er();
+        } else {
+            return R.ok(classesList);
+        }
     }
 
     @Override
-    public R addclasses(Classes classes,Teacher teacher) {
+    public R searchClasses(String classNo, String className, String headTeacherName) {
+        List<ClassesVO> classesList = this.classesDao.searchClasses(classNo, className, headTeacherName);
+        return R.ok(classesList);
+    }
+
+    @Override
+    public R addclasses(Classes classes) {
         System.out.println("添加成功");
         Date currentTime = new Date();
         classes.setCreatedAt(currentTime);
@@ -189,7 +178,7 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
             return (List<Student>) R.er(400, "班级ID不能为空");
         }
         return this.classesDao.classStudent(id);
-        }
+    }
 
     @Override
     public Teacher classheadteacher(Integer id) {

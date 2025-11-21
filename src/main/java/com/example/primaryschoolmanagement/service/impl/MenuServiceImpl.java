@@ -322,6 +322,46 @@ public class MenuServiceImpl extends ServiceImpl<MenuDao, Menu> implements MenuS
         return R.ok(pageResult);
     }
 
+    @Override
+    public R searchMenus(int page, int size, String menuName, String menuCode) {
+        log.info("分页搜索菜单列表，page={}, size={}, menuName={}, menuCode={}", page, size, menuName, menuCode);
+
+        // 1. 创建分页对象
+        Page<Menu> pageParam = new Page<>(page, size);
+
+        // 2. 创建查询条件
+        LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Menu::getIsDeleted, false);
+
+        // 添加模糊搜索条件
+        if (StringUtils.hasText(menuName)) {
+            queryWrapper.like(Menu::getMenuName, menuName);
+        }
+        if (StringUtils.hasText(menuCode)) {
+            queryWrapper.like(Menu::getMenuCode, menuCode);
+        }
+
+        queryWrapper.orderByAsc(Menu::getSortOrder, Menu::getId);
+
+        // 3. 执行分页查询
+        IPage<Menu> menuPage = menuDao.selectPage(pageParam, queryWrapper);
+
+        // 4. 转换为DTO
+        List<MenuDTO> menuDTOList = menuPage.getRecords().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        // 5. 构建分页结果
+        PageResult<MenuDTO> pageResult = PageResult.of(
+                menuPage.getTotal(),
+                menuDTOList,
+                (int) menuPage.getCurrent(),
+                (int) menuPage.getSize()
+        );
+
+        return R.ok(pageResult);
+    }
+
     /**
      * 构建菜单树形结构
      * @param allMenus 所有菜单列表

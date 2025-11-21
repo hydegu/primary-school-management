@@ -34,4 +34,12 @@ public interface ClassTransferService extends IService<ClassTransfer> {
      * @return 分页调班记录
      */
     IPage<ClassTransferVO> getMyClassTransfers(Long studentId, int page, int size);
+
+    /**
+     * 查询调班申请列表
+     * @param page 页码
+     * @param size 每页条数
+     * @return 分页调班记录
+     */
+    IPage<ClassTransferVO> getClassTransferList(int page, int size);
 }

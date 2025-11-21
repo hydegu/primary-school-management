@@ -22,14 +22,46 @@ public interface CourseDao extends BaseMapper<Course> {
 """)
     CourseVO getCourse(Integer id);
     @Select("""
-     select a.*,b.subject_name,c.class_name,d.teacher_name 
+     select a.*,b.subject_name,c.class_name,d.teacher_name
         from edu_course a
         left join edu_subject b on a.subject_id = b.id
         left join edu_class c on a.class_id = c.id
         left join edu_teacher d on a.teacher_id = d.id
-        where  a.subject_id = #{subjectId} 
+        where  a.subject_id = #{subjectId}
 """)
     List<CourseVO> courseList(Integer subjectId);
+
+    @Select("""
+     select a.*,b.subject_name,c.class_name,d.teacher_name
+        from edu_course a
+        left join edu_subject b on a.subject_id = b.id
+        left join edu_class c on a.class_id = c.id
+        left join edu_teacher d on a.teacher_id = d.id
+""")
+    List<CourseVO> courseListAll();
+
+    /**
+     * 带筛选条件查询课程列表（subjectId和classId可选）
+     */
+    @Select("""
+    <script>
+    SELECT a.*, b.subject_name, c.class_name, d.teacher_name
+    FROM edu_course a
+    LEFT JOIN edu_subject b ON a.subject_id = b.id
+    LEFT JOIN edu_class c ON a.class_id = c.id
+    LEFT JOIN edu_teacher d ON a.teacher_id = d.id
+    WHERE 1=1
+    <if test="subjectId != null">
+        AND a.subject_id = #{subjectId}
+    </if>
+    <if test="classId != null">
+        AND a.class_id = #{classId}
+    </if>
+    ORDER BY a.id DESC
+    </script>
+    """)
+    List<CourseVO> courseListWithFilters(@Param("subjectId") Integer subjectId, @Param("classId") Integer classId);
+
     @Insert("""
         insert into edu_subject_teacher(subject_id,teacher_id)
         values(#{dto.subjectId},#{dto.teacherId})

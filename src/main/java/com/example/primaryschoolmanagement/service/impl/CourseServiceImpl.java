@@ -134,6 +134,16 @@ public class CourseServiceImpl extends ServiceImpl<CourseDao, Course> implements
         return  courseList == null ? List.of() : courseList;
     }
 
+    /**
+     * 查询课程列表 - subjectId和classId可选
+     * 支持按科目和/或班级筛选
+     */
+    @Override
+    public List<CourseVO> listCourses(Integer subjectId, Integer classId) {
+        List<CourseVO> courseList = courseDao.courseListWithFilters(subjectId, classId);
+        return courseList == null ? List.of() : courseList;
+    }
+
     //根据课程添加仅老师
     @Override
     @Transactional(rollbackFor = Exception.class)

@@ -2,10 +2,12 @@ package com.example.primaryschoolmanagement.controller;
 
 import com.example.primaryschoolmanagement.common.exception.ApiException;
 import com.example.primaryschoolmanagement.common.utils.R;
+import com.example.primaryschoolmanagement.dao.ScheduleDao;
 import com.example.primaryschoolmanagement.dto.SubjectTeacherRelationDTO;
 import com.example.primaryschoolmanagement.entity.Course;
 import com.example.primaryschoolmanagement.service.CourseService;
 import com.example.primaryschoolmanagement.vo.CourseVO;
+import com.example.primaryschoolmanagement.vo.ScheduleVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,9 @@ public class CourseController {
 
     @Resource
     private CourseService courseService;
+
+    @Resource
+    private ScheduleDao scheduleDao;
 
     @PostMapping(value = "")
     public R addCourse(@RequestBody SubjectTeacherRelationDTO dto){
@@ -56,13 +61,10 @@ public class CourseController {
         };
         return  R.ok();
     }
-    @DeleteMapping
-    public R delete(@RequestBody SubjectTeacherRelationDTO dto){
-        if(dto == null){
-            throw new ApiException(HttpStatus.BAD_REQUEST,"删除的课程为空");
-        }
-        int row = courseService.deleteCourse(dto);
-        return row > 0 ? R.ok():R.er();
+    @DeleteMapping(value = "/{id}")
+    public R delete(@RequestBody Integer teacherId){
+
+        return null;
     }
 //    @DeleteMapping(value = "/{id}")
 //    public R delete(@RequestBody Integer id){
@@ -80,14 +82,14 @@ public class CourseController {
         CourseVO courseVO = courseService.getCourse(id);
         return R.ok(courseVO);
     }
+    // 6.1 课程列表 - 查询指定班级的课表
     @GetMapping(value = "/list")
-    public R courseList(Integer subjectId){
-        System.out.println(subjectId);
-        if(subjectId == null){
-            throw new ApiException(HttpStatus.BAD_REQUEST,"传递的参数为空");
+    public R courseList(@RequestParam Integer classId){
+        if (classId == null) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "班级ID不能为空");
         }
-        List<CourseVO> courseList = courseService.list(subjectId);
-        return R.ok(courseList);
+        List<ScheduleVO> scheduleList = scheduleDao.scheduleListByClassId(classId);
+        return R.ok(scheduleList);
     }
 
 }

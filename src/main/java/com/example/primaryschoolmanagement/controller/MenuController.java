@@ -37,14 +37,20 @@ public class MenuController {
     }
 
     /**
-     * 获取所有菜单列表（扁平结构）
+     * 获取所有菜单列表（扁平结构，支持模糊搜索）
      * 权限要求：任何认证用户
      */
     @GetMapping("/list")
     public R getAllMenus(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        log.info("查询所有菜单列表，page={}, size={}", page, size);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String menuName,
+            @RequestParam(required = false) String menuCode) {
+        log.info("查询所有菜单列表，page={}, size={}, menuName={}, menuCode={}", page, size, menuName, menuCode);
+        // 如果有搜索参数，使用模糊搜索
+        if (menuName != null || menuCode != null) {
+            return menuService.searchMenus(page, size, menuName, menuCode);
+        }
         return menuService.getAllMenusWithPagination(page, size);
     }
 
