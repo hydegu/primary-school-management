@@ -8,11 +8,13 @@ import jakarta.validation.constraints.NotNull;
 @Data
 @ApiModel("审批操作DTO")
 public class ApprovalActionDTO {
-    
-    @ApiModelProperty(value = "审批意见", required = false)
+
+    @ApiModelProperty(value = "是否通过：true-通过 false-拒绝（submit接口使用）")
+    private Boolean approved;
+
+    @ApiModelProperty(value = "审批意见")
     private String approvalOpinion;
-    
-    @ApiModelProperty(value = "审批记录ID", required = true)
-    @NotNull(message = "审批记录ID不能为空")
+
+    @ApiModelProperty(value = "审批记录ID", hidden = true)
     private Long approvalId;
 }

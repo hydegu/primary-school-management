@@ -2,6 +2,7 @@ package com.example.primaryschoolmanagement.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.primaryschoolmanagement.dao.ClassesDao;
+import com.example.primaryschoolmanagement.dao.ScheduleDao;
 import com.example.primaryschoolmanagement.dao.SubjectDao;
 import com.example.primaryschoolmanagement.dao.SubjectTeacherDao;
 import com.example.primaryschoolmanagement.dao.TeacherDao;
@@ -11,6 +12,7 @@ import com.example.primaryschoolmanagement.entity.Subject;
 import com.example.primaryschoolmanagement.entity.SubjectTeacher;
 import com.example.primaryschoolmanagement.entity.Teacher;
 import com.example.primaryschoolmanagement.service.ScheduleService;
+import com.example.primaryschoolmanagement.vo.ScheduleVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -31,15 +33,18 @@ public class ScheduleServiceImpl implements ScheduleService {
     private final TeacherDao teacherDao;
     private final ClassesDao classesDao;
     private final SubjectTeacherDao subjectTeacherDao;
+    private final ScheduleDao scheduleDao;
 
     public ScheduleServiceImpl(SubjectDao subjectDao,
                                TeacherDao teacherDao,
                                ClassesDao classesDao,
-                               SubjectTeacherDao subjectTeacherDao) {
+                               SubjectTeacherDao subjectTeacherDao,
+                               ScheduleDao scheduleDao) {
         this.subjectDao = subjectDao;
         this.teacherDao = teacherDao;
         this.classesDao = classesDao;
         this.subjectTeacherDao = subjectTeacherDao;
+        this.scheduleDao = scheduleDao;
     }
 
     /**
@@ -92,5 +97,18 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         log.info("排课初始化数据获取完成");
         return initData;
+    }
+
+    /**
+     * 根据班级ID查询课表
+     * @param classId 班级ID
+     * @return 该班级的所有排课信息
+     */
+    @Override
+    public List<ScheduleVO> getScheduleByClassId(Integer classId) {
+        log.info("查询班级课表，classId: {}", classId);
+        List<ScheduleVO> scheduleList = scheduleDao.scheduleListByClassId(classId);
+        log.info("查询到 {} 条排课记录", scheduleList != null ? scheduleList.size() : 0);
+        return scheduleList != null ? scheduleList : List.of();
     }
 }

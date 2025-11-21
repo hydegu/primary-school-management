@@ -2,24 +2,21 @@ package com.example.primaryschoolmanagement.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dao.ClassesDao;
 import com.example.primaryschoolmanagement.dao.StudentDao;
-import com.example.primaryschoolmanagement.dto.ClassesQueryDTO;
 import com.example.primaryschoolmanagement.entity.Classes;
 import com.example.primaryschoolmanagement.entity.Student;
 import com.example.primaryschoolmanagement.entity.Teacher;
 import com.example.primaryschoolmanagement.service.ClassesService;
+import com.example.primaryschoolmanagement.vo.ClassesVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implements ClassesService {
@@ -32,42 +29,25 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
     public ClassesServiceImpl(ClassesDao classesDao) {
         this.classesDao = classesDao;
     }
-
-    /**
-     * 班级列表
-     * @return
-     */
     @Override
-    public R classesList(ClassesQueryDTO queryDTO) {
-        Page<Classes> page = new Page<>();
-        page.setCurrent(1);
-        page.setSize(5);
-        LambdaQueryWrapper<Classes> queryWrapper = new LambdaQueryWrapper<>();
-//        List<Classes> classesList = this.classesDao.selectList(queryWrapper);
-        queryWrapper.eq(Classes::getIsDeleted, false);
-        // 1. 优先按班级编号筛选（如果传入）
-        if (queryDTO.getClassNo() != null && !queryDTO.getClassNo().trim().isEmpty()) {
-            queryWrapper.eq(Classes::getClassNo, queryDTO.getClassNo().trim());
+    public R classesList() {
+       LambdaQueryWrapper<Classes> queryWrapper = new LambdaQueryWrapper<>();
+        List<Classes> classesList = this.classesDao.selectList(queryWrapper);
+        if (classesList.isEmpty()) {
+            return R.er();
+        } else {
+            return R.ok(classesList);
         }
-        if (queryDTO.getClassName() != null && !queryDTO.getClassName().trim().isEmpty()) {
-            queryWrapper.eq(Classes::getClassName, queryDTO.getClassName().trim());
-        }
-        if (queryDTO.getHeadTeacherId() != null) {
-            queryWrapper.eq(Classes::getHeadTeacherId, queryDTO.getHeadTeacherId());
-        }
-        Page<Classes> pageInfo = this.classesDao.selectPage(page, queryWrapper);
-
-        List<Classes> records = pageInfo.getRecords();
-        long total = pageInfo.getTotal();
-        Map<String, Object> map = new HashMap<>();
-        map.put("total", total);
-        map.put("teacher", records);
-        return R.ok(map);
-
     }
 
     @Override
-    public R addclasses(Classes classes,Teacher teacher) {
+    public R searchClasses(String classNo, String className, String headTeacherName) {
+        List<ClassesVO> classesList = this.classesDao.searchClasses(classNo, className, headTeacherName);
+        return R.ok(classesList);
+    }
+
+    @Override
+    public R addclasses(Classes classes) {
         System.out.println("添加成功");
         Date currentTime = new Date();
         classes.setCreatedAt(currentTime);
@@ -109,9 +89,9 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
     }
 
     @Override
-    public R updateclasses(Classes classes,Integer id) {
+    public R updateclasses(Classes classes) {
         // 1. 验证主键id是否存在（必须传入id才能确定更新哪条记录）
-
+        Integer id = classes.getId();
         if (id == null) {
             return R.er();
         }
@@ -165,6 +145,9 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
             updateWrapper.set("is_deleted", classes.getIsDeleted());
         }
 
+        // 强制更新时间（已设置，直接加入）
+        updateWrapper.set("updated_at", classes.getUpdatedAt());
+
         // 5. 执行更新操作（只更新非空字段）
         int row = this.classesDao.update(null, updateWrapper);
 
@@ -195,7 +178,7 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
             return (List<Student>) R.er(400, "班级ID不能为空");
         }
         return this.classesDao.classStudent(id);
-        }
+    }
 
     @Override
     public Teacher classheadteacher(Integer id) {

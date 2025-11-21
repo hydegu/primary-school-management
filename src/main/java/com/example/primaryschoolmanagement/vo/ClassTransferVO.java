@@ -23,10 +23,16 @@ public class ClassTransferVO {
     @ApiModelProperty("学生姓名")
     private String studentName;
 
-    @ApiModelProperty("原班级ID")
+    @ApiModelProperty("当前班级ID")
+    private Long currentClassId;
+
+    @ApiModelProperty("当前班级名称")
+    private String currentClassName;
+
+    @ApiModelProperty("原班级ID（别名）")
     private Long originalClassId;
 
-    @ApiModelProperty("原班级名称")
+    @ApiModelProperty("原班级名称（别名）")
     private String originalClassName;
 
     @ApiModelProperty("目标班级ID")

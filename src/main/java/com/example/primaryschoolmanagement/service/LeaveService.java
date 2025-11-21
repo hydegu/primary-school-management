@@ -15,10 +15,9 @@ public interface LeaveService extends IService<Leave> {
     /**
      * 提交请假申请
      * @param leaveDTO 请假申请数据
-     * @param userId 当前用户ID
      * @return 请假记录ID
      */
-    Long submitLeave(LeaveDTO leaveDTO, Long userId);
+    Long submitLeave(LeaveDTO leaveDTO);
 
     /**
      * 查询请假详情
@@ -29,20 +28,18 @@ public interface LeaveService extends IService<Leave> {
 
     /**
      * 查询我的请假记录
-     * @param studentId 学生ID
      * @param page 页码
      * @param size 每页条数
      * @return 分页请假记录
      */
-    IPage<LeaveVO> getMyLeaves(Long studentId, int page, int size);
+    IPage<LeaveVO> getMyLeaves(int page, int size);
 
     /**
      * 撤回请假申请
      * @param id 请假记录ID
-     * @param userId 当前用户ID
      * @return 是否成功
      */
-    boolean cancelLeave(Long id, Long userId);
+    boolean cancelLeave(Long id);
 
     /**
      * 查询待审批请假列表

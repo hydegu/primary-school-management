@@ -21,7 +21,7 @@ class PasswordEncoderTest {
      */
     @Test
     void generateEncodedPassword() {
-            String password = "admin123";
+            String password = "student";
             String encodedPassword = passwordEncoder.encode(password);
             System.out.println("明文密码: " + password);
             System.out.println("加密密码: " + encodedPassword);

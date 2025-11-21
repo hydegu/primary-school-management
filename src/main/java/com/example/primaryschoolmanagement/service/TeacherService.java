@@ -22,4 +22,10 @@ public interface TeacherService extends IService<Teacher>{
      * @return 教师列表
      */
     R getTeachersBySubjectId(Long subjectId);
+    /**
+     * 根据用户ID获取教师信息
+     * @param userId 用户ID
+     * @return 教师信息
+     */
+    Teacher getTeacherByUserId(Long userId);
 }

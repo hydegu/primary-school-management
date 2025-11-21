@@ -5,13 +5,20 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.enums.ApprovalStatusEnum;
+import com.example.primaryschoolmanagement.common.enums.BusinessTypeEnum;
 import com.example.primaryschoolmanagement.common.enums.TargetConfirmEnum;
 import com.example.primaryschoolmanagement.dao.CourseSwapMapper;
 import com.example.primaryschoolmanagement.dto.CourseSwapDTO;
 import com.example.primaryschoolmanagement.entity.CourseSwap;
+import com.example.primaryschoolmanagement.service.ApprovalService;
 import com.example.primaryschoolmanagement.service.CourseSwapService;
+import com.example.primaryschoolmanagement.service.UserService;
+import com.example.primaryschoolmanagement.common.utils.SecurityUtils;
 import com.example.primaryschoolmanagement.vo.CourseSwapVO;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,20 +31,30 @@ import java.time.LocalDateTime;
 @Service
 public class CourseSwapServiceImpl extends ServiceImpl<CourseSwapMapper, CourseSwap> implements CourseSwapService {
 
+    private static final Logger log = LoggerFactory.getLogger(CourseSwapServiceImpl.class);
+
     @Resource
     private CourseSwapMapper courseSwapMapper;
+
+    @Lazy
+    @Resource
+    private ApprovalService approvalService;
+
+    @Resource
+    private UserService userService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long submitCourseSwap(CourseSwapDTO courseSwapDTO, Long teacherId) {
         // 1. 数据验证
-        validateCourseSwapDTO(courseSwapDTO);
+        validateCourseSwapDTO(courseSwapDTO, teacherId);
 
         // 2. 创建换课实体
         CourseSwap courseSwap = new CourseSwap();
         BeanUtils.copyProperties(courseSwapDTO, courseSwap);
 
         // 3. 设置额外字段
+        courseSwap.setApplyScheduleId(courseSwapDTO.getMyScheduleId());
         courseSwap.setApplyTeacherId(teacherId);
         courseSwap.setApplyTeacherName("申请教师姓名"); // 实际应从教师表查询
         courseSwap.setTargetTeacherName("目标教师姓名"); // 实际应从教师表查询
@@ -48,6 +65,13 @@ public class CourseSwapServiceImpl extends ServiceImpl<CourseSwapMapper, CourseS
 
         // 4. 保存到数据库
         baseMapper.insert(courseSwap);
+
+        // 5. 创建审批流程
+        Long approvalId = createApprovalProcess(courseSwap);
+        if (approvalId != null) {
+            courseSwap.setApprovalId(approvalId);
+            baseMapper.updateById(courseSwap);
+        }
 
         return courseSwap.getId();
     }
@@ -74,8 +98,10 @@ public class CourseSwapServiceImpl extends ServiceImpl<CourseSwapMapper, CourseS
             return false;
         }
 
-        // 权限验证：只能由目标教师确认
-        if (!courseSwap.getTargetTeacherId().equals(teacherId)) {
+        // 权限验证：目标教师或超级管理员可确认
+        boolean isTargetTeacher = courseSwap.getTargetTeacherId().equals(teacherId);
+        boolean isSuperAdmin = SecurityUtils.isSuperAdmin();
+        if (!isTargetTeacher && !isSuperAdmin) {
             return false;
         }
 
@@ -87,10 +113,7 @@ public class CourseSwapServiceImpl extends ServiceImpl<CourseSwapMapper, CourseS
         if (confirm) {
             // 确认换课
             courseSwap.setTargetConfirm(TargetConfirmEnum.CONFIRMED.getCode());
-            
-            // 调用审批流程
-            Long approvalId = createApprovalProcess(courseSwap);
-            courseSwap.setApprovalId(approvalId);
+            // 审批记录已在提交时创建，此处仅更新确认状态
         } else {
             // 拒绝换课
             courseSwap.setTargetConfirm(TargetConfirmEnum.REJECTED.getCode());
@@ -100,9 +123,9 @@ public class CourseSwapServiceImpl extends ServiceImpl<CourseSwapMapper, CourseS
         return updateCount > 0;
     }
 
-    private void validateCourseSwapDTO(CourseSwapDTO courseSwapDTO) {
-        if (courseSwapDTO.getApplyScheduleId() == null) {
-            throw new IllegalArgumentException("申请人课程表ID不能为空");
+    private void validateCourseSwapDTO(CourseSwapDTO courseSwapDTO, Long currentTeacherId) {
+        if (courseSwapDTO.getMyScheduleId() == null) {
+            throw new IllegalArgumentException("申请方课程表ID不能为空");
         }
         if (courseSwapDTO.getTargetTeacherId() == null) {
             throw new IllegalArgumentException("目标教师ID不能为空");
@@ -113,9 +136,16 @@ public class CourseSwapServiceImpl extends ServiceImpl<CourseSwapMapper, CourseS
         if (courseSwapDTO.getReason() == null || courseSwapDTO.getReason().trim().isEmpty()) {
             throw new IllegalArgumentException("换课原因不能为空");
         }
-        
+
+        // 验证目标教师是否存在
+        if (userService.getById(courseSwapDTO.getTargetTeacherId()) == null) {
+            throw new IllegalArgumentException("目标教师不存在");
+        }
+
         // 不能和自己换课
-        // 实际实现中需要从课程表查询教师ID进行比较
+        if (courseSwapDTO.getTargetTeacherId().equals(currentTeacherId)) {
+            throw new IllegalArgumentException("不能和自己换课");
+        }
     }
 
     private String generateSwapNo() {
@@ -123,8 +153,22 @@ public class CourseSwapServiceImpl extends ServiceImpl<CourseSwapMapper, CourseS
     }
 
     private Long createApprovalProcess(CourseSwap courseSwap) {
-        // 集成工作流引擎或调用审批服务
-        return System.currentTimeMillis(); // 模拟返回审批ID
+        try {
+            // 调用审批服务创建审批记录
+            // processId=1L 表示默认审批流程
+            // applyUserType=2 表示教师
+            return approvalService.createApprovalRecord(
+                    1L,                                        // processId - 默认流程
+                    courseSwap.getApplyTeacherId(),            // applyUserId - 申请人ID
+                    2,                                         // applyUserType - 2=教师
+                    BusinessTypeEnum.COURSE_SWAP.getCode(),    // businessType - 换课
+                    courseSwap.getId(),                        // businessId - 换课记录ID
+                    courseSwap.getReason()                     // reason - 换课原因
+            );
+        } catch (Exception e) {
+            log.warn("创建换课审批流程失败: {}", e.getMessage());
+            return null;
+        }
     }
 
     private CourseSwapVO convertToVO(CourseSwap courseSwap) {

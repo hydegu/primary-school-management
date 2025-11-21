@@ -8,8 +8,8 @@ import lombok.Data;
 @ApiModel("换课申请DTO")
 public class CourseSwapDTO {
 
-    @ApiModelProperty(value = "申请人课程表ID", required = true)
-    private Long applyScheduleId;
+    @ApiModelProperty(value = "申请方课程表ID", required = true)
+    private Long myScheduleId;
 
     @ApiModelProperty(value = "目标教师ID", required = true)
     private Long targetTeacherId;

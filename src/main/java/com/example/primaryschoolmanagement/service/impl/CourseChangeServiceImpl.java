@@ -5,12 +5,17 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.enums.ApprovalStatusEnum;
+import com.example.primaryschoolmanagement.common.enums.BusinessTypeEnum;
 import com.example.primaryschoolmanagement.dao.CourseChangeMapper;
 import com.example.primaryschoolmanagement.dto.CourseChangeDTO;
 import com.example.primaryschoolmanagement.entity.CourseChange;
+import com.example.primaryschoolmanagement.service.ApprovalService;
 import com.example.primaryschoolmanagement.service.CourseChangeService;
 import com.example.primaryschoolmanagement.vo.CourseChangeVO;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,8 +28,14 @@ import java.time.LocalDateTime;
 @Service
 public class CourseChangeServiceImpl extends ServiceImpl<CourseChangeMapper, CourseChange> implements CourseChangeService {
 
+    private static final Logger log = LoggerFactory.getLogger(CourseChangeServiceImpl.class);
+
     @Resource
     private CourseChangeMapper courseChangeMapper;
+
+    @Lazy
+    @Resource
+    private ApprovalService approvalService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -41,7 +52,7 @@ public class CourseChangeServiceImpl extends ServiceImpl<CourseChangeMapper, Cou
 
         // 4. 设置额外字段
         courseChange.setApplyTeacherId(teacherId);
-        courseChange.setApplyTeacherName("教师姓名"); // 实际应从教师表查询
+        courseChange.setApplyTeacherName(getTeacherName(teacherId)); // 查询教师姓名
         courseChange.setChangeNo(generateChangeNo());
         courseChange.setApplyTime(LocalDateTime.now());
         courseChange.setApprovalStatus(ApprovalStatusEnum.PENDING.getCode());
@@ -51,15 +62,18 @@ public class CourseChangeServiceImpl extends ServiceImpl<CourseChangeMapper, Cou
 
         // 6. 调用审批流程
         Long approvalId = createApprovalProcess(courseChange);
-        courseChange.setApprovalId(approvalId);
-        baseMapper.updateById(courseChange);
+        if (approvalId != null) {
+            courseChange.setApprovalId(approvalId);
+            baseMapper.updateById(courseChange);
+        }
 
         return courseChange.getId();
     }
 
     @Override
     public CourseChangeVO getCourseChangeDetail(Long id) {
-        CourseChange courseChange = courseChangeMapper.selectCourseChangeWithApproval(id);
+        // 使用 MyBatis Plus 的默认方法查询
+        CourseChange courseChange = baseMapper.selectById(id);
         if (courseChange == null) {
             return null;
         }
@@ -117,8 +131,22 @@ public class CourseChangeServiceImpl extends ServiceImpl<CourseChangeMapper, Cou
     }
 
     private Long createApprovalProcess(CourseChange courseChange) {
-        // 集成工作流引擎或调用审批服务
-        return System.currentTimeMillis(); // 模拟返回审批ID
+        try {
+            // 调用审批服务创建审批记录
+            // processId=1L 表示默认审批流程
+            // applyUserType=2 表示教师
+            return approvalService.createApprovalRecord(
+                    1L,                                          // processId - 默认流程
+                    courseChange.getApplyTeacherId(),            // applyUserId - 申请人ID
+                    2,                                           // applyUserType - 2=教师
+                    BusinessTypeEnum.COURSE_CHANGE.getCode(),    // businessType - 调课
+                    courseChange.getId(),                        // businessId - 调课记录ID
+                    courseChange.getReason()                     // reason - 调课原因
+            );
+        } catch (Exception e) {
+            log.warn("创建调课审批流程失败: {}", e.getMessage());
+            return null;
+        }
     }
 
     private CourseChangeVO convertToVO(CourseChange courseChange) {
@@ -132,16 +160,80 @@ public class CourseChangeServiceImpl extends ServiceImpl<CourseChangeMapper, Cou
         // 设置枚举文本
         courseChangeVO.setApprovalStatusText(ApprovalStatusEnum.getTextByCode(courseChange.getApprovalStatus()));
 
-        // 实际项目中查询课程表获取课程信息
-        courseChangeVO.setOriginalCourseInfo("课程信息");
+        // 设置课程信息（实际项目中应该查询课程表）
+        courseChangeVO.setOriginalCourseInfo(getCourseInfo(courseChange.getOriginalScheduleId()));
 
         // 检查时间冲突
-        courseChangeVO.setHasTimeConflict(false);
+        courseChangeVO.setHasTimeConflict(checkTimeConflictForVO(courseChange));
 
-        // 实际项目中查询审批节点表获取审批信息
-        courseChangeVO.setLastApprover("教务主任");
-        courseChangeVO.setLastApprovalTime(LocalDateTime.now());
+        // 设置审批信息（实际项目中应该查询审批节点表）
+        courseChangeVO.setLastApprover(getLastApprover(courseChange.getApprovalId(), courseChange.getApprovalStatus()));
+        courseChangeVO.setLastApprovalTime(getLastApprovalTime(courseChange.getApprovalId(), courseChange.getApprovalStatus()));
 
         return courseChangeVO;
+    }
+
+    // ========== 模拟数据方法 ==========
+
+    /**
+     * 获取教师姓名（简化版）
+     */
+    private String getTeacherName(Long teacherId) {
+        // 实际项目中应该查询教师表
+        return "教师" + teacherId;
+    }
+
+    /**
+     * 获取课程信息（简化版）
+     */
+    private String getCourseInfo(Long scheduleId) {
+        // 实际项目中应该查询课程表和排课表
+        if (scheduleId == null) {
+            return "未知课程";
+        }
+        return "课程" + scheduleId;
+    }
+
+    /**
+     * 检查时间冲突（用于VO）
+     */
+    private boolean checkTimeConflictForVO(CourseChange courseChange) {
+        if (courseChange.getNewDate() == null || courseChange.getNewPeriod() == null) {
+            return false;
+        }
+
+        LambdaQueryWrapper<CourseChange> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(CourseChange::getNewDate, courseChange.getNewDate())
+                .eq(CourseChange::getNewPeriod, courseChange.getNewPeriod())
+                .ne(courseChange.getOriginalScheduleId() != null,
+                        CourseChange::getOriginalScheduleId, courseChange.getOriginalScheduleId())
+                .ne(courseChange.getId() != null, CourseChange::getId, courseChange.getId())
+                .in(CourseChange::getApprovalStatus,
+                        ApprovalStatusEnum.PENDING.getCode(), ApprovalStatusEnum.APPROVED.getCode());
+
+        long conflictCount = baseMapper.selectCount(queryWrapper);
+        return conflictCount > 0;
+    }
+
+    /**
+     * 获取最后审批人（简化版）
+     */
+    private String getLastApprover(Long approvalId, Integer approvalStatus) {
+        if (approvalId == null || ApprovalStatusEnum.PENDING.getCode().equals(approvalStatus)) {
+            return "待审批";
+        }
+        // 实际项目中应该查询审批节点表
+        return "教务主任";
+    }
+
+    /**
+     * 获取最后审批时间（简化版）
+     */
+    private LocalDateTime getLastApprovalTime(Long approvalId, Integer approvalStatus) {
+        if (approvalId == null || ApprovalStatusEnum.PENDING.getCode().equals(approvalStatus)) {
+            return null;
+        }
+        // 实际项目中应该查询审批节点表
+        return LocalDateTime.now().minusHours(1); // 模拟审批时间
     }
 }

@@ -16,7 +16,7 @@ import java.util.Optional;
 @Service
 public interface UserService extends IService<AppUser> {
 
-    Role selectRolesByUserId(Long userId);
+    List<Role> selectRolesByUserId(Long userId);
 
     AppUser findByUserName(String name);
 
