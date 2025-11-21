@@ -13,6 +13,7 @@ import com.example.primaryschoolmanagement.entity.CourseSwap;
 import com.example.primaryschoolmanagement.service.ApprovalService;
 import com.example.primaryschoolmanagement.service.CourseSwapService;
 import com.example.primaryschoolmanagement.service.UserService;
+import com.example.primaryschoolmanagement.common.utils.SecurityUtils;
 import com.example.primaryschoolmanagement.vo.CourseSwapVO;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -97,8 +98,10 @@ public class CourseSwapServiceImpl extends ServiceImpl<CourseSwapMapper, CourseS
             return false;
         }
 
-        // 权限验证：只能由目标教师确认
-        if (!courseSwap.getTargetTeacherId().equals(teacherId)) {
+        // 权限验证：目标教师或超级管理员可确认
+        boolean isTargetTeacher = courseSwap.getTargetTeacherId().equals(teacherId);
+        boolean isSuperAdmin = SecurityUtils.isSuperAdmin();
+        if (!isTargetTeacher && !isSuperAdmin) {
             return false;
         }
 
@@ -110,10 +113,7 @@ public class CourseSwapServiceImpl extends ServiceImpl<CourseSwapMapper, CourseS
         if (confirm) {
             // 确认换课
             courseSwap.setTargetConfirm(TargetConfirmEnum.CONFIRMED.getCode());
-
-            // 调用审批流程
-            Long approvalId = createApprovalProcess(courseSwap);
-            courseSwap.setApprovalId(approvalId);
+            // 审批记录已在提交时创建，此处仅更新确认状态
         } else {
             // 拒绝换课
             courseSwap.setTargetConfirm(TargetConfirmEnum.REJECTED.getCode());
