@@ -1,5 +1,6 @@
 package com.example.primaryschoolmanagement.controller;
 
+import com.example.primaryschoolmanagement.common.enums.ResultCode;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dto.menu.MenuCreateRequest;
 import com.example.primaryschoolmanagement.dto.menu.MenuDTO;
@@ -90,7 +91,7 @@ public class MenuController {
     @DeleteMapping("/{id}")
     public R deleteMenu(@PathVariable Long id) {
         log.info("删除菜单请求：menuId={}", id);
-        menuService.deleteMenu(id);
-        return R.ok("删除成功");
+        if (menuService.deleteMenu(id)) return R.ok("删除成功");
+        else return R.er(ResultCode.ERROR);
     }
 }

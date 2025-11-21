@@ -152,7 +152,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuDao, Menu> implements MenuS
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void deleteMenu(Long id) {
+    public Boolean deleteMenu(Long id) {
         log.info("删除菜单：menuId={}", id);
 
         // 1. 查询菜单是否存在
@@ -168,18 +168,13 @@ public class MenuServiceImpl extends ServiceImpl<MenuDao, Menu> implements MenuS
         }
 
         // 3. 软删除菜单
-        menu.setIsDeleted(true);
-        menu.setUpdatedAt(LocalDateTime.now());
-        int result = menuDao.updateById(menu);
-        if (result <= 0) {
-            throw new BusinessException("删除菜单失败");
-        }
-
-        log.info("菜单删除成功：menuId={}", id);
+        int i = menuDao.deleteById(id);
+        if(i > 0) return true;
+        else return false;
     }
 
     @Override
-    public MenuDTO getMenuById(Long id) {
+    public MenuDTO getMenuById(Long id)  {
         log.info("查询菜单详情：menuId={}", id);
 
         Menu menu = menuDao.selectById(id);

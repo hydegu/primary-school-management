@@ -28,6 +28,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -113,7 +114,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
 
     @Override
     @CacheEvict(cacheNames = "users:roles", key = "#userId")
-    public Role selectRolesByUserId(Long userId) {
+    public List<Role> selectRolesByUserId(Long userId) {
         return userRepo.selectRolesByUserId(userId);
     }
 
@@ -141,8 +142,10 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
         }
 
         // 获取用户角色
-        Role role = selectRolesByUserId(user.getId());
-        String roleCode = role != null ? role.getRoleCode() : "student";
+        List<Role> roles = selectRolesByUserId(user.getId());
+        List<String> roleCode = roles != null ? roles.stream()
+                .map(role -> role.getRoleCode())
+                .collect(Collectors.toList()) : List.of("student");
 
         // 获取登录IP并更新用户登录信息
         String loginIp = IpUtils.getClientIp(request);
