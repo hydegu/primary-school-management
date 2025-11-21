@@ -3,6 +3,7 @@ package com.example.primaryschoolmanagement.controller;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.entity.Classes;
 import com.example.primaryschoolmanagement.entity.Student;
+import com.example.primaryschoolmanagement.entity.Teacher;
 import com.example.primaryschoolmanagement.service.ClassesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +24,8 @@ public class ClassesController {
     }
     //添加班级
     @PostMapping(value="/class")
-    public R addclasses(@RequestBody Classes classes){
-        return this.classesService.addclasses(classes);
+    public R addclasses(@RequestBody Classes classes, Teacher teacher){
+        return this.classesService.addclasses(classes,teacher);
     }
     //删除班级
     @DeleteMapping(value="/class/{id}")

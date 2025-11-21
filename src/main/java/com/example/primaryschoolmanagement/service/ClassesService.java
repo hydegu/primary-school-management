@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ClassesService extends IService<Classes> {
     R classesList();
-    R addclasses(Classes classes);
+    R addclasses(Classes classes,Teacher teacher);
     R deleteclasses(Integer id);
     R updateclasses(Classes classes);
     //班级详情

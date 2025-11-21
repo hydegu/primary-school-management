@@ -1,6 +1,6 @@
 package com.example.primaryschoolmanagement.service.impl;
 
-
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -40,6 +40,9 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
 
     @Override
     public R queryByConditions(String teacherName, String teacherNo, String title) {
+        Page<Teacher> page = new Page<>();
+        page.setCurrent(1);
+        page.setSize(5);
         // 构建查询条件
         LambdaQueryWrapper<Teacher> queryWrapper = new LambdaQueryWrapper<>();
         // 逻辑删除条件（根据实际项目调整，如不需要可删除）
@@ -59,16 +62,24 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         if (title != null && !title.trim().isEmpty()) {
             queryWrapper.eq(Teacher::getTitle, title.trim());
         }
+        Page<Teacher> pageInfo = this.teacherDao.selectPage(page, queryWrapper);
+
 
         // 执行查询
-        List<Teacher> teacherList = this.teacherDao.selectList(queryWrapper);
+//        List<Teacher> teacherList = this.teacherDao.selectList(queryWrapper);
+        List<Teacher> records = pageInfo.getRecords();
+        long total = pageInfo.getTotal();
+        Map<String, Object> map = new HashMap<>();
+        map.put("total", total);
+        map.put("teacher", records);
+        return R.ok(map);
 
         // 处理结果
-        if (teacherList.isEmpty()) {
-            return R.er();
-        } else {
-            return R.ok(teacherList);
-        }
+//        if (teacherList.isEmpty()) {
+//            return R.er();
+//        } else {
+//            return R.ok(teacherList);
+//        }
     }
 
     @Override
@@ -191,7 +202,13 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
     }
 
 
-
+    /**
+     * 修改teacher user和userrole表的相关数据也会发生改变
+     * @param teacher
+     * @param appuser
+     * @param userrole
+     * @return
+     */
     @Override
     public R updateTeacher(Teacher teacher,AppUser appuser,UserRole userrole) {
         // 1. 验证主键id是否存在（必须传入id才能确定更新哪条记录）
