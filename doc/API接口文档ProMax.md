@@ -2650,30 +2650,8 @@ GET /api/leave/pending?classId=1&keyword=感冒
 ```json
 {
   "code": 200,
-  "msg": "申请成功",
-  "dataset": {
-    "id": 1,                                         // 调班ID
-    "transferNo": "CT2024112000001",                 // 调班单号
-    "studentId": 100,                                // 学生ID
-    "studentName": "小明",                           // 学生姓名
-    "currentClassId": 1,                             // 当前班级ID（API格式）
-    "currentClassName": "一年级1班",                 // 当前班级名称（API格式）
-    "originalClassId": 1,                            // 原班级ID（数据库格式，别名）
-    "originalClassName": "一年级1班",                // 原班级名称（数据库格式，别名）
-    "targetClassId": 2,                              // 目标班级ID
-    "targetClassName": "一年级2班",                  // 目标班级名称
-    "reason": "家庭住址变更",                        // 调班原因
-    "effectiveDate": "2024-12-01",                   // 生效日期
-    "applyTime": "2024-11-20T10:00:00",             // 申请时间
-    "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
-    "approvalStatusText": "待审批",                  // 审批状态文本
-    "approvalId": null,                              // 关联审批记录ID
-    "originalClassTeacher": "张老师",                // 原班主任
-    "targetClassTeacher": "李老师",                  // 目标班主任
-    "lastApprover": null,                            // 最近审批人
-    "lastApprovalTime": null,                        // 最近审批时间
-    "remark": null                                   // 备注
-  }
+  "msg": "操作成功",
+  "dataset": 2   //换班记录ID
 }
 ```
 
