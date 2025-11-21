@@ -77,10 +77,12 @@ public class CourseController {
         CourseVO courseVO = courseService.getCourse(id);
         return R.ok(courseVO);
     }
-    // 6.1 课程列表 - subjectId为可选参数
+    // 6.1 课程列表 - subjectId和classId为可选参数
     @GetMapping(value = "/list")
-    public R courseList(@RequestParam(required = false) Integer subjectId){
-        List<CourseVO> courseList = courseService.listCourses(subjectId);
+    public R courseList(
+            @RequestParam(required = false) Integer subjectId,
+            @RequestParam(required = false) Integer classId){
+        List<CourseVO> courseList = courseService.listCourses(subjectId, classId);
         return R.ok(courseList);
     }
 

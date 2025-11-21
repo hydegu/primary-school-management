@@ -120,17 +120,12 @@ public class CourseServiceImpl extends ServiceImpl<CourseDao, Course> implements
     }
 
     /**
-     * 查询课程列表 - subjectId可选
-     * 如果传了subjectId则按科目筛选，否则返回所有课程
+     * 查询课程列表 - subjectId和classId可选
+     * 支持按科目和/或班级筛选
      */
     @Override
-    public List<CourseVO> listCourses(Integer subjectId) {
-        List<CourseVO> courseList;
-        if (subjectId != null) {
-            courseList = courseDao.courseList(subjectId);
-        } else {
-            courseList = courseDao.courseListAll();
-        }
+    public List<CourseVO> listCourses(Integer subjectId, Integer classId) {
+        List<CourseVO> courseList = courseDao.courseListWithFilters(subjectId, classId);
         return courseList == null ? List.of() : courseList;
     }
 
