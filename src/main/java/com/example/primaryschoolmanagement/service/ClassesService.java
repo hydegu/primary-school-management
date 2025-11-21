@@ -2,6 +2,7 @@ package com.example.primaryschoolmanagement.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.primaryschoolmanagement.common.utils.R;
+import com.example.primaryschoolmanagement.dto.ClassesQueryDTO;
 import com.example.primaryschoolmanagement.entity.Classes;
 import com.example.primaryschoolmanagement.entity.Student;
 import com.example.primaryschoolmanagement.entity.Teacher;
@@ -9,7 +10,7 @@ import com.example.primaryschoolmanagement.entity.Teacher;
 import java.util.List;
 
 public interface ClassesService extends IService<Classes> {
-    R classesList();
+    R classesList(ClassesQueryDTO queryDTO);
     R addclasses(Classes classes,Teacher teacher);
     R deleteclasses(Integer id);
     R updateclasses(Classes classes,Integer id);

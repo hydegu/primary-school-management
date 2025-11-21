@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dao.ClassesDao;
 import com.example.primaryschoolmanagement.dao.StudentDao;
+import com.example.primaryschoolmanagement.dto.ClassesQueryDTO;
 import com.example.primaryschoolmanagement.entity.Classes;
 import com.example.primaryschoolmanagement.entity.Student;
 import com.example.primaryschoolmanagement.entity.Teacher;
@@ -37,24 +38,32 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
      * @return
      */
     @Override
-    public R classesList() {
+    public R classesList(ClassesQueryDTO queryDTO) {
         Page<Classes> page = new Page<>();
         page.setCurrent(1);
         page.setSize(5);
         LambdaQueryWrapper<Classes> queryWrapper = new LambdaQueryWrapper<>();
 //        List<Classes> classesList = this.classesDao.selectList(queryWrapper);
+        queryWrapper.eq(Classes::getIsDeleted, false);
+        // 1. 优先按班级编号筛选（如果传入）
+        if (queryDTO.getClassNo() != null && !queryDTO.getClassNo().trim().isEmpty()) {
+            queryWrapper.eq(Classes::getClassNo, queryDTO.getClassNo().trim());
+        }
+        if (queryDTO.getClassName() != null && !queryDTO.getClassName().trim().isEmpty()) {
+            queryWrapper.eq(Classes::getClassName, queryDTO.getClassName().trim());
+        }
+        if (queryDTO.getHeadTeacherId() != null) {
+            queryWrapper.eq(Classes::getHeadTeacherId, queryDTO.getHeadTeacherId());
+        }
         Page<Classes> pageInfo = this.classesDao.selectPage(page, queryWrapper);
+
         List<Classes> records = pageInfo.getRecords();
         long total = pageInfo.getTotal();
         Map<String, Object> map = new HashMap<>();
         map.put("total", total);
         map.put("teacher", records);
         return R.ok(map);
-//        if (classesList.isEmpty()) {
-//            return R.er();
-//        } else {
-//            return R.ok(classesList);
-//        }
+
     }
 
     @Override

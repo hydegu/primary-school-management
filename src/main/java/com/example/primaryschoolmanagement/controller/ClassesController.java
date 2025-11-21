@@ -1,6 +1,7 @@
 package com.example.primaryschoolmanagement.controller;
 
 import com.example.primaryschoolmanagement.common.utils.R;
+import com.example.primaryschoolmanagement.dto.ClassesQueryDTO;
 import com.example.primaryschoolmanagement.entity.Classes;
 import com.example.primaryschoolmanagement.entity.Student;
 import com.example.primaryschoolmanagement.entity.Teacher;
@@ -19,8 +20,8 @@ public class ClassesController {
 
     //班级列表
     @GetMapping(value="/class/list")
-    public R classesList(){
-        return this.classesService.classesList();
+    public R classesList(@RequestBody ClassesQueryDTO queryDTO){
+        return this.classesService.classesList(queryDTO);
     }
     //添加班级
     @PostMapping(value="/class")
