@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.enums.ApprovalStatusEnum;
+import com.example.primaryschoolmanagement.common.enums.BusinessTypeEnum;
 import com.example.primaryschoolmanagement.dao.ClassTransferMapper;
 import com.example.primaryschoolmanagement.dto.ClassTransferDTO;
 import com.example.primaryschoolmanagement.entity.ClassTransfer;
+import com.example.primaryschoolmanagement.service.ApprovalService;
 import com.example.primaryschoolmanagement.service.ClassTransferService;
 import com.example.primaryschoolmanagement.vo.ClassTransferVO;
 import jakarta.annotation.Resource;
@@ -29,6 +31,9 @@ public class ClassTransferServiceImpl extends ServiceImpl<ClassTransferMapper, C
 
     @Resource
     private ClassTransferMapper classTransferMapper;
+
+    @Resource
+    private ApprovalService approvalService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -127,8 +132,17 @@ public class ClassTransferServiceImpl extends ServiceImpl<ClassTransferMapper, C
 
     private Long createApprovalProcess(ClassTransfer classTransfer) {
         try {
-            // 集成工作流引擎或调用审批服务
-            return System.currentTimeMillis(); // 模拟返回审批ID
+            // 调用审批服务创建审批记录
+            // processId=1L 表示默认审批流程
+            // applyUserType=1 表示学生（调班是学生发起的）
+            return approvalService.createApprovalRecord(
+                    1L,                                            // processId - 默认流程
+                    classTransfer.getStudentId(),                  // applyUserId - 申请人ID（学生）
+                    1,                                             // applyUserType - 1=学生
+                    BusinessTypeEnum.CLASS_TRANSFER.getCode(),     // businessType - 调班
+                    classTransfer.getId(),                         // businessId - 调班记录ID
+                    classTransfer.getReason()                      // reason - 调班原因
+            );
         } catch (Exception e) {
             log.warn("创建调班审批流程失败: {}", e.getMessage());
             return null;

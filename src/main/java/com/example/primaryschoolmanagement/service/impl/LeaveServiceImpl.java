@@ -5,11 +5,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.enums.ApprovalStatusEnum;
+import com.example.primaryschoolmanagement.common.enums.BusinessTypeEnum;
 import com.example.primaryschoolmanagement.common.enums.LeaveTypeEnum;
 import com.example.primaryschoolmanagement.common.utils.SecurityUtils;
 import com.example.primaryschoolmanagement.dao.LeaveMapper;
 import com.example.primaryschoolmanagement.dto.LeaveDTO;
 import com.example.primaryschoolmanagement.entity.Leave;
+import com.example.primaryschoolmanagement.service.ApprovalService;
 import com.example.primaryschoolmanagement.service.LeaveService;
 import com.example.primaryschoolmanagement.vo.LeaveVO;
 import jakarta.annotation.Resource;
@@ -38,6 +40,9 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
 
     @Resource
     private LeaveMapper leaveMapper;
+
+    @Resource
+    private ApprovalService approvalService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -216,9 +221,17 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
      */
     private Long createApprovalProcess(Leave leave) {
         try {
-            // 实际项目中这里应该调用审批服务创建审批流程
-            // 返回模拟的审批ID
-            return System.currentTimeMillis();
+            // 调用审批服务创建审批记录
+            // processId=1L 表示默认审批流程
+            // applyUserType=1 表示学生
+            return approvalService.createApprovalRecord(
+                    1L,                                    // processId - 默认流程
+                    leave.getStudentId(),                  // applyUserId - 申请人ID
+                    1,                                     // applyUserType - 1=学生
+                    BusinessTypeEnum.LEAVE.getCode(),      // businessType - 请假
+                    leave.getId(),                         // businessId - 请假记录ID
+                    leave.getReason()                      // reason - 请假原因
+            );
         } catch (Exception e) {
             // 审批流程创建失败不影响请假申请提交
             log.warn("创建审批流程失败: {}", e.getMessage());
