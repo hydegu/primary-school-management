@@ -2633,12 +2633,15 @@ GET /api/leave/pending?classId=1&keyword=感冒
 **请求参数**:
 ```json
 {
-  "studentId": 100,              // 学生ID
   "currentClassId": 1,           // 当前班级ID
   "targetClassId": 2,            // 目标班级ID
-  "reason": "家庭住址变更"        // 调班原因
+  "reason": "家庭住址变更",       // 调班原因
+  "effectiveDate": "2025-12-01", // 生效日期（可选）
+  "remark": "备注"               // 备注（可选）
 }
 ```
+
+> 注：学生ID从当前登录用户获取，无需传入
 
 **响应示例**:
 ```json
