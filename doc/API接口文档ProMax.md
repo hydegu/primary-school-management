@@ -2120,9 +2120,25 @@
 **功能描述**: 查询待审批的请假列表
 
 **请求参数**:
-- `classId` - 班级ID
+- `classId` - 班级ID（可选，用于筛选特定班级）
+- `keyword` - 关键字（可选，模糊搜索学生姓名、请假原因）
 - `page` - 页码，默认1
 - `size` - 每页条数，默认10
+
+**使用示例**:
+```
+# 查询所有待审批
+GET /api/leave/pending
+
+# 按班级筛选
+GET /api/leave/pending?classId=1
+
+# 模糊搜索
+GET /api/leave/pending?keyword=小明
+
+# 组合条件
+GET /api/leave/pending?classId=1&keyword=感冒
+```
 
 **响应示例**:
 ```json
@@ -2242,14 +2258,13 @@
 
 **接口地址**: `PUT /api/leave/{id}/cancel`
 
-**功能描述**: 撤回请假申请
-**请求参数**:
-```json
-{
-  "id": 1,      //请假申请的id
-  "userId": 5
-}
-```
+**功能描述**: 撤回请假申请（只能撤回自己的待审批申请）
+
+**路径参数**:
+- `id` - 请假记录ID
+
+**请求参数**: 无（用户ID从当前登录用户获取）
+
 **响应示例**:
 ```json
 {

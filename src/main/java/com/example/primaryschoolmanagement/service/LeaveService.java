@@ -46,11 +46,12 @@ public interface LeaveService extends IService<Leave> {
 
     /**
      * 查询待审批请假列表
-     * @param classId 班级ID（班主任视角）
+     * @param classId 班级ID（可选，用于筛选）
+     * @param keyword 关键字（可选，模糊搜索学生姓名、请假原因）
      * @param page 页码
      * @param size 每页条数
      * @return 分页待审批列表
      */
-    IPage<LeaveVO> getPendingLeaves(Long classId, int page, int size);
+    IPage<LeaveVO> getPendingLeaves(Long classId, String keyword, int page, int size);
 
 }

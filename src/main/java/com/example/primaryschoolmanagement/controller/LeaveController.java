@@ -69,10 +69,11 @@ public class LeaveController {
     @GetMapping("/pending")
     @ApiOperation("查询待审批请假列表")
     public R getPendingLeaves(
-            @RequestParam Long classId,
+            @RequestParam(required = false) Long classId,
+            @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
-        IPage<LeaveVO> pendingPage = leaveService.getPendingLeaves(classId, page, size);
+        IPage<LeaveVO> pendingPage = leaveService.getPendingLeaves(classId, keyword, page, size);
         return R.ok(pendingPage);
     }
 }
