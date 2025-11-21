@@ -84,17 +84,17 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
             return Optional.empty();
         }
         String value = identifier.trim();
+        log.debug("查找用户, identifier={}, trimmed value={}", identifier, value);
+
         LambdaQueryWrapper<AppUser> query = new LambdaQueryWrapper<>();
-        // 使用and包装or条件组，确保逻辑删除条件正确应用到所有查询条件
-        // 修复前: WHERE username=? OR email=? OR phone=? AND is_deleted=0
-        // 修复后: WHERE (username=? OR email=? OR phone=?) AND is_deleted=0
-        query.and(wrapper -> wrapper
-                .eq(AppUser::getUsername, value)
+        query.eq(AppUser::getUsername, value)
                 .or()
                 .eq(AppUser::getEmail, value)
                 .or()
-                .eq(AppUser::getPhone, value));
+                .eq(AppUser::getPhone, value);
+
         AppUser user = userRepo.selectOne(query);
+        log.debug("查询结果: user={}", user != null ? user.getUsername() : "null");
         return Optional.ofNullable(user);
     }
 
