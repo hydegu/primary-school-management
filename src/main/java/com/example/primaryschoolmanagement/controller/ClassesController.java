@@ -57,15 +57,6 @@ public class ClassesController {
         return R.ok(students);
     }
 
-    //班级课程列表 5.2
-    @GetMapping(value="/class/{id}/courses")
-    public R classCourses(@PathVariable Integer id){
-        if (id == null) {
-            return R.er(400, "班级ID不能为空");
-        }
-        return this.classesService.classCourses(id);
-    }
-
     //调班申请列表 5.3
     @GetMapping(value="/class/transfer")
     public R classTransferList(
