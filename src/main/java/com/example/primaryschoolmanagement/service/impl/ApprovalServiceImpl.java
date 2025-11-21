@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.enums.ApprovalStatusEnum;
 import com.example.primaryschoolmanagement.common.enums.ApprovalNodeStatusEnum;
 import com.example.primaryschoolmanagement.common.enums.BusinessTypeEnum;
+import com.example.primaryschoolmanagement.common.utils.SecurityUtils;
 import com.example.primaryschoolmanagement.dao.FlowApprovalMapper;
 import com.example.primaryschoolmanagement.dao.FlowApprovalNodeMapper;
 import com.example.primaryschoolmanagement.dto.ApprovalActionDTO;
@@ -77,16 +78,27 @@ public class ApprovalServiceImpl extends ServiceImpl<FlowApprovalMapper, FlowApp
             throw new IllegalArgumentException("当前审批记录不可审批");
         }
 
-        // 3. 验证审批人权限
+        // 3. 验证审批人权限（按角色判断）
         FlowApprovalNode currentNode = flowApprovalNodeMapper.selectCurrentPendingNode(approval.getId());
-        if (currentNode == null || !currentNode.getApproverId().equals(approverId)) {
-            throw new IllegalArgumentException("无权限审批此记录");
+        if (currentNode == null) {
+            throw new IllegalArgumentException("没有待审批的节点");
+        }
+
+        boolean isSuperAdmin = SecurityUtils.isSuperAdmin();
+        boolean hasApprovalRole = checkApprovalRolePermission(currentNode.getNodeLevel());
+        if (!isSuperAdmin && !hasApprovalRole) {
+            throw new IllegalArgumentException("无权限审批此记录，需要对应角色权限");
         }
 
         // 4. 更新当前节点状态
         currentNode.setApprovalStatus(ApprovalNodeStatusEnum.APPROVED.getCode());
         currentNode.setApprovalTime(LocalDateTime.now());
         currentNode.setApprovalOpinion(approvalActionDTO.getApprovalOpinion());
+        // 记录实际审批人信息
+        String actualApprover = isSuperAdmin ? "(超管代审)" : (hasApprovalRole ? "(角色审批)" : "");
+        if (!actualApprover.isEmpty()) {
+            currentNode.setApproverName(currentNode.getApproverName() + actualApprover);
+        }
         flowApprovalNodeMapper.updateById(currentNode);
 
         // 5. 检查是否还有后续节点
@@ -124,16 +136,27 @@ public class ApprovalServiceImpl extends ServiceImpl<FlowApprovalMapper, FlowApp
             throw new IllegalArgumentException("当前审批记录不可审批");
         }
 
-        // 3. 验证审批人权限
+        // 3. 验证审批人权限（按角色判断）
         FlowApprovalNode currentNode = flowApprovalNodeMapper.selectCurrentPendingNode(approval.getId());
-        if (currentNode == null || !currentNode.getApproverId().equals(approverId)) {
-            throw new IllegalArgumentException("无权限审批此记录");
+        if (currentNode == null) {
+            throw new IllegalArgumentException("没有待审批的节点");
+        }
+
+        boolean isSuperAdmin = SecurityUtils.isSuperAdmin();
+        boolean hasApprovalRole = checkApprovalRolePermission(currentNode.getNodeLevel());
+        if (!isSuperAdmin && !hasApprovalRole) {
+            throw new IllegalArgumentException("无权限审批此记录，需要对应角色权限");
         }
 
         // 4. 更新当前节点状态
         currentNode.setApprovalStatus(ApprovalNodeStatusEnum.REJECTED.getCode());
         currentNode.setApprovalTime(LocalDateTime.now());
         currentNode.setApprovalOpinion(approvalActionDTO.getApprovalOpinion());
+        // 记录实际审批人信息
+        String actualApprover = isSuperAdmin ? "(超管代审)" : (hasApprovalRole ? "(角色审批)" : "");
+        if (!actualApprover.isEmpty()) {
+            currentNode.setApproverName(currentNode.getApproverName() + actualApprover);
+        }
         flowApprovalNodeMapper.updateById(currentNode);
 
         // 5. 更新审批记录状态
@@ -344,6 +367,27 @@ public class ApprovalServiceImpl extends ServiceImpl<FlowApprovalMapper, FlowApp
 
     private String generateApprovalNo() {
         return "APP" + System.currentTimeMillis() + (int)(Math.random() * 1000);
+    }
+
+    /**
+     * 根据节点级别检查当前用户是否有对应的审批角色权限
+     * nodeLevel=1 → head_teacher（班主任）
+     * nodeLevel=2 → edu_admin（教务管理员）
+     */
+    private boolean checkApprovalRolePermission(Integer nodeLevel) {
+        if (nodeLevel == null) {
+            return false;
+        }
+        switch (nodeLevel) {
+            case 1:
+                // 第一级审批需要班主任角色
+                return SecurityUtils.hasRole("head_teacher");
+            case 2:
+                // 第二级审批需要教务管理员角色
+                return SecurityUtils.hasRole("edu_admin");
+            default:
+                return false;
+        }
     }
 
     /**
