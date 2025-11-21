@@ -2,6 +2,7 @@ package com.example.primaryschoolmanagement.controller;
 
 import com.example.primaryschoolmanagement.common.exception.ApiException;
 import com.example.primaryschoolmanagement.common.utils.R;
+import com.example.primaryschoolmanagement.dao.CourseDao;
 import com.example.primaryschoolmanagement.dto.SubjectTeacherRelationDTO;
 import com.example.primaryschoolmanagement.entity.Course;
 import com.example.primaryschoolmanagement.service.CourseService;
@@ -26,10 +27,11 @@ public class CourseController {
 
     @Resource
     private ScheduleService scheduleService;
+    @Autowired
+    private CourseDao courseDao;
 
     @PostMapping(value = "")
     public R addCourse(@RequestBody SubjectTeacherRelationDTO dto){
-        System.out.println(dto);
         if (dto == null){
             throw new ApiException(HttpStatus.BAD_REQUEST,"数据为空");
         }
@@ -81,6 +83,17 @@ public class CourseController {
         }
         CourseVO courseVO = courseService.getCourse(id);
         return R.ok(courseVO);
+    }
+    @GetMapping(value = "/detail/{subjectId}")
+    public R getcourseDetail(@PathVariable Integer subjectId){
+        if(subjectId == null){
+            throw new ApiException(HttpStatus.BAD_REQUEST,"传递的参数为空");
+        }
+        List<CourseVO> courseVOList = courseService.list(subjectId);
+        if(courseVOList.isEmpty()){
+            throw new ApiException(HttpStatus.NOT_FOUND,"该科目下无课程数据");
+        }
+        return R.ok(courseVOList);
     }
     // 6.1 课程列表 - 查询指定班级的课表
     @GetMapping(value = "/list")

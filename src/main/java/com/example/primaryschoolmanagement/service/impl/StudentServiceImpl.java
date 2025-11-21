@@ -23,6 +23,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -42,6 +43,9 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
 
     @Resource
     private UserDao userDao;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     @Cacheable(cacheNames = "students:profile", key = "#studentNo", unless = "#result == null")
@@ -73,10 +77,10 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
         }
 
         // 2. 转换DTO为实体
-
+        String encodedPassword = passwordEncoder.encode("123456");
         AppUser appUser = new AppUser()
                 .setUsername(dto.getStudentNo())
-                .setPassword("123456")
+                .setPassword(encodedPassword)
                 .setUserType(3)
                 .setRealName(dto.getStudentName());
 
