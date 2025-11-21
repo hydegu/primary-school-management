@@ -35,13 +35,9 @@ public class CourseSwapController {
     @GetMapping("/my")
     @ApiOperation("查询我的换课记录")
     public R getMyCourseSwaps(
-            @RequestParam(required = false) Long teacherId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
-        // 如果未传teacherId，则使用当前登录用户ID
-        if (teacherId == null) {
-            teacherId = SecurityUtils.getCurrentUserId();
-        }
+        Long teacherId = SecurityUtils.getCurrentUserId();
         if (teacherId == null) {
             return R.er(401, "用户未登录");
         }

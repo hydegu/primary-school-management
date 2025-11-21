@@ -40,13 +40,9 @@ public class ClassTransferController {
     @GetMapping("/my")
     @ApiOperation("查询我的调班记录")
     public R getMyClassTransfers(
-            @RequestParam(required = false) Long studentId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
-        // 如果未传studentId，则使用当前登录用户ID
-        if (studentId == null) {
-            studentId = SecurityUtils.getCurrentUserId();
-        }
+        Long studentId = SecurityUtils.getCurrentUserId();
         if (studentId == null) {
             return R.er(401, "用户未登录");
         }
