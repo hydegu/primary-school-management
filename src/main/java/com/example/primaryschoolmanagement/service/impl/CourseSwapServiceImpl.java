@@ -12,6 +12,7 @@ import com.example.primaryschoolmanagement.dto.CourseSwapDTO;
 import com.example.primaryschoolmanagement.entity.CourseSwap;
 import com.example.primaryschoolmanagement.service.ApprovalService;
 import com.example.primaryschoolmanagement.service.CourseSwapService;
+import com.example.primaryschoolmanagement.service.UserService;
 import com.example.primaryschoolmanagement.vo.CourseSwapVO;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -38,11 +39,14 @@ public class CourseSwapServiceImpl extends ServiceImpl<CourseSwapMapper, CourseS
     @Resource
     private ApprovalService approvalService;
 
+    @Resource
+    private UserService userService;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long submitCourseSwap(CourseSwapDTO courseSwapDTO, Long teacherId) {
         // 1. 数据验证
-        validateCourseSwapDTO(courseSwapDTO);
+        validateCourseSwapDTO(courseSwapDTO, teacherId);
 
         // 2. 创建换课实体
         CourseSwap courseSwap = new CourseSwap();
@@ -112,7 +116,7 @@ public class CourseSwapServiceImpl extends ServiceImpl<CourseSwapMapper, CourseS
         return updateCount > 0;
     }
 
-    private void validateCourseSwapDTO(CourseSwapDTO courseSwapDTO) {
+    private void validateCourseSwapDTO(CourseSwapDTO courseSwapDTO, Long currentTeacherId) {
         if (courseSwapDTO.getMyScheduleId() == null) {
             throw new IllegalArgumentException("申请方课程表ID不能为空");
         }
@@ -126,8 +130,15 @@ public class CourseSwapServiceImpl extends ServiceImpl<CourseSwapMapper, CourseS
             throw new IllegalArgumentException("换课原因不能为空");
         }
 
+        // 验证目标教师是否存在
+        if (userService.getById(courseSwapDTO.getTargetTeacherId()) == null) {
+            throw new IllegalArgumentException("目标教师不存在");
+        }
+
         // 不能和自己换课
-        // 实际实现中需要从课程表查询教师ID进行比较
+        if (courseSwapDTO.getTargetTeacherId().equals(currentTeacherId)) {
+            throw new IllegalArgumentException("不能和自己换课");
+        }
     }
 
     private String generateSwapNo() {
