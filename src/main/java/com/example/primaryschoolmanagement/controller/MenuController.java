@@ -1,5 +1,6 @@
 package com.example.primaryschoolmanagement.controller;
 
+import com.example.primaryschoolmanagement.common.enums.ResultCode;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dto.menu.MenuCreateRequest;
 import com.example.primaryschoolmanagement.dto.menu.MenuDTO;
@@ -36,14 +37,20 @@ public class MenuController {
     }
 
     /**
-     * 获取所有菜单列表（扁平结构）
+     * 获取所有菜单列表（扁平结构，支持模糊搜索）
      * 权限要求：任何认证用户
      */
     @GetMapping("/list")
     public R getAllMenus(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        log.info("查询所有菜单列表，page={}, size={}", page, size);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String menuName,
+            @RequestParam(required = false) String menuCode) {
+        log.info("查询所有菜单列表，page={}, size={}, menuName={}, menuCode={}", page, size, menuName, menuCode);
+        // 如果有搜索参数，使用模糊搜索
+        if (menuName != null || menuCode != null) {
+            return menuService.searchMenus(page, size, menuName, menuCode);
+        }
         return menuService.getAllMenusWithPagination(page, size);
     }
 
@@ -90,7 +97,7 @@ public class MenuController {
     @DeleteMapping("/{id}")
     public R deleteMenu(@PathVariable Long id) {
         log.info("删除菜单请求：menuId={}", id);
-        menuService.deleteMenu(id);
-        return R.ok("删除成功");
+        if (menuService.deleteMenu(id)) return R.ok("删除成功");
+        else return R.er(ResultCode.ERROR);
     }
 }

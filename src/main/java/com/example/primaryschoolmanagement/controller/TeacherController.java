@@ -46,10 +46,7 @@ public class TeacherController {
     public R updateteacher(@RequestBody Teacher teacher,AppUser appuser,UserRole userrole){
         return this.teacherService.updateTeacher(teacher,appuser,userrole);
     }
-    @GetMapping(value="/teacher/crouses")
-    public R getcrouseByteacherId(@PathVariable Integer id){
-        return  this.teacherService.getcrouseByteacherId(id);
-    }
+
 
     /**
      * 根据科目ID获取能教该科目的教师列表

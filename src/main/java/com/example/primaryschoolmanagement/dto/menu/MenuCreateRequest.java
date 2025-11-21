@@ -1,5 +1,6 @@
 package com.example.primaryschoolmanagement.dto.menu;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -7,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * 创建菜单请求DTO
@@ -76,4 +79,10 @@ public class MenuCreateRequest {
      */
     @Size(max = 500, message = "备注最长500个字符")
     private String remark;
+
+    /**
+     * 子菜单列表
+     */
+    @Valid
+    private List<MenuCreateRequest> children;
 }

@@ -5,7 +5,9 @@ import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dto.SubjectTeacherRelationDTO;
 import com.example.primaryschoolmanagement.entity.Course;
 import com.example.primaryschoolmanagement.service.CourseService;
+import com.example.primaryschoolmanagement.service.ScheduleService;
 import com.example.primaryschoolmanagement.vo.CourseVO;
+import com.example.primaryschoolmanagement.vo.ScheduleVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,9 @@ public class CourseController {
 
     @Resource
     private CourseService courseService;
+
+    @Resource
+    private ScheduleService scheduleService;
 
     @PostMapping(value = "")
     public R addCourse(@RequestBody SubjectTeacherRelationDTO dto){
@@ -56,13 +61,10 @@ public class CourseController {
         };
         return  R.ok();
     }
-    @DeleteMapping
-    public R delete(@RequestBody SubjectTeacherRelationDTO dto){
-        if(dto == null){
-            throw new ApiException(HttpStatus.BAD_REQUEST,"删除的课程为空");
-        }
-        int row = courseService.deleteCourse(dto);
-        return row > 0 ? R.ok():R.er();
+    @DeleteMapping(value = "/{id}")
+    public R delete(@RequestBody Integer teacherId){
+
+        return null;
     }
 //    @DeleteMapping(value = "/{id}")
 //    public R delete(@RequestBody Integer id){
@@ -72,22 +74,22 @@ public class CourseController {
 //        int row = courseService.deleteCourse(id);
 //        return row > 0 ? R.ok():R.er();
 //    }
-//    @GetMapping(value = "/{id}")
-//    public R getCourse(@RequestBody Integer id){
-//        if (id == null){
-//            throw new ApiException(HttpStatus.BAD_REQUEST,"传递的参数为空");
-//        }
-//        CourseVO courseVO = courseService.getCourse(id);
-//        return R.ok(courseVO);
-//    }
-    @GetMapping(value = "/detail")
-    public R courseDetail(Integer subjectId){
-        System.out.println(subjectId);
-        if(subjectId == null){
+    @GetMapping(value = "/{id}")
+    public R getCourse(@RequestBody Integer id){
+        if (id == null){
             throw new ApiException(HttpStatus.BAD_REQUEST,"传递的参数为空");
         }
-        List<CourseVO> courseList = courseService.list(subjectId);
-        return R.ok(courseList);
+        CourseVO courseVO = courseService.getCourse(id);
+        return R.ok(courseVO);
+    }
+    // 6.1 课程列表 - 查询指定班级的课表
+    @GetMapping(value = "/list")
+    public R courseList(@RequestParam Integer classId){
+        if (classId == null) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "班级ID不能为空");
+        }
+        List<ScheduleVO> scheduleList = scheduleService.getScheduleByClassId(classId);
+        return R.ok(scheduleList);
     }
 
 }
