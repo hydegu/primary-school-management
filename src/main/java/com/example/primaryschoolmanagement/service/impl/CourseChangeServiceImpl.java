@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.enums.ApprovalStatusEnum;
+import com.example.primaryschoolmanagement.common.enums.BusinessTypeEnum;
 import com.example.primaryschoolmanagement.dao.CourseChangeMapper;
 import com.example.primaryschoolmanagement.dto.CourseChangeDTO;
 import com.example.primaryschoolmanagement.entity.CourseChange;
+import com.example.primaryschoolmanagement.service.ApprovalService;
 import com.example.primaryschoolmanagement.service.CourseChangeService;
 import com.example.primaryschoolmanagement.vo.CourseChangeVO;
 import jakarta.annotation.Resource;
@@ -29,6 +31,9 @@ public class CourseChangeServiceImpl extends ServiceImpl<CourseChangeMapper, Cou
 
     @Resource
     private CourseChangeMapper courseChangeMapper;
+
+    @Resource
+    private ApprovalService approvalService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -125,8 +130,17 @@ public class CourseChangeServiceImpl extends ServiceImpl<CourseChangeMapper, Cou
 
     private Long createApprovalProcess(CourseChange courseChange) {
         try {
-            // 集成工作流引擎或调用审批服务
-            return System.currentTimeMillis(); // 模拟返回审批ID
+            // 调用审批服务创建审批记录
+            // processId=1L 表示默认审批流程
+            // applyUserType=2 表示教师
+            return approvalService.createApprovalRecord(
+                    1L,                                          // processId - 默认流程
+                    courseChange.getApplyTeacherId(),            // applyUserId - 申请人ID
+                    2,                                           // applyUserType - 2=教师
+                    BusinessTypeEnum.COURSE_CHANGE.getCode(),    // businessType - 调课
+                    courseChange.getId(),                        // businessId - 调课记录ID
+                    courseChange.getReason()                     // reason - 调课原因
+            );
         } catch (Exception e) {
             log.warn("创建调课审批流程失败: {}", e.getMessage());
             return null;
