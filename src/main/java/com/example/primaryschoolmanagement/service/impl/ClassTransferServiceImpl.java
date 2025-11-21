@@ -8,7 +8,9 @@ import com.example.primaryschoolmanagement.common.enums.ApprovalStatusEnum;
 import com.example.primaryschoolmanagement.dao.ClassTransferMapper;
 import com.example.primaryschoolmanagement.dto.ClassTransferDTO;
 import com.example.primaryschoolmanagement.entity.ClassTransfer;
+import com.example.primaryschoolmanagement.entity.Student;
 import com.example.primaryschoolmanagement.service.ClassTransferService;
+import com.example.primaryschoolmanagement.service.StudentService;
 import com.example.primaryschoolmanagement.vo.ClassTransferVO;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
@@ -30,30 +32,39 @@ public class ClassTransferServiceImpl extends ServiceImpl<ClassTransferMapper, C
     @Resource
     private ClassTransferMapper classTransferMapper;
 
+    @Resource
+    private StudentService studentService;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long submitClassTransfer(ClassTransferDTO classTransferDTO, Long userId) {
         // 1. 数据验证
         validateClassTransferDTO(classTransferDTO);
 
-        // 2. 创建调班实体
+        // 2. 获取学生信息
+        Student student = getStudentById(classTransferDTO.getStudentId());
+        if (student == null) {
+            throw new IllegalArgumentException("学生不存在");
+        }
+
+        // 3. 创建调班实体
         ClassTransfer classTransfer = new ClassTransfer();
         BeanUtils.copyProperties(classTransferDTO, classTransfer);
 
-        // 3. 设置额外字段
+        // 4. 设置额外字段（从数据库获取真实信息）
         classTransfer.setStudentId(classTransferDTO.getStudentId());
-        classTransfer.setStudentName(getStudentName(classTransferDTO.getStudentId())); // 查询学生姓名
-        classTransfer.setOriginalClassId(getOriginalClassId(classTransferDTO.getStudentId())); // 查询原班级ID
-        classTransfer.setOriginalClassName(getClassName(classTransfer.getOriginalClassId())); // 查询原班级名称
+        classTransfer.setStudentName(student.getStudentName()); // 从数据库获取学生姓名
+        classTransfer.setOriginalClassId(student.getClassId().longValue()); // 从数据库获取原班级ID
+        classTransfer.setOriginalClassName(getClassName(student.getClassId().longValue())); // 查询原班级名称
         classTransfer.setTargetClassName(getClassName(classTransferDTO.getTargetClassId())); // 查询目标班级名称
         classTransfer.setTransferNo(generateTransferNo());
         classTransfer.setApplyTime(LocalDateTime.now());
         classTransfer.setApprovalStatus(ApprovalStatusEnum.PENDING.getCode());
 
-        // 4. 保存到数据库
+        // 5. 保存到数据库
         baseMapper.insert(classTransfer);
 
-        // 5. 调用审批流程
+        // 6. 调用审批流程
         Long approvalId = createApprovalProcess(classTransfer);
         if (approvalId != null) {
             classTransfer.setApprovalId(approvalId);
@@ -147,23 +158,17 @@ public class ClassTransferServiceImpl extends ServiceImpl<ClassTransferMapper, C
         return classTransferVO;
     }
 
-    // ========== 模拟数据方法 ==========
+    // ========== 数据库查询方法 ==========
 
     /**
-     * 获取学生姓名（简化版）
+     * 根据学生ID获取学生信息
      */
-    private String getStudentName(Long studentId) {
-        // 实际项目中应该查询学生表
-        return "学生" + studentId;
-    }
-
-    /**
-     * 获取原班级ID（简化版）
-     */
-    private Long getOriginalClassId(Long studentId) {
-        // 实际项目中应该查询学生表获取当前班级ID
-        // 这里假设原班级ID为1
-        return 1L;
+    private Student getStudentById(Long studentId) {
+        if (studentId == null) {
+            return null;
+        }
+        // 由于 Student 的 ID 是 Integer，需要转换
+        return studentService.getById(studentId.intValue());
     }
 
     /**
