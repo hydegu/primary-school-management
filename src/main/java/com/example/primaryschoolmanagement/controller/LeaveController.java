@@ -41,13 +41,9 @@ public class LeaveController {
     @GetMapping("/my")
     @ApiOperation("查询我的请假记录")
     public R getMyLeaves(
-            @RequestParam(required = false) Long studentId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
-        // 如果未传studentId，则使用当前登录用户ID
-        if (studentId == null) {
-            studentId = SecurityUtils.getCurrentUserId();
-        }
+        Long studentId = SecurityUtils.getCurrentUserId();
         if (studentId == null) {
             return R.er(401, "用户未登录");
         }
