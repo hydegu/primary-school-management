@@ -35,5 +35,8 @@ public interface CourseDao extends BaseMapper<Course> {
         values(#{dto.subjectId},#{dto.teacherId})
 """)
     int addCourse(@Param("dto")SubjectTeacherRelationDTO dto);
-
+    @Delete("""
+        delete from edu_subject_teacher where teacher_id = #{dto.teacherId} and subject_id = #{dto.subjectId}
+""")
+    int delete(@Param("dto")SubjectTeacherRelationDTO dto);
 }
