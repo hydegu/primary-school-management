@@ -37,8 +37,8 @@ public class ClassesController {
     }
     //添加班级
     @PostMapping(value="/class")
-    public R addclasses(@RequestBody Classes classes, Teacher teacher){
-        return this.classesService.addclasses(classes,teacher);
+    public R addclasses(@RequestBody Classes classes){
+        return this.classesService.addclasses(classes);
     }
     //删除班级
     @DeleteMapping(value="/class/{id}")
