@@ -2,12 +2,14 @@ package com.example.primaryschoolmanagement.controller;
 
 import com.example.primaryschoolmanagement.common.exception.ApiException;
 import com.example.primaryschoolmanagement.common.utils.R;
+import com.example.primaryschoolmanagement.dao.StudentDao;
 import com.example.primaryschoolmanagement.dto.StudentDto;
 import com.example.primaryschoolmanagement.entity.AppUser;
 import com.example.primaryschoolmanagement.entity.Student;
 import com.example.primaryschoolmanagement.service.StudentService;
 import com.example.primaryschoolmanagement.service.UserService;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -26,6 +28,8 @@ public class StudentController {
     private StudentService studentService;
     @Resource
     private UserService userService;
+    @Autowired
+    private StudentDao studentDao;
 
 
     @PostMapping(value = "")

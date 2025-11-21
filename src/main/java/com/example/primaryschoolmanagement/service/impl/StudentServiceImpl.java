@@ -16,6 +16,7 @@ import com.example.primaryschoolmanagement.service.StudentService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -39,7 +40,6 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
 
     @Resource
     private UserDao userDao;
-
 
     @Override
     @Cacheable(cacheNames = "students:profile", key = "#studentNo", unless = "#result == null")
@@ -104,11 +104,17 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
         if (dto == null) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "修改人员不能为空");
         }
-        String studentNo = dto.getStudentNo();
+
         Student student = studentDao.selectById(dto.getId());
         if (student == null || student.getIsDeleted()) {
             throw new ApiException(HttpStatus.NOT_FOUND, "查无此人");
         }
+        //用户表
+        Long id = student.getUserId();
+        if (dto.getStudentName() != null){
+            int row2 = studentDao.updateUser2(dto.getStudentName(),id);
+        }
+
         LambdaUpdateWrapper<Student> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(Student::getId,dto.getId());
         //更新修改的字段
@@ -117,7 +123,10 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
             updateWrapper.set(Student::getStudentName,dto.getStudentName().trim());
             hasChange = true;
         }
-
+        if(dto.getStudentNo() != null){
+            updateWrapper.set(Student::getStudentNo,dto.getStudentNo());
+            hasChange =true;
+        }
         if (dto.getGender() != null && dto.getGender() != student.getGender()) {
             updateWrapper.set(Student::getGender,dto.getGender());
             hasChange = true;
@@ -130,7 +139,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
             String newStudent = dto.getIdCard().trim();
             String oldStudent = student.getIdCard().trim();
             if (oldStudent == null) {
-                updateWrapper.set(Student::getIdCard,dto.getId());
+                updateWrapper.set(Student::getIdCard,dto.getIdCard());
                 hasChange = true;
             } else if (!newStudent.equals(oldStudent)) {
                 updateWrapper.set(Student::getIdCard,dto.getIdCard());

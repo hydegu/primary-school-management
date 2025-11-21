@@ -3,9 +3,7 @@ package com.example.primaryschoolmanagement.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.primaryschoolmanagement.dto.StudentDto;
 import com.example.primaryschoolmanagement.entity.Student;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.*;
 
 @Mapper
 public interface StudentDao extends BaseMapper<Student> {
@@ -30,4 +28,9 @@ public interface StudentDao extends BaseMapper<Student> {
 """)
     int deleteUserRole(Long student);
 
+
+    @Update("""
+    update sys_user set real_name = #{studentName} where id = #{id}
+""")
+    int updateUser2(String studentName , Long id);
 }
