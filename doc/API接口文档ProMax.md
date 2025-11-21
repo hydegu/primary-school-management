@@ -2192,15 +2192,17 @@
 **请求参数**:
 ```json
 {
-  "studentId": 1,                                    // 学生ID
+  "classId": 1,                                      // 班级ID（可选）
   "leaveType": 1,                                    // 请假类型：1-病假 2-事假 3-其他
   "startDate": "2024-11-20",                         // 开始日期
   "endDate": "2024-11-22",                           // 结束日期
-  "leaveDays": 3.0,                                  // 请假天数
+  "leaveDays": 3.0,                                  // 请假天数（可选，不传则自动计算）
   "reason": "感冒发烧",                              // 请假原因
   "proofFiles": []                                   // 证明材料（JSON数组）
 }
 ```
+
+> 注：学生ID从当前登录用户获取，无需在请求中传递
 
 **响应示例**:
 ```json
@@ -2494,13 +2496,12 @@
     "targetScheduleId": 456,                         // 对方课程表ID
     "reason": "时间冲突",                            // 换课原因
     "applyTime": "2024-11-20T10:00:00",             // 申请时间
-    "confirmStatus": 1,                              // 确认状态：1-待确认 2-已同意 3-已拒绝
-    "confirmTime": null,                             // 确认时间
+    "targetConfirm": 0,                              // 对方确认：0-未确认 1-已确认 2-已拒绝
+    "targetConfirmText": "未确认",                   // 对方确认文本
     "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalStatusText": "待审批",                  // 审批状态文本
     "approvalId": null,                              // 关联审批记录ID
-    "remark": null,                                  // 备注
-    "createdAt": "2024-11-20T10:00:00",             // 创建时间
-    "updatedAt": "2024-11-20T10:00:00"              // 更新时间
+    "remark": null                                   // 备注
   }
 }
 ```
@@ -2536,13 +2537,12 @@
     "targetScheduleId": 456,                         // 对方课程表ID
     "reason": "时间冲突",                            // 换课原因
     "applyTime": "2024-11-20T10:00:00",             // 申请时间
-    "confirmStatus": 2,                              // 确认状态：1-待确认 2-已同意 3-已拒绝
-    "confirmTime": "2024-11-20T14:30:00",           // 确认时间
+    "targetConfirm": 1,                              // 对方确认：0-未确认 1-已确认 2-已拒绝
+    "targetConfirmText": "已确认",                   // 对方确认文本
     "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalStatusText": "待审批",                  // 审批状态文本
     "approvalId": null,                              // 关联审批记录ID
-    "remark": null,                                  // 备注
-    "createdAt": "2024-11-20T10:00:00",             // 创建时间
-    "updatedAt": "2024-11-20T14:30:00"              // 更新时间
+    "remark": null                                   // 备注
   }
 }
 ```
@@ -2574,18 +2574,19 @@
         "applyTeacherId": 1,                             // 申请教师ID
         "applyTeacherName": "李老师",                    // 申请教师姓名
         "applyScheduleId": 123,                          // 申请方课程表ID
+        "applyCourseInfo": "周一第3节 数学",             // 申请方课程信息
         "targetTeacherId": 20,                           // 对方教师ID
         "targetTeacherName": "王老师",                   // 对方教师姓名
         "targetScheduleId": 456,                         // 对方课程表ID
+        "targetCourseInfo": "周二第2节 语文",            // 目标方课程信息
         "reason": "时间冲突",                            // 换课原因
         "applyTime": "2024-11-20T10:00:00",             // 申请时间
-        "confirmStatus": 2,                              // 确认状态：1-待确认 2-已同意 3-已拒绝
-        "confirmTime": "2024-11-20T14:30:00",           // 确认时间
+        "targetConfirm": 1,                              // 对方确认：0-未确认 1-已确认 2-已拒绝
+        "targetConfirmText": "已确认",                   // 对方确认文本
         "approvalStatus": 2,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+        "approvalStatusText": "已通过",                  // 审批状态文本
         "approvalId": 1,                                 // 关联审批记录ID
-        "remark": null,                                  // 备注
-        "createdAt": "2024-11-20T10:00:00",             // 创建时间
-        "updatedAt": "2024-11-20T15:00:00"              // 更新时间
+        "remark": null                                   // 备注
       }
     ],
     "page": 1,
@@ -2631,17 +2632,23 @@
     "transferNo": "CT2024112000001",                 // 调班单号
     "studentId": 100,                                // 学生ID
     "studentName": "小明",                           // 学生姓名
-    "currentClassId": 1,                             // 当前班级ID
-    "currentClassName": "一年级1班",                 // 当前班级名称
+    "currentClassId": 1,                             // 当前班级ID（API格式）
+    "currentClassName": "一年级1班",                 // 当前班级名称（API格式）
+    "originalClassId": 1,                            // 原班级ID（数据库格式，别名）
+    "originalClassName": "一年级1班",                // 原班级名称（数据库格式，别名）
     "targetClassId": 2,                              // 目标班级ID
     "targetClassName": "一年级2班",                  // 目标班级名称
     "reason": "家庭住址变更",                        // 调班原因
+    "effectiveDate": "2024-12-01",                   // 生效日期
     "applyTime": "2024-11-20T10:00:00",             // 申请时间
     "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalStatusText": "待审批",                  // 审批状态文本
     "approvalId": null,                              // 关联审批记录ID
-    "remark": null,                                  // 备注
-    "createdAt": "2024-11-20T10:00:00",             // 创建时间
-    "updatedAt": "2024-11-20T10:00:00"              // 更新时间
+    "originalClassTeacher": "张老师",                // 原班主任
+    "targetClassTeacher": "李老师",                  // 目标班主任
+    "lastApprover": null,                            // 最近审批人
+    "lastApprovalTime": null,                        // 最近审批时间
+    "remark": null                                   // 备注
   }
 }
 ```
@@ -2664,17 +2671,23 @@
     "transferNo": "CT2024112000001",                 // 调班单号
     "studentId": 100,                                // 学生ID
     "studentName": "小明",                           // 学生姓名
-    "currentClassId": 1,                             // 当前班级ID
-    "currentClassName": "一年级1班",                 // 当前班级名称
+    "currentClassId": 1,                             // 当前班级ID（API格式）
+    "currentClassName": "一年级1班",                 // 当前班级名称（API格式）
+    "originalClassId": 1,                            // 原班级ID（数据库格式，别名）
+    "originalClassName": "一年级1班",                // 原班级名称（数据库格式，别名）
     "targetClassId": 2,                              // 目标班级ID
     "targetClassName": "一年级2班",                  // 目标班级名称
     "reason": "家庭住址变更",                        // 调班原因
+    "effectiveDate": "2024-12-01",                   // 生效日期
     "applyTime": "2024-11-20T10:00:00",             // 申请时间
     "approvalStatus": 2,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+    "approvalStatusText": "已通过",                  // 审批状态文本
     "approvalId": 1,                                 // 关联审批记录ID
-    "remark": "同意转班",                            // 备注
-    "createdAt": "2024-11-20T10:00:00",             // 创建时间
-    "updatedAt": "2024-11-20T15:00:00"              // 更新时间
+    "originalClassTeacher": "张老师",                // 原班主任
+    "targetClassTeacher": "李老师",                  // 目标班主任
+    "lastApprover": "教导主任",                      // 最近审批人
+    "lastApprovalTime": "2024-11-20T15:00:00",      // 最近审批时间
+    "remark": "同意转班"                             // 备注
   }
 }
 ```
@@ -2705,17 +2718,23 @@
         "transferNo": "CT2024112000001",                 // 调班单号
         "studentId": 100,                                // 学生ID
         "studentName": "小明",                           // 学生姓名
-        "currentClassId": 1,                             // 当前班级ID
-        "currentClassName": "一年级1班",                 // 当前班级名称
+        "currentClassId": 1,                             // 当前班级ID（API格式）
+        "currentClassName": "一年级1班",                 // 当前班级名称（API格式）
+        "originalClassId": 1,                            // 原班级ID（数据库格式，别名）
+        "originalClassName": "一年级1班",                // 原班级名称（数据库格式，别名）
         "targetClassId": 2,                              // 目标班级ID
         "targetClassName": "一年级2班",                  // 目标班级名称
         "reason": "家庭住址变更",                        // 调班原因
+        "effectiveDate": "2024-12-01",                   // 生效日期
         "applyTime": "2024-11-20T10:00:00",             // 申请时间
         "approvalStatus": 2,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+        "approvalStatusText": "已通过",                  // 审批状态文本
         "approvalId": 1,                                 // 关联审批记录ID
-        "remark": "同意转班",                            // 备注
-        "createdAt": "2024-11-20T10:00:00",             // 创建时间
-        "updatedAt": "2024-11-20T15:00:00"              // 更新时间
+        "originalClassTeacher": "张老师",                // 原班主任
+        "targetClassTeacher": "李老师",                  // 目标班主任
+        "lastApprover": "教导主任",                      // 最近审批人
+        "lastApprovalTime": "2024-11-20T15:00:00",      // 最近审批时间
+        "remark": "同意转班"                             // 备注
       }
     ],
     "page": 1,
