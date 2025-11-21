@@ -82,12 +82,13 @@ public class CourseController {
         CourseVO courseVO = courseService.getCourse(id);
         return R.ok(courseVO);
     }
-    // 6.1 课程列表 - 使用edu_schedule表，支持按科目和班级筛选
+    // 6.1 课程列表 - 查询指定班级的课表
     @GetMapping(value = "/list")
-    public R courseList(
-            @RequestParam(required = false) Integer subjectId,
-            @RequestParam(required = false) Integer classId){
-        List<ScheduleVO> scheduleList = scheduleDao.scheduleListWithFilters(subjectId, classId);
+    public R courseList(@RequestParam Integer classId){
+        if (classId == null) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "班级ID不能为空");
+        }
+        List<ScheduleVO> scheduleList = scheduleDao.scheduleListByClassId(classId);
         return R.ok(scheduleList);
     }
 

@@ -16,10 +16,9 @@ import java.util.List;
 public interface ScheduleDao extends BaseMapper<Schedule> {
 
     /**
-     * 带筛选条件查询排课列表（subjectId和classId可选）
+     * 根据班级ID查询排课列表（返回该班级的所有课表）
      */
     @Select("""
-    <script>
     SELECT s.*,
            sub.subject_name,
            c.class_name,
@@ -30,17 +29,10 @@ public interface ScheduleDao extends BaseMapper<Schedule> {
     LEFT JOIN edu_class c ON s.class_id = c.id
     LEFT JOIN edu_teacher t ON s.teacher_id = t.id
     LEFT JOIN edu_course co ON s.course_id = co.id
-    WHERE s.is_deleted = 0
-    <if test="subjectId != null">
-        AND s.subject_id = #{subjectId}
-    </if>
-    <if test="classId != null">
-        AND s.class_id = #{classId}
-    </if>
+    WHERE s.is_deleted = 0 AND s.class_id = #{classId}
     ORDER BY s.week_day ASC, s.period ASC
-    </script>
     """)
-    List<ScheduleVO> scheduleListWithFilters(@Param("subjectId") Integer subjectId, @Param("classId") Integer classId);
+    List<ScheduleVO> scheduleListByClassId(@Param("classId") Integer classId);
 
     /**
      * 根据ID查询排课详情
