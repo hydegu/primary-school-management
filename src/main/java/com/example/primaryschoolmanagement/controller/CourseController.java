@@ -2,10 +2,10 @@ package com.example.primaryschoolmanagement.controller;
 
 import com.example.primaryschoolmanagement.common.exception.ApiException;
 import com.example.primaryschoolmanagement.common.utils.R;
-import com.example.primaryschoolmanagement.dao.ScheduleDao;
 import com.example.primaryschoolmanagement.dto.SubjectTeacherRelationDTO;
 import com.example.primaryschoolmanagement.entity.Course;
 import com.example.primaryschoolmanagement.service.CourseService;
+import com.example.primaryschoolmanagement.service.ScheduleService;
 import com.example.primaryschoolmanagement.vo.CourseVO;
 import com.example.primaryschoolmanagement.vo.ScheduleVO;
 import jakarta.annotation.Resource;
@@ -25,7 +25,7 @@ public class CourseController {
     private CourseService courseService;
 
     @Resource
-    private ScheduleDao scheduleDao;
+    private ScheduleService scheduleService;
 
     @PostMapping(value = "")
     public R addCourse(@RequestBody SubjectTeacherRelationDTO dto){
@@ -88,7 +88,7 @@ public class CourseController {
         if (classId == null) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "班级ID不能为空");
         }
-        List<ScheduleVO> scheduleList = scheduleDao.scheduleListByClassId(classId);
+        List<ScheduleVO> scheduleList = scheduleService.getScheduleByClassId(classId);
         return R.ok(scheduleList);
     }
 
