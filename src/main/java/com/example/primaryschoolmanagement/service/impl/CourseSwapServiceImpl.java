@@ -14,6 +14,7 @@ import com.example.primaryschoolmanagement.service.ApprovalService;
 import com.example.primaryschoolmanagement.service.CourseSwapService;
 import com.example.primaryschoolmanagement.vo.CourseSwapVO;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -33,6 +34,7 @@ public class CourseSwapServiceImpl extends ServiceImpl<CourseSwapMapper, CourseS
     @Resource
     private CourseSwapMapper courseSwapMapper;
 
+    @Lazy
     @Resource
     private ApprovalService approvalService;
 

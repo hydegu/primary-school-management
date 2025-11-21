@@ -15,6 +15,7 @@ import com.example.primaryschoolmanagement.service.ApprovalService;
 import com.example.primaryschoolmanagement.service.LeaveService;
 import com.example.primaryschoolmanagement.vo.LeaveVO;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -41,6 +42,7 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
     @Resource
     private LeaveMapper leaveMapper;
 
+    @Lazy
     @Resource
     private ApprovalService approvalService;
 
