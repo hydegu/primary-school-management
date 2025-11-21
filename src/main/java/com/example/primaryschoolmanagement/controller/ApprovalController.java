@@ -24,6 +24,39 @@ public class ApprovalController {
     @Resource
     private ApprovalService approvalService;
 
+    @PostMapping("/{id}/submit")
+    @ApiOperation("提交审批（统一接口）")
+    public R submit(@PathVariable Long id, @RequestBody @Validated ApprovalActionDTO approvalActionDTO) {
+        try {
+            Long approverId = SecurityUtils.getCurrentUserId();
+            if (approverId == null) {
+                return R.er(401, "用户未登录");
+            }
+
+            if (approvalActionDTO.getApproved() == null) {
+                return R.er(400, "请指定审批结果（approved字段）");
+            }
+
+            approvalActionDTO.setApprovalId(id);
+            boolean result;
+            String action;
+
+            if (Boolean.TRUE.equals(approvalActionDTO.getApproved())) {
+                result = approvalService.approve(approvalActionDTO, approverId);
+                action = "通过";
+            } else {
+                result = approvalService.reject(approvalActionDTO, approverId);
+                action = "拒绝";
+            }
+
+            return result ? R.ok("审批" + action + "成功") : R.er(ResultCode.ERROR.getCode(), "审批" + action + "失败");
+        } catch (IllegalArgumentException e) {
+            return R.er(400, e.getMessage());
+        } catch (Exception e) {
+            return R.er(ResultCode.ERROR.getCode(), "审批失败: " + e.getMessage());
+        }
+    }
+
     @PostMapping("/{id}/approve")
     @ApiOperation("审批通过")
     public R approve(@PathVariable Long id, @RequestBody @Validated ApprovalActionDTO approvalActionDTO) {
