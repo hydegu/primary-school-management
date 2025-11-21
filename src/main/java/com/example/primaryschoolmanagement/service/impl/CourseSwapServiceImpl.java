@@ -37,8 +37,8 @@ public class CourseSwapServiceImpl extends ServiceImpl<CourseSwapMapper, CourseS
         CourseSwap courseSwap = new CourseSwap();
         BeanUtils.copyProperties(courseSwapDTO, courseSwap);
 
-        // 3. 设置额外字段 - 使用getEffectiveApplyScheduleId获取正确的课程表ID
-        courseSwap.setApplyScheduleId(courseSwapDTO.getEffectiveApplyScheduleId());
+        // 3. 设置额外字段
+        courseSwap.setApplyScheduleId(courseSwapDTO.getMyScheduleId());
         courseSwap.setApplyTeacherId(teacherId);
         courseSwap.setApplyTeacherName("申请教师姓名"); // 实际应从教师表查询
         courseSwap.setTargetTeacherName("目标教师姓名"); // 实际应从教师表查询
@@ -85,9 +85,6 @@ public class CourseSwapServiceImpl extends ServiceImpl<CourseSwapMapper, CourseS
             return false;
         }
 
-        // 设置确认时间
-        courseSwap.setConfirmTime(LocalDateTime.now());
-
         if (confirm) {
             // 确认换课
             courseSwap.setTargetConfirm(TargetConfirmEnum.CONFIRMED.getCode());
@@ -105,8 +102,7 @@ public class CourseSwapServiceImpl extends ServiceImpl<CourseSwapMapper, CourseS
     }
 
     private void validateCourseSwapDTO(CourseSwapDTO courseSwapDTO) {
-        // 使用getEffectiveApplyScheduleId获取有效的申请课程表ID
-        if (courseSwapDTO.getEffectiveApplyScheduleId() == null) {
+        if (courseSwapDTO.getMyScheduleId() == null) {
             throw new IllegalArgumentException("申请方课程表ID不能为空");
         }
         if (courseSwapDTO.getTargetTeacherId() == null) {
@@ -139,17 +135,6 @@ public class CourseSwapServiceImpl extends ServiceImpl<CourseSwapMapper, CourseS
 
         CourseSwapVO courseSwapVO = new CourseSwapVO();
         BeanUtils.copyProperties(courseSwap, courseSwapVO);
-
-        // 设置确认状态 - 映射targetConfirm到confirmStatus（API文档格式）
-        // targetConfirm: 0-未确认 1-已确认 2-已拒绝 -> confirmStatus: 1-待确认 2-已同意 3-已拒绝
-        if (courseSwap.getTargetConfirm() != null) {
-            switch (courseSwap.getTargetConfirm()) {
-                case 0: courseSwapVO.setConfirmStatus(1); break; // 待确认
-                case 1: courseSwapVO.setConfirmStatus(2); break; // 已同意
-                case 2: courseSwapVO.setConfirmStatus(3); break; // 已拒绝
-                default: courseSwapVO.setConfirmStatus(1);
-            }
-        }
 
         // 设置枚举文本
         courseSwapVO.setTargetConfirmText(TargetConfirmEnum.getTextByCode(courseSwap.getTargetConfirm()));

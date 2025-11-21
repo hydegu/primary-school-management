@@ -48,9 +48,6 @@ public class CourseSwap extends BaseEntity {
     @TableField("target_confirm")
     private Integer targetConfirm; // 对方确认：0-未确认 1-已确认 2-已拒绝
 
-    @TableField("confirm_time")
-    private LocalDateTime confirmTime; // 确认时间
-
     @TableField("approval_status")
     private Integer approvalStatus; // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
 
