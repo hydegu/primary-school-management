@@ -22,9 +22,16 @@ public class ClassesController {
     @Autowired
     private ClassTransferService classTransferService;
 
-    //班级列表
+    //班级列表（支持模糊搜索：班级编号、班级名称、负责人姓名）
     @GetMapping(value="/class/list")
-    public R classesList(){
+    public R classesList(
+            @RequestParam(required = false) String classNo,
+            @RequestParam(required = false) String className,
+            @RequestParam(required = false) String headTeacherName){
+        // 如果有任何搜索参数，则使用模糊搜索
+        if (classNo != null || className != null || headTeacherName != null) {
+            return this.classesService.searchClasses(classNo, className, headTeacherName);
+        }
         return this.classesService.classesList();
     }
     //添加班级

@@ -61,4 +61,14 @@ public interface MenuService extends IService<Menu> {
      * @return 分页结果
      */
     R getAllMenusWithPagination(int page, int size);
+
+    /**
+     * 分页获取菜单列表（支持模糊搜索）
+     * @param page 页码
+     * @param size 每页条数
+     * @param menuName 菜单名称
+     * @param menuCode 菜单编码
+     * @return 分页结果
+     */
+    R searchMenus(int page, int size, String menuName, String menuCode);
 }

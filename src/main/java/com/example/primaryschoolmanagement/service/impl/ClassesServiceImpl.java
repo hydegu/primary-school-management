@@ -10,6 +10,7 @@ import com.example.primaryschoolmanagement.entity.Classes;
 import com.example.primaryschoolmanagement.entity.Student;
 import com.example.primaryschoolmanagement.entity.Teacher;
 import com.example.primaryschoolmanagement.service.ClassesService;
+import com.example.primaryschoolmanagement.vo.ClassesVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,12 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
         } else {
             return R.ok(classesList);
         }
+    }
+
+    @Override
+    public R searchClasses(String classNo, String className, String headTeacherName) {
+        List<ClassesVO> classesList = this.classesDao.searchClasses(classNo, className, headTeacherName);
+        return R.ok(classesList);
     }
 
     @Override

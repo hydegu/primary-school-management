@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface ClassesService extends IService<Classes> {
     R classesList();
+    // 模糊搜索班级列表
+    R searchClasses(String classNo, String className, String headTeacherName);
     R addclasses(Classes classes);
     R deleteclasses(Integer id);
     R updateclasses(Classes classes);
