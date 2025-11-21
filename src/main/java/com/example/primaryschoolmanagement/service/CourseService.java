@@ -22,6 +22,13 @@ public interface CourseService extends IService<Course> {
 
     List<CourseVO> list(Integer subjectId);
 
+    /**
+     * 查询课程列表 - subjectId可选
+     * @param subjectId 科目ID，可为null
+     * @return 课程列表
+     */
+    List<CourseVO> listCourses(Integer subjectId);
+
     int addcourse(SubjectTeacherRelationDTO dto);
 
 }

@@ -77,13 +77,10 @@ public class CourseController {
         CourseVO courseVO = courseService.getCourse(id);
         return R.ok(courseVO);
     }
+    // 6.1 课程列表 - subjectId为可选参数
     @GetMapping(value = "/list")
-    public R courseList(Integer subjectId){
-        System.out.println(subjectId);
-        if(subjectId == null){
-            throw new ApiException(HttpStatus.BAD_REQUEST,"传递的参数为空1");
-        }
-        List<CourseVO> courseList = courseService.list(subjectId);
+    public R courseList(@RequestParam(required = false) Integer subjectId){
+        List<CourseVO> courseList = courseService.listCourses(subjectId);
         return R.ok(courseList);
     }
 

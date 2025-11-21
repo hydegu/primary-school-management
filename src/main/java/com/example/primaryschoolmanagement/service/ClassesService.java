@@ -17,6 +17,8 @@ public interface ClassesService extends IService<Classes> {
     R getclassById(Integer id);
     //班级学生列表   根据class_id 查询
     List<Student> classStudent(Integer id);
+    //班级课程列表   根据class_id 查询
+    R classCourses(Integer id);
     //分配班主任
     Teacher classheadteacher(Integer id);
 }

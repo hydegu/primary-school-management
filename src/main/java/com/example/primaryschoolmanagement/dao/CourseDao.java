@@ -22,14 +22,23 @@ public interface CourseDao extends BaseMapper<Course> {
 """)
     CourseVO getCourse(Integer id);
     @Select("""
-     select a.*,b.subject_name,c.class_name,d.teacher_name 
+     select a.*,b.subject_name,c.class_name,d.teacher_name
         from edu_course a
         left join edu_subject b on a.subject_id = b.id
         left join edu_class c on a.class_id = c.id
         left join edu_teacher d on a.teacher_id = d.id
-        where  a.subject_id = #{subjectId} 
+        where  a.subject_id = #{subjectId}
 """)
     List<CourseVO> courseList(Integer subjectId);
+
+    @Select("""
+     select a.*,b.subject_name,c.class_name,d.teacher_name
+        from edu_course a
+        left join edu_subject b on a.subject_id = b.id
+        left join edu_class c on a.class_id = c.id
+        left join edu_teacher d on a.teacher_id = d.id
+""")
+    List<CourseVO> courseListAll();
     @Insert("""
         insert into edu_subject_teacher(subject_id,teacher_id)
         values(#{dto.subjectId},#{dto.teacherId})

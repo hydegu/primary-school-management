@@ -173,6 +173,20 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
         return this.classesDao.classStudent(id);
     }
 
+    //班级课程列表
+    @Override
+    public R classCourses(Integer id) {
+        if(id == null){
+            return R.er(400, "班级ID不能为空");
+        }
+        // 验证班级是否存在
+        Classes existingClass = classesDao.selectById(id);
+        if (existingClass == null) {
+            return R.er(404, "未找到ID为 " + id + " 的班级记录");
+        }
+        return R.ok(this.classesDao.classCourses(id));
+    }
+
     @Override
     public Teacher classheadteacher(Integer id) {
         return null;
