@@ -72,16 +72,16 @@ public class CourseController {
 //        int row = courseService.deleteCourse(id);
 //        return row > 0 ? R.ok():R.er();
 //    }
-    @GetMapping(value = "/{id}")
-    public R getCourse(@RequestBody Integer id){
-        if (id == null){
-            throw new ApiException(HttpStatus.BAD_REQUEST,"传递的参数为空");
-        }
-        CourseVO courseVO = courseService.getCourse(id);
-        return R.ok(courseVO);
-    }
-    @GetMapping(value = "/list")
-    public R courseList(Integer subjectId){
+//    @GetMapping(value = "/{id}")
+//    public R getCourse(@RequestBody Integer id){
+//        if (id == null){
+//            throw new ApiException(HttpStatus.BAD_REQUEST,"传递的参数为空");
+//        }
+//        CourseVO courseVO = courseService.getCourse(id);
+//        return R.ok(courseVO);
+//    }
+    @GetMapping(value = "/detail")
+    public R courseDetail(Integer subjectId){
         System.out.println(subjectId);
         if(subjectId == null){
             throw new ApiException(HttpStatus.BAD_REQUEST,"传递的参数为空");

@@ -3,6 +3,8 @@ package com.example.primaryschoolmanagement.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.exception.ApiException;
 import com.example.primaryschoolmanagement.dao.StudentDao;
@@ -56,11 +58,18 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int createStudent(StudentDto dto) {
+        if(dto == null){
+            throw new ApiException(HttpStatus.BAD_REQUEST,"新增学生不能为空");
+        }
         // 1. 校验学号唯一性
-        String studentNo = dto.getStudentNo().trim();
+        String studentNo = dto.getStudentNo();
+        if (!StringUtils.hasText(studentNo)){
+            throw new ApiException(HttpStatus.BAD_REQUEST,"新增学生需要学号");
+        }
+        studentNo = studentNo.trim();
         Student existStudent = findByStudentNo(studentNo);
         if (existStudent != null) {
-            throw new ApiException(HttpStatus.CONFLICT, "学号已存在：" + studentNo);
+            throw new ApiException(HttpStatus.CONFLICT, "该学生已存在：" + studentNo);
         }
 
         // 2. 转换DTO为实体
@@ -72,8 +81,12 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
                 .setRealName(dto.getStudentName());
 
         // 3. 保存到数据库
-
-        int row1 = userDao.insert(appUser);
+        int row1 ;
+        try {
+            row1 = userDao.insert(appUser);
+        }catch (Exception e){
+            throw new ApiException(HttpStatus.CREATED,"账号不能重复");
+        }
         if (row1 <= 0) {
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "添加用户失败");
         }
@@ -99,24 +112,25 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @CacheEvict(cacheNames = "students:profile", key = "#dto.id")
-    public boolean updateStudent(Student dto) {
+    @CacheEvict(cacheNames = "students:profile", key = "#id")
+    public boolean updateStudent(Student dto, Long id) {
+
         if (dto == null) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "修改人员不能为空");
         }
 
-        Student student = studentDao.selectById(dto.getId());
+        Student student = studentDao.selectById(id);
         if (student == null || student.getIsDeleted()) {
             throw new ApiException(HttpStatus.NOT_FOUND, "查无此人");
         }
+        Long userId = student.getUserId();
         //用户表
-        Long id = student.getUserId();
         if (dto.getStudentName() != null){
-            int row2 = studentDao.updateUser2(dto.getStudentName(),id);
+            int row2 = studentDao.updateUser2(dto.getStudentName(),userId);
         }
 
         LambdaUpdateWrapper<Student> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(Student::getId,dto.getId());
+        updateWrapper.eq(Student::getId,id);
         //更新修改的字段
         Boolean hasChange = false;
         if(dto.getStudentName() != null){
@@ -166,7 +180,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
             throw new ApiException(HttpStatus.BAD_REQUEST, "用户Id为空");
         }
         Student student = studentDao.selectOne(new LambdaQueryWrapper<Student>()
-                .eq(Student::getUserId, id));
+                .eq(Student::getId, id));
         Long userId = student.getUserId();
         if (userId == null) {
             throw new ApiException(HttpStatus.NOT_FOUND, "学生记录未关联用户ID，无法删除关联用户");
@@ -184,8 +198,8 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
     @Override
     @Transactional(rollbackFor = Exception.class)
     public List<Student> list(Map<String,Object> map) {
+
         LambdaQueryWrapper<Student> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Student::getIsDeleted,0);
         if(map == null){
             return studentDao.selectList(queryWrapper);
         }
@@ -193,7 +207,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
             queryWrapper.eq(Student::getStudentNo,map.get("studentNo"));
         }
         if(map.get("studentName") != null){
-            queryWrapper.eq(Student::getStudentName,map.get("studentName"));
+            queryWrapper.like(Student::getStudentName,map.get("studentName"));
         }
         if(map.get("gender") != null){
             queryWrapper.eq(Student::getGender,map.get("gender"));

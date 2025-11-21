@@ -17,7 +17,7 @@ public interface StudentService extends IService<Student> {
 
     int createStudent(StudentDto dto);
 
-    boolean updateStudent(Student dto);
+    boolean updateStudent(Student dto,Long id);
 
     int delete(Integer id);
 

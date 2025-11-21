@@ -51,11 +51,13 @@ public class StudentController {
         }
     }
     @PutMapping(value = "/{id}")
-    public R updateStudent(@RequestBody Student dto){
+    public R updateStudent(
+            @PathVariable("id") Long id,
+            @RequestBody Student dto){
         if(dto == null){
             return R.er(400,"更改信息不能为空");
         }
-        if(!studentService.updateStudent(dto)){
+        if(!studentService.updateStudent(dto,id)){
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR,"更新失败");
         }
         return R.ok();

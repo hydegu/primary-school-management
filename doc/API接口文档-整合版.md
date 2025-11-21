@@ -949,13 +949,15 @@
 
 **接口地址**: `GET /api/student/list`
 
-**功能描述**: 查询学生列表，支持条件筛选
+**功能描述**: 查询学生列表，支持条件筛选（分页暂不支持）
 
 **请求参数**:
 - `studentName` - 学生姓名（模糊查询）
 - `studentNo` - 学号
 - `classId` - 班级ID
 - `gradeId` - 年级ID
+- 'idCard'  -身份证号
+- ‘gander’  -性别
 - `page` - 页码，默认1
 - `size` - 每页条数，默认10
 
@@ -1059,20 +1061,7 @@
 ```json
 {
   "code": 200,
-  "msg": "修改成功",
-  "dataset": {
-    "id": 1,                                        // 学生ID
-    "userId": 10,                                   // 关联用户ID
-    "studentNo": "S2024001",                        // 学号
-    "studentName": "小明",                          // 学生姓名
-    "gender": 1,                                    // 性别：1-男 2-女
-    "birthDate": "2016-05-20",                      // 出生日期
-    "idCard": "110101201605200011",                 // 身份证号
-    "classId": 1,                                   // 当前班级ID
-    "gradeId": 1,                                   // 当前年级ID
-    "createdAt": "2025-11-20T10:00:00",            // 创建时间
-    "updatedAt": "2025-11-20T11:30:00"             // 更新时间
-  }
+  "msg": "修改成功"
 }
 ```
 
@@ -1091,7 +1080,7 @@
 {
   "code": 200,
   "msg": "删除成功",
-  "dataset": null
+  "dataset": "删除成功"
 }
 ```
 
