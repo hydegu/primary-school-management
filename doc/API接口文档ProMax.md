@@ -2295,8 +2295,64 @@ GET /api/leave/pending?classId=1&keyword=感冒
 **说明**: 学生请假审批，详见 [7. 请假管理](#7-请假管理-菜单id-70)
 
 **主要接口**:
-- `GET /api/leave/pending` - 待审批列表
-- `POST /api/approval/{id}/submit` - 提交审批（🚧 待实现）
+- `GET /api/leave/pending` - 待审批列表 ✅
+- `POST /api/approval/{id}/submit` - 提交审批 ✅
+
+---
+
+##### 提交审批（统一接口） ✅
+
+**接口地址**: `POST /api/approval/{id}/submit`
+
+**功能描述**: 统一的审批提交接口，通过参数决定通过或拒绝
+
+**路径参数**:
+- `id` - 审批记录ID
+
+**请求参数**:
+```json
+{
+  "approved": true,              // 是否通过：true-通过 false-拒绝
+  "approvalOpinion": "同意请假"   // 审批意见（可选）
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "审批通过成功",
+  "dataset": null
+}
+```
+
+**实现位置**: `ApprovalController.java:27`
+
+---
+
+##### 审批通过 ✅
+
+**接口地址**: `POST /api/approval/{id}/approve`
+
+**请求参数**:
+```json
+{
+  "approvalOpinion": "同意"       // 审批意见（可选）
+}
+```
+
+---
+
+##### 审批拒绝 ✅
+
+**接口地址**: `POST /api/approval/{id}/reject`
+
+**请求参数**:
+```json
+{
+  "approvalOpinion": "请假天数过长"  // 审批意见（可选）
+}
+```
 
 ---
 
