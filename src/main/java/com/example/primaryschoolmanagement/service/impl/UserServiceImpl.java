@@ -275,7 +275,17 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
             throw new UserNotFoundException(id);
         }
 
-        // 2. 检查手机号唯一性（如果修改）
+        // 2. 检查用户名唯一性（如果修改）
+        if (StringUtils.hasText(request.getUsername()) && !request.getUsername().equals(user.getUsername())) {
+            LambdaQueryWrapper<AppUser> usernameQuery = new LambdaQueryWrapper<>();
+            usernameQuery.eq(AppUser::getUsername, request.getUsername())
+                    .ne(AppUser::getId, id);
+            if (userRepo.selectCount(usernameQuery) > 0) {
+                throw new DuplicateException("用户名", request.getUsername());
+            }
+        }
+
+        // 3. 检查手机号唯一性（如果修改）
         if (StringUtils.hasText(request.getPhone()) && !request.getPhone().equals(user.getPhone())) {
             LambdaQueryWrapper<AppUser> phoneQuery = new LambdaQueryWrapper<>();
             phoneQuery.eq(AppUser::getPhone, request.getPhone())
@@ -285,7 +295,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
             }
         }
 
-        // 3. 检查邮箱唯一性（如果修改）
+        // 4. 检查邮箱唯一性（如果修改）
         if (StringUtils.hasText(request.getEmail()) && !request.getEmail().equals(user.getEmail())) {
             LambdaQueryWrapper<AppUser> emailQuery = new LambdaQueryWrapper<>();
             emailQuery.eq(AppUser::getEmail, request.getEmail())
@@ -295,7 +305,15 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
             }
         }
 
-        // 4. 更新用户信息
+        // 5. 更新用户信息
+        String oldUsername = user.getUsername();
+        if (StringUtils.hasText(request.getUsername())) {
+            user.setUsername(request.getUsername());
+        }
+        if (StringUtils.hasText(request.getPassword())) {
+            String encodedPassword = passwordEncoder.encode(request.getPassword());
+            user.setPassword(encodedPassword);
+        }
         if (StringUtils.hasText(request.getRealName())) {
             user.setRealName(request.getRealName());
         }
@@ -316,14 +334,17 @@ public class UserServiceImpl extends ServiceImpl<UserDao, AppUser> implements Us
         }
         user.setUpdatedAt(LocalDateTime.now());
 
-        // 5. 保存更新
+        // 6. 保存更新
         int result = userRepo.updateById(user);
         if (result <= 0) {
             throw new BusinessException("更新用户失败");
         }
 
-        // 6. 清除缓存
-        evictUserCache(user.getUsername());
+        // 7. 清除缓存（如果用户名被修改，需要清除旧用户名的缓存）
+        evictUserCache(oldUsername);
+        if (!oldUsername.equals(user.getUsername())) {
+            evictUserCache(user.getUsername());
+        }
 
         log.info("用户更新成功：userId={}", id);
         return convertToDTO(user);

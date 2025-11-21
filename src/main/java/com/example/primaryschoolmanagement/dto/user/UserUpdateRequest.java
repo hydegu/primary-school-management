@@ -7,13 +7,25 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 更新用户请求DTO（不含密码）
+ * 更新用户请求DTO
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserUpdateRequest {
+
+    /**
+     * 用户名
+     */
+    @Size(min = 3, max = 50, message = "用户名长度必须在3-50个字符之间")
+    private String username;
+
+    /**
+     * 密码
+     */
+    @Size(min = 6, max = 100, message = "密码长度必须在6-100个字符之间")
+    private String password;
 
     /**
      * 真实姓名
