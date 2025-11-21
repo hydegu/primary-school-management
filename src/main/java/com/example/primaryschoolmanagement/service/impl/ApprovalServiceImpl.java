@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.enums.ApprovalStatusEnum;
 import com.example.primaryschoolmanagement.common.enums.ApprovalNodeStatusEnum;
 import com.example.primaryschoolmanagement.common.enums.BusinessTypeEnum;
+import com.example.primaryschoolmanagement.common.utils.SecurityUtils;
 import com.example.primaryschoolmanagement.dao.FlowApprovalMapper;
 import com.example.primaryschoolmanagement.dao.FlowApprovalNodeMapper;
 import com.example.primaryschoolmanagement.dto.ApprovalActionDTO;
@@ -77,16 +78,24 @@ public class ApprovalServiceImpl extends ServiceImpl<FlowApprovalMapper, FlowApp
             throw new IllegalArgumentException("当前审批记录不可审批");
         }
 
-        // 3. 验证审批人权限
+        // 3. 验证审批人权限（超级管理员可以审批任何待处理节点）
         FlowApprovalNode currentNode = flowApprovalNodeMapper.selectCurrentPendingNode(approval.getId());
-        if (currentNode == null || !currentNode.getApproverId().equals(approverId)) {
+        if (currentNode == null) {
+            throw new IllegalArgumentException("没有待审批的节点");
+        }
+
+        boolean isSuperAdmin = SecurityUtils.isSuperAdmin();
+        if (!isSuperAdmin && !currentNode.getApproverId().equals(approverId)) {
             throw new IllegalArgumentException("无权限审批此记录");
         }
 
-        // 4. 更新当前节点状态
+        // 4. 更新当前节点状态（超级管理员审批时记录实际审批人）
         currentNode.setApprovalStatus(ApprovalNodeStatusEnum.APPROVED.getCode());
         currentNode.setApprovalTime(LocalDateTime.now());
         currentNode.setApprovalOpinion(approvalActionDTO.getApprovalOpinion());
+        if (isSuperAdmin) {
+            currentNode.setApproverName(currentNode.getApproverName() + "(超管代审)");
+        }
         flowApprovalNodeMapper.updateById(currentNode);
 
         // 5. 检查是否还有后续节点
@@ -124,16 +133,24 @@ public class ApprovalServiceImpl extends ServiceImpl<FlowApprovalMapper, FlowApp
             throw new IllegalArgumentException("当前审批记录不可审批");
         }
 
-        // 3. 验证审批人权限
+        // 3. 验证审批人权限（超级管理员可以审批任何待处理节点）
         FlowApprovalNode currentNode = flowApprovalNodeMapper.selectCurrentPendingNode(approval.getId());
-        if (currentNode == null || !currentNode.getApproverId().equals(approverId)) {
+        if (currentNode == null) {
+            throw new IllegalArgumentException("没有待审批的节点");
+        }
+
+        boolean isSuperAdmin = SecurityUtils.isSuperAdmin();
+        if (!isSuperAdmin && !currentNode.getApproverId().equals(approverId)) {
             throw new IllegalArgumentException("无权限审批此记录");
         }
 
-        // 4. 更新当前节点状态
+        // 4. 更新当前节点状态（超级管理员审批时记录实际审批人）
         currentNode.setApprovalStatus(ApprovalNodeStatusEnum.REJECTED.getCode());
         currentNode.setApprovalTime(LocalDateTime.now());
         currentNode.setApprovalOpinion(approvalActionDTO.getApprovalOpinion());
+        if (isSuperAdmin) {
+            currentNode.setApproverName(currentNode.getApproverName() + "(超管代审)");
+        }
         flowApprovalNodeMapper.updateById(currentNode);
 
         // 5. 更新审批记录状态
