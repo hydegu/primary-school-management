@@ -12,7 +12,7 @@ public interface ClassesService extends IService<Classes> {
     R classesList();
     R addclasses(Classes classes,Teacher teacher);
     R deleteclasses(Integer id);
-    R updateclasses(Classes classes);
+    R updateclasses(Classes classes,Integer id);
     //班级详情
     R getclassById(Integer id);
     //班级学生列表   根据class_id 查询

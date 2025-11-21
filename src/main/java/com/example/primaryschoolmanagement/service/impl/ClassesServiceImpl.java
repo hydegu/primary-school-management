@@ -100,9 +100,9 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
     }
 
     @Override
-    public R updateclasses(Classes classes) {
+    public R updateclasses(Classes classes,Integer id) {
         // 1. 验证主键id是否存在（必须传入id才能确定更新哪条记录）
-        Integer id = classes.getId();
+
         if (id == null) {
             return R.er();
         }
@@ -155,9 +155,6 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
         if (classes.getIsDeleted() != null) {
             updateWrapper.set("is_deleted", classes.getIsDeleted());
         }
-
-        // 强制更新时间（已设置，直接加入）
-        updateWrapper.set("updated_at", classes.getUpdatedAt());
 
         // 5. 执行更新操作（只更新非空字段）
         int row = this.classesDao.update(null, updateWrapper);

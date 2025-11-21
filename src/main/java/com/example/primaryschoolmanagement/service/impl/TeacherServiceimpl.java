@@ -13,6 +13,7 @@ import com.example.primaryschoolmanagement.dao.UserRoleDao;
 import com.example.primaryschoolmanagement.entity.*;
 import com.example.primaryschoolmanagement.service.TeacherService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -149,42 +150,44 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
 
 
     @Override
-    public R deleteTeacher(Teacher teacher, AppUser appuser,UserRole userrole) {
+    @Transactional
+    public R deleteTeacher(Integer id) {
         // 1. 校验id非空
-        Integer teacherid = teacher.getId();
-        Integer appuserid = teacher.getUserId();
-        if (teacherid == null) {
+
+
+        if (id == null) {
             return R.er(400, "教师ID不能为空");
         }
         // 2. 查询记录是否存在
-        Teacher existingTeacher = teacherDao.selectById(teacherid);
+        Teacher existingTeacher = teacherDao.selectById(id);
         if (existingTeacher == null) {
-            return R.er(404, "未找到ID为" + teacherid + "的教师记录");
+            return R.er(404, "未找到ID为" + id + "的教师记录");
+        }
+        Integer appuserid = existingTeacher.getUserId();
+        System.out.println("appuserid:"+appuserid);
+        if (appuserid == null) {
+            return R.er(400, "当前教师未关联用户信息，无法删除");
+        }
+        AppUser existingAppUser = userDao.selectById(appuserid);
+        if (existingAppUser == null || existingAppUser.getIsDeleted()) {
+            return R.er(404, "未找到关联的用户记录（ID：" + appuserid + "）");
         }
         // 3. 执行逻辑删除（更新isDeleted为true）
         //教师表
         Teacher updateTeacher = new Teacher();
-        updateTeacher.setId(teacherid);
+        updateTeacher.setId(id);
         updateTeacher.setIsDeleted(true);
         int teacherrow = teacherDao.deleteById(updateTeacher);
         //用户表
         int appuserrow = 0;
         int userRoleRow = 0;
 
-        if (appuserid == null) {
-            return R.er(400, "用户ID不能为空");
-        }
-        AppUser existingAppUser = userDao.selectById(appuserid);
-        if (existingAppUser == null) {
-            return R.er(404, "未找到ID为" + appuserid + "的用户记录");
-        }
+
         AppUser updateAppUser = new AppUser();
         updateAppUser.setId(Long.valueOf(appuserid));
         updateAppUser.setIsDeleted(true);
         appuserrow = userDao.deleteById(updateAppUser);
-        if (appuserid == null) {
-            return R.er(400, "角色用户ID不能为空");
-        }
+
         QueryWrapper<UserRole> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_id", appuserid); // 按用户ID查询关联的角色记录
         List<UserRole> existingUserRoles = userRoleDao.selectList(queryWrapper);
@@ -192,8 +195,6 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
             return R.er(404, "未找到用户ID为" + appuserid + "的角色关联记录");
         }
         userRoleRow = userRoleDao.delete(queryWrapper);
-
-
         // 4. 返回结果
         // 两个条件都满足才返回成功，否则失败
         return (teacherrow > 0 && appuserrow > 0 && userRoleRow > 0)
@@ -210,19 +211,19 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
      * @return
      */
     @Override
-    public R updateTeacher(Teacher teacher,AppUser appuser,UserRole userrole) {
+    public R updateTeacher(Teacher teacher,AppUser appuser,UserRole userrole,Integer id) {
         // 1. 验证主键id是否存在（必须传入id才能确定更新哪条记录）
-        Integer id = teacher.getId();
-        Integer userid = teacher.getUserId();
-        long roleid = userrole.getRoleId();
-        if (id == null) {
-            return R.er(400, "教师ID不能为空");
-        }
-        // 2. 验证要更新的记录是否存在
+
+
+        Integer roleid ;
+
+        // 2. 验证要更新的教师是否存在
         Teacher existingTeacher = teacherDao.selectById(id);
         if (existingTeacher == null) {
             return R.er(404, "未找到ID为" + id + "的教师记录");
         }
+        Integer userid = existingTeacher.getUserId();
+//        System.out.println("userid:"+userid);
         // 3. 设置更新时间（无论是否修改其他字段，更新时间都要刷新）
         teacher.setUpdatedAt(LocalDateTime.now());
 
@@ -268,7 +269,6 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
                 roleid=3;
                 userwrapper.set("role_id",roleid);
             }
-
         }
         if (teacher.getHireDate() != null) {
             updateWrapper.set("hire_date", teacher.getHireDate());
@@ -277,7 +277,7 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         updateWrapper.set("updated_at", teacher.getUpdatedAt());
         // 5. 执行更新操作（只更新非空字段）
         int teacherrow = this.teacherDao.update(null, updateWrapper);
-        System.out.println("id: " + id + ", userid: " + userid);
+//        System.out.println("id: " + id + ", userid: " + userid);
         //更新用户表
         int appuserrow = 0;
         wrapper.eq("id", userid); // 条件：更新指定ID的用户

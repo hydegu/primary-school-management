@@ -38,13 +38,17 @@ public class TeacherController {
     }
     //删除老师
     @DeleteMapping("/teacher/{id}")
-    public R deleteTeacher(@RequestBody Teacher teacher, AppUser appuser,UserRole userrole) { // 变量名与 {id} 一致时，可省略 "id" 参数
-        return this.teacherService.deleteTeacher(teacher,appuser,userrole);
+    public R deleteTeacher(
+            @PathVariable ("id") Integer id
+            ) { // 变量名与 {id} 一致时，可省略 "id" 参数
+        return this.teacherService.deleteTeacher(id);
     }
    //更新老师
     @PutMapping(value="/teacher/{id}")
-    public R updateteacher(@RequestBody Teacher teacher,AppUser appuser,UserRole userrole){
-        return this.teacherService.updateTeacher(teacher,appuser,userrole);
+    public R updateteacher(
+            @PathVariable ("id") Integer id,
+            @RequestBody Teacher teacher,AppUser appuser,UserRole userrole){
+        return this.teacherService.updateTeacher(teacher,appuser,userrole,id);
     }
 
 

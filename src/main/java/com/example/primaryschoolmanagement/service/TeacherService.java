@@ -10,8 +10,8 @@ public interface TeacherService extends IService<Teacher>{
     R queryByConditions(String teacherName, String teacherNo, String title);
     R getTeacherById(Integer id);
     R addTeacher(Teacher teacher, AppUser appuser, UserRole userrole);
-    R deleteTeacher(Teacher teacher, AppUser appuser,UserRole userrole);
-    R updateTeacher(Teacher teacher,AppUser appuser,UserRole userrole);
+    R deleteTeacher(Integer id);
+    R updateTeacher(Teacher teacher,AppUser appuser,UserRole userrole,Integer id);
 
     /**
      * 根据科目ID获取能教该科目的教师列表
