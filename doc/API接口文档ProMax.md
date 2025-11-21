@@ -1816,11 +1816,11 @@
 
 **路由**: `/course/list`
 
-##### 查询课程列表 ✅
+##### 查询课程列表（排课表） ✅
 
 **接口地址**: `GET /api/course/list`
 
-**功能描述**: 查询课程列表，支持按科目和班级筛选
+**功能描述**: 查询排课列表，基于edu_schedule表，支持按科目和班级筛选
 
 **请求参数**:
 - `subjectId` - 科目ID（可选）
@@ -1833,24 +1833,30 @@
   "msg": "操作成功",
   "dataset": [
     {
-      "id": 1,                                     // 课程ID
-      "courseName": "语文课程",                    // 课程名称
-      "semester": "2024-2025",                     // 学期
-      "weeklyHours": 5,                            // 每周课时
-      "totalHours": 90,                            // 总课时
+      "id": 1,                                     // 排课ID
+      "courseId": 1,                               // 关联课程ID
+      "classId": 1,                                // 班级ID
+      "teacherId": 1,                              // 教师ID
+      "subjectId": 1,                              // 科目ID
+      "weekDay": 1,                                // 星期几：1-7（1=周一）
+      "period": 1,                                 // 第几节课：1-8
+      "classroom": "101",                          // 教室
+      "startTime": "08:00:00",                     // 开始时间
+      "endTime": "08:45:00",                       // 结束时间
+      "semester": "2024-2025-1",                   // 学期
       "status": 1,                                 // 状态：0-停用 1-启用
-      "remark": null,                              // 备注
-      "createdAt": "2025-11-20T10:00:00",         // 创建时间
-      "updatedAt": "2025-11-20T10:00:00",         // 更新时间
-      "teacherName": "张老师",                     // 教师姓名
+      "subjectName": "语文",                       // 科目名称
       "className": "一年一班",                     // 班级名称
-      "subjectName": "语文"                        // 科目名称
+      "teacherName": "张老师",                     // 教师姓名
+      "courseName": "语文课程",                    // 课程名称
+      "createdAt": "2025-11-20T10:00:00",         // 创建时间
+      "updatedAt": "2025-11-20T10:00:00"          // 更新时间
     }
   ]
 }
 ```
 
-**实现位置**: `CourseController.java:81`
+**实现位置**: `CourseController.java:85`
 
 ---
 

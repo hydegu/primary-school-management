@@ -2,10 +2,12 @@ package com.example.primaryschoolmanagement.controller;
 
 import com.example.primaryschoolmanagement.common.exception.ApiException;
 import com.example.primaryschoolmanagement.common.utils.R;
+import com.example.primaryschoolmanagement.dao.ScheduleDao;
 import com.example.primaryschoolmanagement.dto.SubjectTeacherRelationDTO;
 import com.example.primaryschoolmanagement.entity.Course;
 import com.example.primaryschoolmanagement.service.CourseService;
 import com.example.primaryschoolmanagement.vo.CourseVO;
+import com.example.primaryschoolmanagement.vo.ScheduleVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,9 @@ public class CourseController {
 
     @Resource
     private CourseService courseService;
+
+    @Resource
+    private ScheduleDao scheduleDao;
 
     @PostMapping(value = "")
     public R addCourse(@RequestBody SubjectTeacherRelationDTO dto){
@@ -77,13 +82,13 @@ public class CourseController {
         CourseVO courseVO = courseService.getCourse(id);
         return R.ok(courseVO);
     }
-    // 6.1 课程列表 - subjectId和classId为可选参数
+    // 6.1 课程列表 - 使用edu_schedule表，支持按科目和班级筛选
     @GetMapping(value = "/list")
     public R courseList(
             @RequestParam(required = false) Integer subjectId,
             @RequestParam(required = false) Integer classId){
-        List<CourseVO> courseList = courseService.listCourses(subjectId, classId);
-        return R.ok(courseList);
+        List<ScheduleVO> scheduleList = scheduleDao.scheduleListWithFilters(subjectId, classId);
+        return R.ok(scheduleList);
     }
 
 }
