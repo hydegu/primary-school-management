@@ -2190,26 +2190,8 @@
 ```json
 {
   "code": 200,
-  "msg": "申请成功",
-  "dataset": {
-    "id": 1,                                         // 请假ID
-    "leaveNo": "L2024112000001",                     // 请假单号
-    "studentId": 1,                                  // 学生ID
-    "studentName": "小明",                           // 学生姓名
-    "classId": 1,                                    // 班级ID
-    "leaveType": 1,                                  // 请假类型：1-病假 2-事假 3-其他
-    "startDate": "2024-11-20",                       // 开始日期
-    "endDate": "2024-11-22",                         // 结束日期
-    "leaveDays": 3.0,                                // 请假天数
-    "reason": "感冒发烧",                            // 请假原因
-    "proofFiles": [],                                // 证明材料（JSON数组）
-    "applyTime": "2024-11-19T10:00:00",             // 申请时间
-    "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
-    "approvalId": null,                              // 关联审批记录ID
-    "remark": null,                                  // 备注
-    "createdAt": "2024-11-19T10:00:00",             // 创建时间
-    "updatedAt": "2024-11-19T10:00:00"              // 更新时间
-  }
+  "msg": "操作成功",
+  "dataset": 2
 }
 ```
 
