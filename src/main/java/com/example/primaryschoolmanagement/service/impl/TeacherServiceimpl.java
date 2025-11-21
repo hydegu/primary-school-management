@@ -316,5 +316,20 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         }
         return R.ok(teachers);
     }
+    /**
+     * 根据用户ID获取教师信息
+     * @param userId 用户ID
+     * @return 教师信息
+     */
+    @Override
+    public Teacher getTeacherByUserId(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        LambdaQueryWrapper<Teacher> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Teacher::getUserId, userId)
+                .eq(Teacher::getIsDeleted, false);
+        return this.teacherDao.selectOne(queryWrapper);
+    }
 
 }
