@@ -134,12 +134,28 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
     }
 
     @Override
-    public IPage<LeaveVO> getPendingLeaves(Long classId, int page, int size) {
+    public IPage<LeaveVO> getPendingLeaves(Long classId, String keyword, int page, int size) {
         Page<Leave> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<Leave> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Leave::getClassId, classId)
-                .eq(Leave::getApprovalStatus, ApprovalStatusEnum.PENDING.getCode())
-                .orderByAsc(Leave::getApplyTime);
+
+        // 必须是待审批状态
+        queryWrapper.eq(Leave::getApprovalStatus, ApprovalStatusEnum.PENDING.getCode());
+
+        // 可选：按班级筛选
+        if (classId != null) {
+            queryWrapper.eq(Leave::getClassId, classId);
+        }
+
+        // 可选：关键字模糊搜索（学生姓名或请假原因）
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            String searchKeyword = keyword.trim();
+            queryWrapper.and(wrapper -> wrapper
+                    .like(Leave::getStudentName, searchKeyword)
+                    .or()
+                    .like(Leave::getReason, searchKeyword));
+        }
+
+        queryWrapper.orderByAsc(Leave::getApplyTime);
 
         IPage<Leave> leavePage = leaveMapper.selectPage(pageParam, queryWrapper);
         return leavePage.convert(this::convertToVO);
