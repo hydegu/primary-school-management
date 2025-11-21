@@ -2457,7 +2457,8 @@ GET /api/leave/pending?classId=1&keyword=感冒
         "newClassroom": "201",                           // 新教室
         "reason": "临时有事",                            // 调课原因
         "applyTime": "2024-11-19T10:00:00",             // 申请时间
-        "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+        "approvalStatus": 1,                            // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
+        "approvalStatusText": "待审批",
         "approvalId": null,                              // 关联审批记录ID
         "remark": null,                                  // 备注
         "createdAt": "2024-11-19T10:00:00",             // 创建时间
@@ -2542,25 +2543,7 @@ GET /api/leave/pending?classId=1&keyword=感冒
 ```json
 {
   "code": 200,
-  "msg": "确认成功",
-  "dataset": {
-    "id": 1,                                         // 换课ID
-    "swapNo": "CS2024112000001",                     // 换课单号
-    "applyTeacherId": 1,                             // 申请教师ID
-    "applyTeacherName": "李老师",                    // 申请教师姓名
-    "applyScheduleId": 123,                          // 申请方课程表ID
-    "targetTeacherId": 20,                           // 对方教师ID
-    "targetTeacherName": "王老师",                   // 对方教师姓名
-    "targetScheduleId": 456,                         // 对方课程表ID
-    "reason": "时间冲突",                            // 换课原因
-    "applyTime": "2024-11-20T10:00:00",             // 申请时间
-    "targetConfirm": 1,                              // 对方确认：0-未确认 1-已确认 2-已拒绝
-    "targetConfirmText": "已确认",                   // 对方确认文本
-    "approvalStatus": 1,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
-    "approvalStatusText": "待审批",                  // 审批状态文本
-    "approvalId": null,                              // 关联审批记录ID
-    "remark": null                                   // 备注
-  }
+  "msg": "操作成功"
 }
 ```
 
@@ -2584,31 +2567,51 @@ GET /api/leave/pending?classId=1&keyword=感冒
   "code": 200,
   "msg": "操作成功",
   "dataset": {
-    "total": 1,
-    "list": [
+    "records": [
       {
-        "id": 1,                                         // 换课ID
-        "swapNo": "CS2024112000001",                     // 换课单号
-        "applyTeacherId": 1,                             // 申请教师ID
-        "applyTeacherName": "李老师",                    // 申请教师姓名
-        "applyScheduleId": 123,                          // 申请方课程表ID
-        "applyCourseInfo": "周一第3节 数学",             // 申请方课程信息
-        "targetTeacherId": 20,                           // 对方教师ID
-        "targetTeacherName": "王老师",                   // 对方教师姓名
-        "targetScheduleId": 456,                         // 对方课程表ID
-        "targetCourseInfo": "周二第2节 语文",            // 目标方课程信息
-        "reason": "时间冲突",                            // 换课原因
-        "applyTime": "2024-11-20T10:00:00",             // 申请时间
-        "targetConfirm": 1,                              // 对方确认：0-未确认 1-已确认 2-已拒绝
-        "targetConfirmText": "已确认",                   // 对方确认文本
-        "approvalStatus": 2,                             // 审批状态：1-待审批 2-已通过 3-已拒绝 4-已撤回
-        "approvalStatusText": "已通过",                  // 审批状态文本
-        "approvalId": 1,                                 // 关联审批记录ID
-        "remark": null                                   // 备注
+        "id": 2,
+        "swapNo": "SW1763723469278989",
+        "applyTeacherId": 1,
+        "applyTeacherName": "申请教师姓名",
+        "applyScheduleId": 1,
+        "applyCourseInfo": "申请人课程信息",
+        "targetTeacherId": 3,
+        "targetTeacherName": "目标教师姓名",
+        "targetScheduleId": 2,
+        "targetCourseInfo": "目标方课程信息",
+        "reason": "时间冲突",
+        "applyTime": "2025-11-21T19:11:09",
+        "targetConfirm": 0,
+        "targetConfirmText": "未确认",
+        "approvalStatus": 1,
+        "approvalStatusText": "待审批",
+        "approvalId": 3,
+        "remark": null
+      },
+      {
+        "id": 1,
+        "swapNo": "SW1763723078166466",
+        "applyTeacherId": 1,
+        "applyTeacherName": "申请教师姓名",
+        "applyScheduleId": 123,
+        "applyCourseInfo": "申请人课程信息",
+        "targetTeacherId": 20,
+        "targetTeacherName": "目标教师姓名",
+        "targetScheduleId": 456,
+        "targetCourseInfo": "目标方课程信息",
+        "reason": "时间冲突",
+        "applyTime": "2025-11-21T19:04:38",
+        "targetConfirm": 0,
+        "targetConfirmText": "未确认",
+        "approvalStatus": 1,
+        "approvalStatusText": "待审批",
+        "approvalId": null,
+        "remark": null
       }
     ],
-    "page": 1,
+    "total": 2,
     "size": 10,
+    "current": 1,
     "pages": 1
   }
 }
@@ -2628,7 +2631,7 @@ GET /api/leave/pending?classId=1&keyword=感冒
 
 **接口地址**: `POST /api/class-transfer`
 
-**功能描述**: 家长/学生提交调班申请
+**功能描述**: 学生提交调班申请
 
 **请求参数**:
 ```json
