@@ -28,13 +28,13 @@ public class LeaveVO {
     private Long classId;
 
     @ApiModelProperty("班级名称")
-    private String className; // 扩展字段，从班级表关联查询
+    private String className;
 
     @ApiModelProperty("请假类型：1-病假 2-事假 3-其他")
     private Integer leaveType;
 
     @ApiModelProperty("请假类型文本")
-    private String leaveTypeText; // 扩展字段，如"病假"
+    private String leaveTypeText;
 
     @ApiModelProperty("开始日期")
     private LocalDate startDate;
@@ -58,7 +58,7 @@ public class LeaveVO {
     private Integer approvalStatus;
 
     @ApiModelProperty("审批状态文本")
-    private String approvalStatusText; // 扩展字段，如"待审批"
+    private String approvalStatusText;
 
     @ApiModelProperty("审批记录ID")
     private Long approvalId;
@@ -67,8 +67,8 @@ public class LeaveVO {
     private String remark;
 
     @ApiModelProperty("最近审批人")
-    private String lastApprover; // 扩展字段，从审批节点表关联查询
+    private String lastApprover;
 
     @ApiModelProperty("最近审批时间")
-    private LocalDateTime lastApprovalTime; // 扩展字段
+    private LocalDateTime lastApprovalTime;
 }

@@ -12,6 +12,8 @@ import com.example.primaryschoolmanagement.entity.Leave;
 import com.example.primaryschoolmanagement.service.LeaveService;
 import com.example.primaryschoolmanagement.vo.LeaveVO;
 import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,8 @@ import java.time.temporal.ChronoUnit;
  */
 @Service
 public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements LeaveService {
+
+    private static final Logger log = LoggerFactory.getLogger(LeaveServiceImpl.class);
 
     @Resource
     private LeaveMapper leaveMapper;
@@ -42,7 +46,7 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
 
         // 3. 设置额外字段
         leave.setStudentId(userId);
-        leave.setStudentName("学生姓名"); // 实际应从学生表查询
+        leave.setStudentName(getStudentName(userId));
         leave.setLeaveNo(generateLeaveNo());
         leave.setLeaveDays(calculateLeaveDays(leaveDTO.getStartDate(), leaveDTO.getEndDate()));
         leave.setApplyTime(LocalDateTime.now());
@@ -51,17 +55,20 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
         // 4. 保存到数据库
         baseMapper.insert(leave);
 
-        // 5. 调用审批流程
+        // 5. 调用审批流程（简化版）
         Long approvalId = createApprovalProcess(leave);
-        leave.setApprovalId(approvalId);
-        baseMapper.updateById(leave);
+        if (approvalId != null) {
+            leave.setApprovalId(approvalId);
+            baseMapper.updateById(leave);
+        }
 
-        return leave.getId(); // 返回ID
+        return leave.getId();
     }
 
     @Override
     public LeaveVO getLeaveDetail(Long id) {
-        Leave leave = leaveMapper.selectLeaveWithApproval(id);
+        // 使用 MyBatis Plus 的默认方法查询
+        Leave leave = baseMapper.selectById(id);
         if (leave == null) {
             return null;
         }
@@ -119,7 +126,9 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
         return leavePage.convert(this::convertToVO);
     }
 
-
+    /**
+     * 验证请假数据
+     */
     private void validateLeaveDTO(LeaveDTO leaveDTO) {
         if (leaveDTO.getStartDate() == null || leaveDTO.getEndDate() == null) {
             throw new IllegalArgumentException("开始日期和结束日期不能为空");
@@ -138,26 +147,67 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
         }
     }
 
+    /**
+     * 生成请假单号
+     */
     private String generateLeaveNo() {
         return "L" + System.currentTimeMillis() + (int)(Math.random() * 1000);
     }
 
+    /**
+     * 计算请假天数
+     */
     private BigDecimal calculateLeaveDays(LocalDate startDate, LocalDate endDate) {
+        if (startDate == null || endDate == null) {
+            return BigDecimal.ZERO;
+        }
         long days = ChronoUnit.DAYS.between(startDate, endDate) + 1;
         return BigDecimal.valueOf(days);
     }
 
+    /**
+     * 获取学生姓名（简化版）
+     */
+    private String getStudentName(Long studentId) {
+        // 这里可以调用 StudentService 查询真实姓名
+        // 暂时返回模拟数据
+        return "学生" + studentId;
+    }
+
+    /**
+     * 创建审批流程
+     */
     private Long createApprovalProcess(Leave leave) {
-        // 集成工作流引擎或调用审批服务
-        // 这里可以调用审批模块的API创建审批流程
-        return System.currentTimeMillis(); // 模拟返回审批ID
+        try {
+            // 实际项目中这里应该调用审批服务创建审批流程
+            // 返回模拟的审批ID
+            return System.currentTimeMillis();
+        } catch (Exception e) {
+            // 审批流程创建失败不影响请假申请提交
+            log.warn("创建审批流程失败: {}", e.getMessage());
+            return null;
+        }
     }
 
+    /**
+     * 取消审批流程（简化版）
+     */
     private void cancelApprovalProcess(Long approvalId) {
-        // 调用审批服务的取消接口
-        // 这里可以调用审批模块的API取消审批流程
+        try {
+            // 实际项目中这里应该调用审批服务取消审批流程
+            if (approvalId != null) {
+                // 调用审批服务的取消接口
+                log.info("取消审批流程: {}", approvalId);
+            }
+        } catch (Exception e) {
+            // 审批流程取消失败不影响请假撤回
+            log.warn("取消审批流程失败: {}", e.getMessage());
+        }
     }
 
+    /**
+     * 转换为VO对象
+     */
     private LeaveVO convertToVO(Leave leave) {
         if (leave == null) {
             return null;
@@ -170,13 +220,46 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
         leaveVO.setLeaveTypeText(LeaveTypeEnum.getTextByCode(leave.getLeaveType()));
         leaveVO.setApprovalStatusText(ApprovalStatusEnum.getTextByCode(leave.getApprovalStatus()));
 
-        // 实际项目中查询班级表获取班级名称
-        leaveVO.setClassName("班级名称");
+        // 设置班级名称（实际项目中应该查询班级表）
+        leaveVO.setClassName(getClassName(leave.getClassId()));
 
-        // 实际项目中查询审批节点表获取审批信息
-        leaveVO.setLastApprover("班主任");
-        leaveVO.setLastApprovalTime(LocalDateTime.now());
+        // 设置审批信息（实际项目中应该查询审批节点表）
+        leaveVO.setLastApprover(getLastApprover(leave.getApprovalId(), leave.getApprovalStatus()));
+        leaveVO.setLastApprovalTime(getLastApprovalTime(leave.getApprovalId(), leave.getApprovalStatus()));
 
         return leaveVO;
+    }
+
+    /**
+     * 获取班级名称（简化版）
+     */
+    private String getClassName(Long classId) {
+        // 实际项目中应该查询班级表
+        if (classId == null) {
+            return "未知班级";
+        }
+        return "班级" + classId;
+    }
+
+    /**
+     * 获取最后审批人（简化版）
+     */
+    private String getLastApprover(Long approvalId, Integer approvalStatus) {
+        if (approvalId == null || ApprovalStatusEnum.PENDING.getCode().equals(approvalStatus)) {
+            return "待审批";
+        }
+        // 实际项目中应该查询审批节点表
+        return "班主任";
+    }
+
+    /**
+     * 获取最后审批时间（简化版）
+     */
+    private LocalDateTime getLastApprovalTime(Long approvalId, Integer approvalStatus) {
+        if (approvalId == null || ApprovalStatusEnum.PENDING.getCode().equals(approvalStatus)) {
+            return null;
+        }
+        // 实际项目中应该查询审批节点表
+        return LocalDateTime.now().minusHours(1); // 模拟审批时间
     }
 }
