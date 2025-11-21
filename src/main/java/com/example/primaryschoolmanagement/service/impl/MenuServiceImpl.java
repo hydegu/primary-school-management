@@ -75,7 +75,22 @@ public class MenuServiceImpl extends ServiceImpl<MenuDao, Menu> implements MenuS
         }
 
         log.info("菜单创建成功：menuId={}, menuCode={}", menu.getId(), menu.getMenuCode());
-        return convertToDTO(menu);
+
+        // 6. 创建子菜单
+        MenuDTO menuDTO = convertToDTO(menu);
+        if (request.getChildren() != null && !request.getChildren().isEmpty()) {
+            List<MenuDTO> childrenDTOs = new ArrayList<>();
+            for (MenuCreateRequest childRequest : request.getChildren()) {
+                // 设置父菜单ID
+                childRequest.setParentId(menu.getId());
+                // 递归创建子菜单
+                MenuDTO childDTO = createMenu(childRequest);
+                childrenDTOs.add(childDTO);
+            }
+            menuDTO.setChildren(childrenDTOs);
+        }
+
+        return menuDTO;
     }
 
     @Override
@@ -147,7 +162,47 @@ public class MenuServiceImpl extends ServiceImpl<MenuDao, Menu> implements MenuS
         }
 
         log.info("菜单更新成功：menuId={}", id);
-        return convertToDTO(menu);
+
+        // 5. 处理子菜单的批量更新
+        MenuDTO menuDTO = convertToDTO(menu);
+        if (request.getChildren() != null) {
+            // 获取现有的子菜单
+            List<Menu> existingChildren = menuDao.selectByParentId(id);
+            List<Long> existingChildIds = existingChildren.stream()
+                    .map(Menu::getId)
+                    .collect(Collectors.toList());
+
+            List<MenuDTO> childrenDTOs = new ArrayList<>();
+            List<Long> updatedChildIds = new ArrayList<>();
+
+            // 处理请求中的子菜单
+            for (MenuUpdateRequest childRequest : request.getChildren()) {
+                if (childRequest.getId() != null) {
+                    // 更新现有子菜单
+                    MenuDTO childDTO = updateMenu(childRequest.getId(), childRequest);
+                    childrenDTOs.add(childDTO);
+                    updatedChildIds.add(childRequest.getId());
+                } else {
+                    // 新增子菜单
+                    MenuCreateRequest createRequest = new MenuCreateRequest();
+                    BeanUtils.copyProperties(childRequest, createRequest);
+                    createRequest.setParentId(id);
+                    MenuDTO childDTO = createMenu(createRequest);
+                    childrenDTOs.add(childDTO);
+                }
+            }
+
+            // 删除未在请求中的子菜单
+            for (Long existingChildId : existingChildIds) {
+                if (!updatedChildIds.contains(existingChildId)) {
+                    deleteMenu(existingChildId);
+                }
+            }
+
+            menuDTO.setChildren(childrenDTOs);
+        }
+
+        return menuDTO;
     }
 
     @Override
@@ -161,16 +216,24 @@ public class MenuServiceImpl extends ServiceImpl<MenuDao, Menu> implements MenuS
             throw new BusinessException("菜单不存在：" + id);
         }
 
-        // 2. 检查是否有子菜单
+        // 2. 递归删除所有子菜单
         List<Menu> children = menuDao.selectByParentId(id);
         if (!children.isEmpty()) {
-            throw new BusinessException("该菜单下有子菜单，无法删除，请先删除子菜单");
+            log.info("菜单{}有{}个子菜单，将执行级联删除", id, children.size());
+            for (Menu child : children) {
+                deleteMenu(child.getId());
+            }
         }
 
-        // 3. 软删除菜单
+        // 3. 删除当前菜单
         int i = menuDao.deleteById(id);
-        if(i > 0) return true;
-        else return false;
+        if (i > 0) {
+            log.info("菜单删除成功：menuId={}", id);
+            return true;
+        } else {
+            log.error("菜单删除失败：menuId={}", id);
+            return false;
+        }
     }
 
     @Override
@@ -182,7 +245,18 @@ public class MenuServiceImpl extends ServiceImpl<MenuDao, Menu> implements MenuS
             throw new BusinessException("菜单不存在：" + id);
         }
 
-        return convertToDTO(menu);
+        MenuDTO menuDTO = convertToDTO(menu);
+
+        // 加载子菜单
+        List<Menu> children = menuDao.selectByParentId(id);
+        if (!children.isEmpty()) {
+            List<MenuDTO> childrenDTOs = children.stream()
+                    .map(this::convertToDTOWithChildren)
+                    .collect(Collectors.toList());
+            menuDTO.setChildren(childrenDTOs);
+        }
+
+        return menuDTO;
     }
 
     @Override
@@ -215,28 +289,34 @@ public class MenuServiceImpl extends ServiceImpl<MenuDao, Menu> implements MenuS
     public R getAllMenusWithPagination(int page, int size) {
         log.info("分页查询所有菜单列表，page={}, size={}", page, size);
 
-        // 1. 创建分页对象
-        Page<Menu> pageParam = new Page<>(page, size);
-
-        // 2. 创建查询条件：查询未删除的菜单，按排序字段和ID排序
+        // 1. 查询所有未删除的菜单
         LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Menu::getIsDeleted, false)
                 .orderByAsc(Menu::getSortOrder, Menu::getId);
+        List<Menu> allMenus = menuDao.selectList(queryWrapper);
 
-        // 3. 执行分页查询
-        IPage<Menu> menuPage = menuDao.selectPage(pageParam, queryWrapper);
-
-        // 4. 转换为DTO
-        List<MenuDTO> menuDTOList = menuPage.getRecords().stream()
+        // 2. 转换为DTO并构建树形结构
+        List<MenuDTO> allMenuDTOs = allMenus.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+        List<MenuDTO> menuTree = buildMenuTree(allMenuDTOs, 0L);
 
-        // 5. 构建分页结果
+        // 3. 对树形结构进行分页
+        int total = menuTree.size();
+        int fromIndex = (page - 1) * size;
+        int toIndex = Math.min(fromIndex + size, total);
+
+        List<MenuDTO> pagedMenuTree = new ArrayList<>();
+        if (fromIndex < total) {
+            pagedMenuTree = menuTree.subList(fromIndex, toIndex);
+        }
+
+        // 4. 构建分页结果
         PageResult<MenuDTO> pageResult = PageResult.of(
-                menuPage.getTotal(),
-                menuDTOList,
-                (int) menuPage.getCurrent(),
-                (int) menuPage.getSize()
+                (long) total,
+                pagedMenuTree,
+                page,
+                size
         );
 
         return R.ok(pageResult);
@@ -293,6 +373,24 @@ public class MenuServiceImpl extends ServiceImpl<MenuDao, Menu> implements MenuS
     private MenuDTO convertToDTO(Menu menu) {
         MenuDTO dto = new MenuDTO();
         BeanUtils.copyProperties(menu, dto);
+        return dto;
+    }
+
+    /**
+     * 将Menu实体转换为DTO，并递归加载子菜单
+     */
+    private MenuDTO convertToDTOWithChildren(Menu menu) {
+        MenuDTO dto = convertToDTO(menu);
+
+        // 递归加载子菜单
+        List<Menu> children = menuDao.selectByParentId(menu.getId());
+        if (!children.isEmpty()) {
+            List<MenuDTO> childrenDTOs = children.stream()
+                    .map(this::convertToDTOWithChildren)
+                    .collect(Collectors.toList());
+            dto.setChildren(childrenDTOs);
+        }
+
         return dto;
     }
 }

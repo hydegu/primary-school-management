@@ -1,10 +1,13 @@
 package com.example.primaryschoolmanagement.dto.menu;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * 更新菜单请求DTO
@@ -65,4 +68,16 @@ public class MenuUpdateRequest {
      */
     @Size(max = 500, message = "备注最长500个字符")
     private String remark;
+
+    /**
+     * 子菜单列表（用于批量更新子菜单）
+     * 包含id的项会更新，不包含id的项会新增，原有但不在列表中的项会被删除
+     */
+    @Valid
+    private List<MenuUpdateRequest> children;
+
+    /**
+     * 菜单ID（用于children中标识要更新的子菜单）
+     */
+    private Long id;
 }
