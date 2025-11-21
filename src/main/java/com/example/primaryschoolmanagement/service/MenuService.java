@@ -33,7 +33,7 @@ public interface MenuService extends IService<Menu> {
      * 删除菜单（软删除）
      * @param id 菜单ID
      */
-    void deleteMenu(Long id);
+    Boolean deleteMenu(Long id);
 
     /**
      * 根据ID获取菜单详情

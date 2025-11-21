@@ -1,5 +1,6 @@
 package com.example.primaryschoolmanagement.controller;
 
+import com.example.primaryschoolmanagement.common.enums.ResultCode;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dto.role.RoleCreateRequest;
 import com.example.primaryschoolmanagement.dto.role.RoleDTO;
@@ -45,6 +46,9 @@ public class RoleController {
     @PutMapping("/{id}")
     public R updateRole(@PathVariable Long id, @Valid @RequestBody RoleUpdateRequest request) {
         log.info("更新角色请求：roleId={}", id);
+        if(id == 1){
+            return R.er(ResultCode.BAD_REQUEST.getCode(),"无法修改超级管理员角色");
+        }
         RoleDTO role = roleService.updateRole(id, request);
         return R.ok(role);
     }
@@ -57,6 +61,9 @@ public class RoleController {
     @DeleteMapping("/{id}")
     public R deleteRole(@PathVariable Long id) {
         log.info("删除角色请求：roleId={}", id);
+        if(id == 1){
+            return R.er(ResultCode.BAD_REQUEST.getCode(),"无法删除超级管理员角色");
+        }
         roleService.deleteRole(id);
         return R.ok("删除成功");
     }

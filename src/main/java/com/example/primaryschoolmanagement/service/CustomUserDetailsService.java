@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -41,13 +42,15 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new InternalAuthenticationServiceException("用户密码为空");
         }
 
-        Role role = userService.selectRolesByUserId(appUser.getId());
-        if (role == null) {
+        List<Role> roles = userService.selectRolesByUserId(appUser.getId());
+        if (roles.isEmpty()) {
             throw new InternalAuthenticationServiceException("用户未配置角色");
         }
 
-        List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role.getRoleCode()));
-        log.info("用户 {} 加载完成，授予角色 {}", username, role);
+        List<SimpleGrantedAuthority> authorities = roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getRoleCode()))
+                .collect(Collectors.toList());
+        log.info("用户 {} 加载完成，授予角色 {}", username, roles);
         return new User(appUser.getUsername(), appUser.getPassword(), authorities);
     }
 }

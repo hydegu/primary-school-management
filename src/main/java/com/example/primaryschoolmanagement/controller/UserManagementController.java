@@ -1,5 +1,6 @@
 package com.example.primaryschoolmanagement.controller;
 
+import com.example.primaryschoolmanagement.common.enums.ResultCode;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dto.common.PageResult;
 import com.example.primaryschoolmanagement.dto.user.*;
@@ -198,6 +199,9 @@ public class UserManagementController {
     @PostMapping("/{id}/roles")
     public R assignRoles(@PathVariable Long id, @Valid @RequestBody UserRoleUpdateRequest request) {
         log.info("分配角色请求：userId={}, roleIds={}", id, request.getRoleIds());
+        if(id == 1){
+            return R.er(ResultCode.BAD_REQUEST.getCode(),"无法为超级管理员作角色更改");
+        }
         userService.assignRolesToUser(id, request.getRoleIds());
         return R.ok("角色分配成功");
     }
