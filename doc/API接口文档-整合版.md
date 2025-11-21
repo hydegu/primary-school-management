@@ -718,7 +718,7 @@
 
 **接口地址**: `GET /api/menu/list`
 
-**功能描述**: 分页获取所有菜单列表
+**功能描述**: 分页获取所有菜单列表（树形结构）
 
 **请求参数**:
 - `page` - 页码
@@ -745,7 +745,8 @@
         "sortOrder": 1,                              // 显示排序
         "remark": null,                              // 备注
         "createdAt": "2025-11-15T10:13:40",         // 创建时间
-        "updatedAt": "2025-11-15T10:13:40"          // 更新时间
+        "updatedAt": "2025-11-15T10:13:40",         // 更新时间
+        "children": null                             // 子菜单列表
       },
       {
         "id": 10,                                    // 菜单ID
@@ -760,7 +761,25 @@
         "sortOrder": 10,                             // 显示排序
         "remark": null,                              // 备注
         "createdAt": "2025-11-15T10:13:40",         // 创建时间
-        "updatedAt": "2025-11-15T10:13:40"          // 更新时间
+        "updatedAt": "2025-11-15T10:13:40",         // 更新时间
+        "children": [                                // 子菜单列表
+          {
+            "id": 11,
+            "parentId": 10,
+            "menuName": "用户列表",
+            "menuCode": "user_list",
+            "menuType": 2,
+            "routePath": "/user/list",
+            "componentPath": null,
+            "permission": null,
+            "icon": null,
+            "sortOrder": 11,
+            "remark": null,
+            "createdAt": "2025-11-15T10:13:40",
+            "updatedAt": "2025-11-15T10:13:40",
+            "children": null
+          }
+        ]
       }
     ],
     "page": 1,
@@ -770,6 +789,10 @@
 }
 ```
 
+**说明**:
+- 返回树形结构,自动包含所有子菜单
+- 分页针对顶级菜单,子菜单完整返回
+
 **实现位置**: `MenuController.java:43`
 
 ---
@@ -778,7 +801,7 @@
 
 **接口地址**: `GET /api/menu/{id}`
 
-**功能描述**: 根据菜单ID查询菜单详细信息
+**功能描述**: 根据菜单ID查询菜单详细信息，并递归加载所有子菜单
 
 **响应示例**:
 ```json
@@ -786,23 +809,77 @@
   "code": 200,
   "msg": "操作成功",
   "dataset": {
-    "id": 20,                                        // 菜单ID
+    "id": 10,                                        // 菜单ID
     "parentId": 0,                                   // 父菜单ID，0表示顶级菜单
-    "menuName": "菜单管理",                           // 菜单名称
-    "menuCode": "menu_manage",                       // 菜单编码
-    "menuType": 2,                                   // 菜单类型：1-目录 2-菜单 3-按钮
-    "routePath": "/menu",                            // 路由地址
+    "menuName": "用户管理",                           // 菜单名称
+    "menuCode": "user_manage",                       // 菜单编码
+    "menuType": 1,                                   // 菜单类型：1-目录 2-菜单 3-按钮
+    "routePath": "/user",                            // 路由地址
     "componentPath": null,                           // 组件路径
     "permission": null,                              // 权限标识
-    "icon": "menu",                                  // 菜单图标
-    "sortOrder": 20,                                 // 显示排序
+    "icon": "user",                                  // 菜单图标
+    "sortOrder": 10,                                 // 显示排序
     "remark": null,                                  // 备注
     "createdAt": "2025-11-15T10:13:40",             // 创建时间
     "updatedAt": "2025-11-15T10:13:40",             // 更新时间
-    "children": null                                //子菜单(懒得实现了，太麻烦，实在需要在说吧）
+    "children": [                                    // 子菜单列表（递归加载）
+      {
+        "id": 11,
+        "parentId": 10,
+        "menuName": "用户列表",
+        "menuCode": "user_list",
+        "menuType": 2,
+        "routePath": "/user/list",
+        "componentPath": null,
+        "permission": null,
+        "icon": null,
+        "sortOrder": 11,
+        "remark": null,
+        "createdAt": "2025-11-15T10:13:40",
+        "updatedAt": "2025-11-15T10:13:40",
+        "children": [                                // 支持多级子菜单
+          {
+            "id": 13,
+            "parentId": 11,
+            "menuName": "添加用户",
+            "menuCode": "user_add",
+            "menuType": 3,
+            "routePath": null,
+            "componentPath": null,
+            "permission": "user:add",
+            "icon": null,
+            "sortOrder": 13,
+            "remark": null,
+            "createdAt": "2025-11-15T10:13:40",
+            "updatedAt": "2025-11-15T10:13:40",
+            "children": null
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "parentId": 10,
+        "menuName": "用户角色",
+        "menuCode": "user_role",
+        "menuType": 2,
+        "routePath": "/user/role",
+        "componentPath": null,
+        "permission": null,
+        "icon": null,
+        "sortOrder": 12,
+        "remark": null,
+        "createdAt": "2025-11-15T10:13:40",
+        "updatedAt": "2025-11-15T10:13:40",
+        "children": null
+      }
+    ]
   }
 }
 ```
+
+**说明**:
+- 递归加载该菜单的所有子菜单及子孙菜单
+- 支持多级菜单结构
 
 **实现位置**: `MenuController.java:54`
 
@@ -819,16 +896,34 @@
 **请求参数**:
 ```json
 {
-  "menuName": "教师管理",                            // 菜单名称
+  "menuName": "教师管理",                            // 菜单名称（必填）
   "menuCode": "teacher_manage",                     // 菜单编码
-  "menuType": 2,                                    // 菜单类型：1-目录 2-菜单 3-按钮
-  "parentId": 0,                                    // 父菜单ID，0表示顶级菜单
+  "menuType": 2,                                    // 菜单类型：1-目录 2-菜单 3-按钮（必填）
+  "parentId": 0,                                    // 父菜单ID，0表示顶级菜单（必填）
   "routePath": "/teacher",                          // 路由地址
   "componentPath": null,                            // 组件路径
   "permission": null,                               // 权限标识
   "icon": "teacher",                                // 菜单图标
   "sortOrder": 40,                                  // 显示排序
-  "remark": null                                    // 备注
+  "remark": null,                                   // 备注
+  "children": [                                     // 子菜单列表（可选，支持批量创建）
+    {
+      "menuName": "添加教师",
+      "menuCode": "teacher_add",
+      "menuType": 3,
+      "parentId": 0,                                // 会被自动设置为父菜单ID，无需手动设置
+      "permission": "teacher:add",
+      "sortOrder": 41
+    },
+    {
+      "menuName": "修改教师",
+      "menuCode": "teacher_edit",
+      "menuType": 3,
+      "parentId": 0,
+      "permission": "teacher:edit",
+      "sortOrder": 42
+    }
+  ]
 }
 ```
 
@@ -850,11 +945,49 @@
     "sortOrder": 40,                                 // 显示排序
     "remark": null,                                  // 备注
     "createdAt": "2025-11-20T20:45:00",             // 创建时间
-    "updatedAt": "2025-11-20T20:45:00"              // 更新时间
-    "children": null
+    "updatedAt": "2025-11-20T20:45:00",             // 更新时间
+    "children": [                                    // 子菜单列表
+      {
+        "id": 41,
+        "parentId": 40,
+        "menuName": "添加教师",
+        "menuCode": "teacher_add",
+        "menuType": 3,
+        "routePath": null,
+        "componentPath": null,
+        "permission": "teacher:add",
+        "icon": null,
+        "sortOrder": 41,
+        "remark": null,
+        "createdAt": "2025-11-20T20:45:01",
+        "updatedAt": "2025-11-20T20:45:01",
+        "children": null
+      },
+      {
+        "id": 42,
+        "parentId": 40,
+        "menuName": "修改教师",
+        "menuCode": "teacher_edit",
+        "menuType": 3,
+        "routePath": null,
+        "componentPath": null,
+        "permission": "teacher:edit",
+        "icon": null,
+        "sortOrder": 42,
+        "remark": null,
+        "createdAt": "2025-11-20T20:45:02",
+        "updatedAt": "2025-11-20T20:45:02",
+        "children": null
+      }
+    ]
   }
 }
 ```
+
+**说明**:
+- 支持递归创建子菜单,可在children中添加子菜单列表
+- 子菜单的parentId会被自动设置为父菜单ID
+- children字段支持多级嵌套
 
 **实现位置**: `MenuController.java:66`
 
@@ -872,7 +1005,6 @@
 ```json
 {
   "menuName": "教师管理",                            // 菜单名称
-  "menuCode": "teacher_manage",                     // 菜单编码
   "menuType": 2,                                    // 菜单类型：1-目录 2-菜单 3-按钮
   "parentId": 0,                                    // 父菜单ID，0表示顶级菜单
   "routePath": "/teacher",                          // 路由地址
@@ -880,7 +1012,24 @@
   "permission": null,                               // 权限标识
   "icon": "teacher",                                // 菜单图标
   "sortOrder": 45,                                  // 显示排序
-  "remark": "教师管理模块"                           // 备注
+  "remark": "教师管理模块",                          // 备注
+  "children": [                                     // 子菜单列表（可选，支持批量更新）
+    {
+      "id": 41,                                     // 有id表示更新现有子菜单
+      "menuName": "新增教师",                        // 更新后的菜单名称
+      "permission": "teacher:create",               // 更新后的权限
+      "sortOrder": 41
+    },
+    {
+      // 无id表示新增子菜单
+      "menuName": "删除教师",
+      "menuCode": "teacher_delete",
+      "menuType": 3,
+      "permission": "teacher:delete",
+      "sortOrder": 43
+    }
+    // 原有子菜单id=42未在列表中，将被删除
+  ]
 }
 ```
 
@@ -902,11 +1051,50 @@
     "sortOrder": 45,                                 // 显示排序
     "remark": "教师管理模块",                         // 备注
     "createdAt": "2025-11-20T20:45:00",             // 创建时间
-    "updatedAt": "2025-11-20T20:50:00"              // 更新时间
-    "children": null
+    "updatedAt": "2025-11-20T20:50:00",             // 更新时间
+    "children": [                                    // 更新后的子菜单列表
+      {
+        "id": 41,
+        "parentId": 40,
+        "menuName": "新增教师",
+        "menuCode": "teacher_add",
+        "menuType": 3,
+        "routePath": null,
+        "componentPath": null,
+        "permission": "teacher:create",
+        "icon": null,
+        "sortOrder": 41,
+        "remark": null,
+        "createdAt": "2025-11-20T20:45:01",
+        "updatedAt": "2025-11-20T20:50:00",
+        "children": null
+      },
+      {
+        "id": 43,
+        "parentId": 40,
+        "menuName": "删除教师",
+        "menuCode": "teacher_delete",
+        "menuType": 3,
+        "routePath": null,
+        "componentPath": null,
+        "permission": "teacher:delete",
+        "icon": null,
+        "sortOrder": 43,
+        "remark": null,
+        "createdAt": "2025-11-20T20:50:00",
+        "updatedAt": "2025-11-20T20:50:00",
+        "children": null
+      }
+    ]
   }
 }
 ```
+
+**说明**:
+- 支持批量更新子菜单,通过children字段操作
+- 子菜单包含id表示更新现有菜单,不包含id表示新增菜单
+- 原有子菜单未在children列表中的会被自动删除
+- 所有字段均为可选,只更新提供的字段
 
 **实现位置**: `MenuController.java:78`
 
@@ -920,7 +1108,7 @@
 
 **权限要求**: 超级管理员
 
-**注意事项**: 如果菜单下有子菜单，将无法删除
+**功能说明**: 支持级联删除,如果菜单下有子菜单,会递归删除所有子菜单及子孙菜单
 
 **响应示例**:
 ```json
@@ -930,6 +1118,11 @@
   "dataset": null
 }
 ```
+
+**说明**:
+- 自动递归删除所有子菜单和子孙菜单
+- 使用事务保证数据一致性
+- 删除失败会自动回滚
 
 **实现位置**: `MenuController.java:90`
 
