@@ -65,6 +65,13 @@ public class CourseSwapServiceImpl extends ServiceImpl<CourseSwapMapper, CourseS
         // 4. 保存到数据库
         baseMapper.insert(courseSwap);
 
+        // 5. 创建审批流程
+        Long approvalId = createApprovalProcess(courseSwap);
+        if (approvalId != null) {
+            courseSwap.setApprovalId(approvalId);
+            baseMapper.updateById(courseSwap);
+        }
+
         return courseSwap.getId();
     }
 
