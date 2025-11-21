@@ -10,9 +10,6 @@ import java.time.LocalDate;
 @ApiModel("调班申请DTO")
 public class ClassTransferDTO {
 
-    @ApiModelProperty(value = "学生ID", required = true)
-    private Long studentId;
-
     @ApiModelProperty(value = "当前班级ID", required = true)
     private Long currentClassId;
 

@@ -47,13 +47,13 @@ public class ClassTransferServiceImpl extends ServiceImpl<ClassTransferMapper, C
         ClassTransfer classTransfer = new ClassTransfer();
         BeanUtils.copyProperties(classTransferDTO, classTransfer);
 
-        // 3. 设置额外字段
-        classTransfer.setStudentId(classTransferDTO.getStudentId());
-        classTransfer.setStudentName(getStudentName(classTransferDTO.getStudentId())); // 查询学生姓名
+        // 3. 设置额外字段（使用当前登录用户ID作为学生ID）
+        classTransfer.setStudentId(userId);
+        classTransfer.setStudentName(getStudentName(userId)); // 查询学生姓名
         // 优先使用DTO中的currentClassId，否则查询学生当前班级
         Long originalClassId = classTransferDTO.getCurrentClassId() != null
                 ? classTransferDTO.getCurrentClassId()
-                : getOriginalClassId(classTransferDTO.getStudentId());
+                : getOriginalClassId(userId);
         classTransfer.setOriginalClassId(originalClassId);
         classTransfer.setOriginalClassName(getClassName(originalClassId)); // 查询原班级名称
         classTransfer.setTargetClassName(getClassName(classTransferDTO.getTargetClassId())); // 查询目标班级名称
@@ -106,9 +106,6 @@ public class ClassTransferServiceImpl extends ServiceImpl<ClassTransferMapper, C
     }
 
     private void validateClassTransferDTO(ClassTransferDTO classTransferDTO) {
-        if (classTransferDTO.getStudentId() == null) {
-            throw new IllegalArgumentException("学生ID不能为空");
-        }
         if (classTransferDTO.getCurrentClassId() == null) {
             throw new IllegalArgumentException("当前班级ID不能为空");
         }
