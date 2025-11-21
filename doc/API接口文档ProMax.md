@@ -2295,7 +2295,7 @@ GET /api/leave/pending?classId=1&keyword=感冒
 **说明**: 学生请假审批，详见 [7. 请假管理](#7-请假管理-菜单id-70)
 
 **主要接口**:
-- `GET /api/leave/pending` - 待审批列表 ✅
+- `GET /api/leave/pending` - 待审批列表 ✅在上面
 - `POST /api/approval/{id}/submit` - 提交审批 ✅
 
 ---
@@ -2345,7 +2345,7 @@ GET /api/leave/pending?classId=1&keyword=感冒
 **请求参数**:
 ```json
 {
-  "scheduleId": 123,                                 // 原课程表ID
+  "originalScheduleId": 123,                         //原课程ID        // 原课程表ID
   "originalDate": "2024-11-20",                      // 原上课日期
   "originalPeriod": 3,                               // 原上课节次
   "newDate": "2024-11-21",                           // 新上课日期
