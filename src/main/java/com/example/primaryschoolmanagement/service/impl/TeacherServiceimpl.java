@@ -1,6 +1,6 @@
 package com.example.primaryschoolmanagement.service.impl;
 
-
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -40,6 +40,9 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
 
     @Override
     public R queryByConditions(String teacherName, String teacherNo, String title) {
+        Page<Teacher> page = new Page<>();
+        page.setCurrent(1);
+        page.setSize(5);
         // 构建查询条件
         LambdaQueryWrapper<Teacher> queryWrapper = new LambdaQueryWrapper<>();
         // 逻辑删除条件（根据实际项目调整，如不需要可删除）
@@ -59,16 +62,24 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         if (title != null && !title.trim().isEmpty()) {
             queryWrapper.eq(Teacher::getTitle, title.trim());
         }
+        Page<Teacher> pageInfo = this.teacherDao.selectPage(page, queryWrapper);
+
 
         // 执行查询
-        List<Teacher> teacherList = this.teacherDao.selectList(queryWrapper);
+//        List<Teacher> teacherList = this.teacherDao.selectList(queryWrapper);
+        List<Teacher> records = pageInfo.getRecords();
+        long total = pageInfo.getTotal();
+        Map<String, Object> map = new HashMap<>();
+        map.put("total", total);
+        map.put("teacher", records);
+        return R.ok(map);
 
         // 处理结果
-        if (teacherList.isEmpty()) {
-            return R.er();
-        } else {
-            return R.ok(teacherList);
-        }
+//        if (teacherList.isEmpty()) {
+//            return R.er();
+//        } else {
+//            return R.ok(teacherList);
+//        }
     }
 
     @Override
@@ -160,27 +171,27 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         int appuserrow = 0;
         int userRoleRow = 0;
 
-            if (appuserid == null) {
-                return R.er(400, "用户ID不能为空");
-            }
-            AppUser existingAppUser = userDao.selectById(appuserid);
-            if (existingAppUser == null) {
-                return R.er(404, "未找到ID为" + appuserid + "的用户记录");
-            }
-            AppUser updateAppUser = new AppUser();
-            updateAppUser.setId(Long.valueOf(appuserid));
-            updateAppUser.setIsDeleted(true);
-            appuserrow = userDao.deleteById(updateAppUser);
-                if (appuserid == null) {
-                    return R.er(400, "角色用户ID不能为空");
-                }
-                QueryWrapper<UserRole> queryWrapper = new QueryWrapper<>();
-                queryWrapper.eq("user_id", appuserid); // 按用户ID查询关联的角色记录
-                List<UserRole> existingUserRoles = userRoleDao.selectList(queryWrapper);
-                if (existingUserRoles == null || existingUserRoles.isEmpty()) {
-                    return R.er(404, "未找到用户ID为" + appuserid + "的角色关联记录");
-                }
-                userRoleRow = userRoleDao.delete(queryWrapper);
+        if (appuserid == null) {
+            return R.er(400, "用户ID不能为空");
+        }
+        AppUser existingAppUser = userDao.selectById(appuserid);
+        if (existingAppUser == null) {
+            return R.er(404, "未找到ID为" + appuserid + "的用户记录");
+        }
+        AppUser updateAppUser = new AppUser();
+        updateAppUser.setId(Long.valueOf(appuserid));
+        updateAppUser.setIsDeleted(true);
+        appuserrow = userDao.deleteById(updateAppUser);
+        if (appuserid == null) {
+            return R.er(400, "角色用户ID不能为空");
+        }
+        QueryWrapper<UserRole> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", appuserid); // 按用户ID查询关联的角色记录
+        List<UserRole> existingUserRoles = userRoleDao.selectList(queryWrapper);
+        if (existingUserRoles == null || existingUserRoles.isEmpty()) {
+            return R.er(404, "未找到用户ID为" + appuserid + "的角色关联记录");
+        }
+        userRoleRow = userRoleDao.delete(queryWrapper);
 
 
         // 4. 返回结果
@@ -191,7 +202,13 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
     }
 
 
-
+    /**
+     * 修改teacher user和userrole表的相关数据也会发生改变
+     * @param teacher
+     * @param appuser
+     * @param userrole
+     * @return
+     */
     @Override
     public R updateTeacher(Teacher teacher,AppUser appuser,UserRole userrole) {
         // 1. 验证主键id是否存在（必须传入id才能确定更新哪条记录）
@@ -263,30 +280,19 @@ public  class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> implem
         System.out.println("id: " + id + ", userid: " + userid);
         //更新用户表
         int appuserrow = 0;
-            wrapper.eq("id", userid); // 条件：更新指定ID的用户
-            // 检查phone字段，非空则添加更新
+        wrapper.eq("id", userid); // 条件：更新指定ID的用户
+        // 检查phone字段，非空则添加更新
 //            System.out.println("appuser.getphone"+appuser.getPhone());
-            appuserrow = this.userDao.update(null, wrapper);
+        appuserrow = this.userDao.update(null, wrapper);
 
 //        System.out.println("userid: " + userid + ", role_id: " + roleid);
         int userrolerow = 0;
-            userwrapper.eq("user_id", userid);
-            userrolerow = this.userRoleDao.update(null, userwrapper);
+        userwrapper.eq("user_id", userid);
+        userrolerow = this.userRoleDao.update(null, userwrapper);
         // 6. 根据结果返回信息
         return (teacherrow > 0 && appuserrow > 0 && userrolerow>0)
                 ? R.ok("更新")
                 : R.er(ResultCode.ERROR);
-    }
-
-
-
-
-    @Override
-    public R getcrouseByteacherId(Integer id) {
-        if(id==null){
-            return R.er(400, "教师ID不能为空");
-        }
-        return null;
     }
 
     /**

@@ -16,6 +16,7 @@ public interface ClassesDao extends BaseMapper<Classes>  {
     inner join edu_class
     on edu_student.class_id=edu_class.id
     where edu_class.id = #{id}
+    LIMIT 0, 5
     """)
     List<Student> classStudent(Integer id);
 }
