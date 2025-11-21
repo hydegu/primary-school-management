@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.enums.ApprovalStatusEnum;
 import com.example.primaryschoolmanagement.common.enums.LeaveTypeEnum;
+import com.example.primaryschoolmanagement.common.utils.SecurityUtils;
 import com.example.primaryschoolmanagement.dao.LeaveMapper;
 import com.example.primaryschoolmanagement.dto.LeaveDTO;
 import com.example.primaryschoolmanagement.entity.Leave;
@@ -113,8 +114,9 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
             return false;
         }
 
-        // 权限验证：只能撤回自己的请假申请
-        if (!leave.getStudentId().equals(userId)) {
+        // 权限验证：超级管理员可撤回任何人的申请，普通用户只能撤回自己的
+        boolean isSuperAdmin = SecurityUtils.isSuperAdmin();
+        if (!isSuperAdmin && !leave.getStudentId().equals(userId)) {
             return false;
         }
 

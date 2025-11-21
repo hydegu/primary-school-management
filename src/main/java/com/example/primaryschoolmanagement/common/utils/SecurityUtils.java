@@ -3,6 +3,7 @@ package com.example.primaryschoolmanagement.common.utils;
 import com.example.primaryschoolmanagement.entity.AppUser;
 import com.example.primaryschoolmanagement.service.UserService;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -50,5 +51,25 @@ public class SecurityUtils {
             return null;
         }
         return userService.findByUserName(username);
+    }
+
+    /**
+     * 判断当前用户是否拥有指定角色
+     */
+    public static boolean hasRole(String role) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return false;
+        }
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(auth -> auth.equals(role) || auth.equals("ROLE_" + role));
+    }
+
+    /**
+     * 判断当前用户是否是超级管理员
+     */
+    public static boolean isSuperAdmin() {
+        return hasRole("super_admin");
     }
 }
