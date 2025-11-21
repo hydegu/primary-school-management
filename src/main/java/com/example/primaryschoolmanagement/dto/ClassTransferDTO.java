@@ -13,6 +13,9 @@ public class ClassTransferDTO {
     @ApiModelProperty(value = "学生ID", required = true)
     private Long studentId;
 
+    @ApiModelProperty(value = "当前班级ID", required = true)
+    private Long currentClassId;
+
     @ApiModelProperty(value = "目标班级ID", required = true)
     private Long targetClassId;
 

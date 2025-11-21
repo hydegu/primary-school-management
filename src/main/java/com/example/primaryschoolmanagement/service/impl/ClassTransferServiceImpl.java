@@ -43,8 +43,12 @@ public class ClassTransferServiceImpl extends ServiceImpl<ClassTransferMapper, C
         // 3. 设置额外字段
         classTransfer.setStudentId(classTransferDTO.getStudentId());
         classTransfer.setStudentName(getStudentName(classTransferDTO.getStudentId())); // 查询学生姓名
-        classTransfer.setOriginalClassId(getOriginalClassId(classTransferDTO.getStudentId())); // 查询原班级ID
-        classTransfer.setOriginalClassName(getClassName(classTransfer.getOriginalClassId())); // 查询原班级名称
+        // 优先使用DTO中的currentClassId，否则查询学生当前班级
+        Long originalClassId = classTransferDTO.getCurrentClassId() != null
+                ? classTransferDTO.getCurrentClassId()
+                : getOriginalClassId(classTransferDTO.getStudentId());
+        classTransfer.setOriginalClassId(originalClassId);
+        classTransfer.setOriginalClassName(getClassName(originalClassId)); // 查询原班级名称
         classTransfer.setTargetClassName(getClassName(classTransferDTO.getTargetClassId())); // 查询目标班级名称
         classTransfer.setTransferNo(generateTransferNo());
         classTransfer.setApplyTime(LocalDateTime.now());
@@ -98,8 +102,14 @@ public class ClassTransferServiceImpl extends ServiceImpl<ClassTransferMapper, C
         if (classTransferDTO.getStudentId() == null) {
             throw new IllegalArgumentException("学生ID不能为空");
         }
+        if (classTransferDTO.getCurrentClassId() == null) {
+            throw new IllegalArgumentException("当前班级ID不能为空");
+        }
         if (classTransferDTO.getTargetClassId() == null) {
             throw new IllegalArgumentException("目标班级ID不能为空");
+        }
+        if (classTransferDTO.getCurrentClassId().equals(classTransferDTO.getTargetClassId())) {
+            throw new IllegalArgumentException("目标班级不能与当前班级相同");
         }
         if (classTransferDTO.getReason() == null || classTransferDTO.getReason().trim().isEmpty()) {
             throw new IllegalArgumentException("调班原因不能为空");
@@ -132,6 +142,10 @@ public class ClassTransferServiceImpl extends ServiceImpl<ClassTransferMapper, C
 
         ClassTransferVO classTransferVO = new ClassTransferVO();
         BeanUtils.copyProperties(classTransfer, classTransferVO);
+
+        // 设置currentClassId和currentClassName（API文档格式）
+        classTransferVO.setCurrentClassId(classTransfer.getOriginalClassId());
+        classTransferVO.setCurrentClassName(classTransfer.getOriginalClassName());
 
         // 设置枚举文本
         classTransferVO.setApprovalStatusText(ApprovalStatusEnum.getTextByCode(classTransfer.getApprovalStatus()));

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.example.primaryschoolmanagement.common.enums.ResultCode;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dto.CourseSwapDTO;
+import com.example.primaryschoolmanagement.dto.CourseSwapConfirmDTO;
 import com.example.primaryschoolmanagement.service.CourseSwapService;
 import com.example.primaryschoolmanagement.vo.CourseSwapVO;
 import io.swagger.annotations.Api;
@@ -43,9 +44,10 @@ public class CourseSwapController {
     @ApiOperation("对方确认换课")
     public R confirmCourseSwap(
             @PathVariable Long id,
-            @RequestParam Boolean confirm) {
+            @RequestBody CourseSwapConfirmDTO confirmDTO) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Long teacherId = Long.valueOf(username);
+        Boolean confirm = confirmDTO.getConfirm();
         boolean success = courseSwapService.confirmCourseSwap(id, teacherId, confirm);
         return success ? R.ok() : R.er(ResultCode.ERROR.getCode(), confirm ? "确认失败" : "拒绝失败");
     }

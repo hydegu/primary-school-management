@@ -44,11 +44,17 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
         Leave leave = new Leave();
         BeanUtils.copyProperties(leaveDTO, leave);
 
-        // 3. 设置额外字段
-        leave.setStudentId(userId);
-        leave.setStudentName(getStudentName(userId));
+        // 3. 设置额外字段 - 使用DTO中的studentId
+        Long studentId = leaveDTO.getStudentId() != null ? leaveDTO.getStudentId() : userId;
+        leave.setStudentId(studentId);
+        leave.setStudentName(getStudentName(studentId));
         leave.setLeaveNo(generateLeaveNo());
-        leave.setLeaveDays(calculateLeaveDays(leaveDTO.getStartDate(), leaveDTO.getEndDate()));
+        // 如果DTO中提供了leaveDays则使用，否则自动计算
+        if (leaveDTO.getLeaveDays() != null) {
+            leave.setLeaveDays(leaveDTO.getLeaveDays());
+        } else {
+            leave.setLeaveDays(calculateLeaveDays(leaveDTO.getStartDate(), leaveDTO.getEndDate()));
+        }
         leave.setApplyTime(LocalDateTime.now());
         leave.setApprovalStatus(ApprovalStatusEnum.PENDING.getCode());
 
@@ -130,6 +136,10 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
      * 验证请假数据
      */
     private void validateLeaveDTO(LeaveDTO leaveDTO) {
+        if (leaveDTO.getStudentId() == null) {
+            throw new IllegalArgumentException("学生ID不能为空");
+        }
+
         if (leaveDTO.getStartDate() == null || leaveDTO.getEndDate() == null) {
             throw new IllegalArgumentException("开始日期和结束日期不能为空");
         }

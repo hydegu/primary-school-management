@@ -46,6 +46,12 @@ public class CourseSwapVO {
     @ApiModelProperty("申请时间")
     private LocalDateTime applyTime;
 
+    @ApiModelProperty("确认状态：1-待确认 2-已同意 3-已拒绝")
+    private Integer confirmStatus;
+
+    @ApiModelProperty("确认时间")
+    private LocalDateTime confirmTime;
+
     @ApiModelProperty("对方确认：0-未确认 1-已确认 2-已拒绝")
     private Integer targetConfirm;
 
