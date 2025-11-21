@@ -2330,32 +2330,6 @@ GET /api/leave/pending?classId=1&keyword=感冒
 
 ---
 
-##### 审批通过 ✅
-
-**接口地址**: `POST /api/approval/{id}/approve`
-
-**请求参数**:
-```json
-{
-  "approvalOpinion": "同意"       // 审批意见（可选）
-}
-```
-
----
-
-##### 审批拒绝 ✅
-
-**接口地址**: `POST /api/approval/{id}/reject`
-
-**请求参数**:
-```json
-{
-  "approvalOpinion": "请假天数过长"  // 审批意见（可选）
-}
-```
-
----
-
 #### 8.2 调课申请 (菜单ID: 82)
 
 📄 **菜单类型**: 菜单 (menu_type=2)
