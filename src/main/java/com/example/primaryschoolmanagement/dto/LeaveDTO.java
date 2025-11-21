@@ -11,9 +11,6 @@ import java.time.LocalDate;
 @ApiModel("请假申请DTO")
 public class LeaveDTO {
 
-    @ApiModelProperty(value = "学生ID", required = true)
-    private Long studentId;
-
     @ApiModelProperty(value = "班级ID")
     private Long classId;
 
