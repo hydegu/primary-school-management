@@ -18,6 +18,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,6 +33,7 @@ import java.time.temporal.ChronoUnit;
 public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements LeaveService {
 
     private static final Logger log = LoggerFactory.getLogger(LeaveServiceImpl.class);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Resource
     private LeaveMapper leaveMapper;
@@ -42,7 +46,17 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
 
         // 2. 创建请假实体
         Leave leave = new Leave();
-        BeanUtils.copyProperties(leaveDTO, leave);
+        BeanUtils.copyProperties(leaveDTO, leave, "proofFiles");
+
+        // 转换proofFiles列表为JSON字符串
+        if (leaveDTO.getProofFiles() != null && !leaveDTO.getProofFiles().isEmpty()) {
+            try {
+                leave.setProofFiles(objectMapper.writeValueAsString(leaveDTO.getProofFiles()));
+            } catch (JsonProcessingException e) {
+                log.warn("证明材料序列化失败: {}", e.getMessage());
+                leave.setProofFiles("[]");
+            }
+        }
 
         // 3. 设置额外字段 - 使用当前登录用户ID
         leave.setStudentId(userId);

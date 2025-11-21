@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @ApiModel("请假申请DTO")
@@ -29,8 +30,8 @@ public class LeaveDTO {
     @ApiModelProperty(value = "请假原因", required = true)
     private String reason;
 
-    @ApiModelProperty(value = "证明材料（JSON数组，如[\"url1\",\"url2\"]）")
-    private String proofFiles;
+    @ApiModelProperty(value = "证明材料URL列表")
+    private List<String> proofFiles;
 
     @ApiModelProperty(value = "备注")
     private String remark;
