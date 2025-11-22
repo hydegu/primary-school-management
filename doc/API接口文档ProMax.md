@@ -1538,50 +1538,49 @@
 
 **接口地址**: `GET /api/class/list`
 
-**功能描述**: 查询班级列表，支持条件筛选（班级编号、班级名称、班主任姓名、年级ID、学年）
+**功能描述**: 查询班级列表，支持分页和模糊搜索（班级编号、班级名称、班主任姓名）
 
 **请求参数**:
-- `classNo` - 班级编号（模糊查询）
-- `className` - 班级名称（模糊查询）
-- `headTeacherName` - 班主任姓名（模糊查询）
-- `gradeId` - 年级ID
-- `schoolYear` - 学年（如：2023-2024）
-- `page` - 页码，默认1
-- `size` - 每页条数，默认10
+- `classNo` - 班级编号（可选，模糊查询）
+- `className` - 班级名称（可选，模糊查询）
+- `headTeacherName` - 班主任姓名（可选，模糊查询）
+- `page` - 页码（可选，默认1）
+- `size` - 每页条数（可选，默认10）
 
 **响应示例**:
 ```json
 {
   "code": 200,
   "msg": "操作成功",
-  "dataset": {
-    "total": 1,
-    "list": [
+  "data": {
+    "records": [
       {
         "id": 1,                                     // 班级ID
         "classNo": "C2024001",                       // 班级编号
-        "className": "一年一班",                     // 班级名称（如：一年一班）
+        "className": "一年一班",                     // 班级名称
         "gradeId": 1,                                // 年级ID
         "headTeacherId": 1,                          // 班主任ID（教师ID）
+        "headTeacherName": "张老师",                // 班主任姓名（仅模糊查询时返回）
         "classroom": "101",                          // 上课教室
         "maxStudents": 50,                           // 最大学生数
         "currentStudents": 30,                       // 当前学生数
-        "schoolYear": "2023-2024",                   // 学年（如：2023-2024）
+        "schoolYear": "2023-2024",                   // 学年
         "status": 1,                                 // 状态：0-停用 1-启用
         "remark": null,                              // 备注
+        "isDeleted": 0,                              // 是否删除：0-否 1-是
         "createdAt": "2025-11-20T10:00:00",         // 创建时间
-        "headTeacherName": "张老师",                // 班主任姓名
         "updatedAt": "2025-11-20T10:00:00"          // 更新时间
       }
     ],
-    "page": 1,
-    "size": 10,
-    "pages": 1
+    "total": 1,                                      // 总记录数
+    "size": 10,                                      // 每页条数
+    "current": 1,                                    // 当前页码
+    "pages": 1                                       // 总页数
   }
 }
 ```
 
-**实现位置**: `ClassesController.java:16`
+**实现位置**: `ClassesController.java:27`
 
 ---
 
