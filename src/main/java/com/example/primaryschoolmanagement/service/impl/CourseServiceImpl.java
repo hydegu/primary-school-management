@@ -147,7 +147,6 @@ public class CourseServiceImpl extends ServiceImpl<CourseDao, Course> implements
     //根据课程添加仅老师
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @CacheEvict(cacheNames = "courses:profile", key = "#dto")
     public int addcourse(SubjectTeacherRelationDTO dto) {
         if(dto == null){
             throw new ApiException(HttpStatus.BAD_REQUEST,"新增数据是空的");
