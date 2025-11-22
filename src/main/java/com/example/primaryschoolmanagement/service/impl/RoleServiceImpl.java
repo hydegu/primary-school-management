@@ -111,9 +111,22 @@ public class RoleServiceImpl extends ServiceImpl<RoleDao, Role> implements RoleS
             }
         }
 
+        // 3.1 检查角色编码唯一性（如果修改）
+        if (StringUtils.hasText(request.getRoleCode()) && !request.getRoleCode().equals(role.getRoleCode())) {
+            LambdaQueryWrapper<Role> codeQuery = new LambdaQueryWrapper<>();
+            codeQuery.eq(Role::getRoleCode, request.getRoleCode())
+                    .ne(Role::getId, id);
+            if (roleDao.selectCount(codeQuery) > 0) {
+                throw new DuplicateException("角色编码", request.getRoleCode());
+            }
+        }
+
         // 4. 更新角色信息
         if (StringUtils.hasText(request.getRoleName())) {
             role.setRoleName(request.getRoleName());
+        }
+        if (StringUtils.hasText(request.getRoleCode())) {
+            role.setRoleCode(request.getRoleCode());
         }
         if (StringUtils.hasText(request.getRoleDesc())) {
             role.setRoleDesc(request.getRoleDesc());

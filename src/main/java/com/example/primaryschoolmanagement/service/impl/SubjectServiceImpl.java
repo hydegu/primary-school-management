@@ -1,149 +1,355 @@
 package com.example.primaryschoolmanagement.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.primaryschoolmanagement.common.exception.ApiException;
+import com.example.primaryschoolmanagement.common.exception.BusinessException;
+import com.example.primaryschoolmanagement.common.exception.DuplicateException;
 import com.example.primaryschoolmanagement.dao.SubjectDao;
-import com.example.primaryschoolmanagement.dto.SubjectCreateDTO;
-import com.example.primaryschoolmanagement.dto.common.PageResult;
+import com.example.primaryschoolmanagement.dao.SubjectTeacherDao;
+import com.example.primaryschoolmanagement.dao.TeacherDao;
+import com.example.primaryschoolmanagement.dto.subject.SubjectCreateRequest;
+import com.example.primaryschoolmanagement.dto.subject.SubjectDTO;
+import com.example.primaryschoolmanagement.dto.subject.SubjectUpdateRequest;
+import com.example.primaryschoolmanagement.dto.teacher.TeacherDTO;
 import com.example.primaryschoolmanagement.entity.Subject;
-import com.example.primaryschoolmanagement.service.FileStorageService;
+import com.example.primaryschoolmanagement.entity.SubjectTeacher;
+import com.example.primaryschoolmanagement.entity.Teacher;
 import com.example.primaryschoolmanagement.service.SubjectService;
-import jakarta.annotation.Resource;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ObjectUtils;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
+/**
+ * 科目服务实现类
+ */
 @Slf4j
 @Service
-public class SubjectServiceImpl extends ServiceImpl<SubjectDao,Subject> implements SubjectService {
+public class SubjectServiceImpl extends ServiceImpl<SubjectDao, Subject> implements SubjectService {
 
-    @Resource
+    @Autowired
     private SubjectDao subjectDao;
 
-    private final FileStorageService fileStorageService;
-    public SubjectServiceImpl(FileStorageService fileStorageService) {
-        this.fileStorageService = fileStorageService;
-    }
+    @Autowired
+    private SubjectTeacherDao subjectTeacherDao;
 
+    @Autowired
+    private TeacherDao teacherDao;
 
     @Override
-    public PageResult<Subject> subjectList(Map<String,Object> map) {
-        // 提取分页参数
-        Integer page = ObjectUtils.isEmpty(map.get("page")) ? 1 : Integer.parseInt(map.get("page").toString());
-        Integer size = ObjectUtils.isEmpty(map.get("size")) ? 10 : Integer.parseInt(map.get("size").toString());
+    public List<SubjectDTO> getSubjectList() {
+        log.info("查询科目列表");
 
-        // 分页参数检查
-        if(page <= 0)page = 1;
-        if(size < 1) size = 10;
         LambdaQueryWrapper<Subject> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Subject::getIsDeleted,0);
-        IPage<Subject> page1 = new Page<>(page,size);
-        IPage<Subject> subjectList = subjectDao.selectPage(page1,queryWrapper);
-        return PageResult.of(
-                subjectList.getTotal(),
-                subjectList.getRecords(),
-                page,
-                size
-        );
+        queryWrapper.eq(Subject::getIsDeleted, false)
+                .orderByAsc(Subject::getSortOrder)
+                .orderByDesc(Subject::getCreatedAt);
+
+        List<Subject> subjects = subjectDao.selectList(queryWrapper);
+
+        return subjects.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
+    @Override
+    public SubjectDTO getSubjectById(Long id) {
+        log.info("查询科目详情：subjectId={}", id);
+
+        Subject subject = subjectDao.selectById(id);
+        if (subject == null || subject.getIsDeleted()) {
+            throw new BusinessException("科目不存在或已删除");
+        }
+
+        return convertToDTO(subject);
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @CacheEvict(cacheNames = "subject:profile", key = "#dto.subjectName")
-    // 3. 添加@Valid触发DTO参数校验（如@NotBlank），配合DTO中的JSR-380注解
-    public Boolean createSubject(@Valid SubjectCreateDTO dto) {
-        // 3.1 基础参数校验（补充DTO未覆盖的关联校验）
-        if (dto.getSubjectName() == null && dto.getSubjectCode() == null) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "科目名称和编码不能同时为空");
+    public SubjectDTO addSubject(SubjectCreateRequest request) {
+        log.info("添加科目：subjectName={}, subjectCode={}", request.getSubjectName(), request.getSubjectCode());
+
+        // 1. 检查科目编码是否已存在
+        LambdaQueryWrapper<Subject> codeQuery = new LambdaQueryWrapper<>();
+        codeQuery.eq(Subject::getSubjectCode, request.getSubjectCode())
+                .eq(Subject::getIsDeleted, false);
+        if (subjectDao.selectCount(codeQuery) > 0) {
+            throw new DuplicateException("科目编码", request.getSubjectCode());
         }
 
-        // 3.2 封面上传时，校验subjectId不为空（避免传递null给文件上传方法）
-        if (dto.getCoverFile() != null && !dto.getCoverFile().isEmpty() && dto.getId() == null) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "上传封面时，科目ID不能为空");
+        // 2. 检查科目名称是否已存在
+        LambdaQueryWrapper<Subject> nameQuery = new LambdaQueryWrapper<>();
+        nameQuery.eq(Subject::getSubjectName, request.getSubjectName())
+                .eq(Subject::getIsDeleted, false);
+        if (subjectDao.selectCount(nameQuery) > 0) {
+            throw new DuplicateException("科目名称", request.getSubjectName());
         }
 
-        // 3.3 业务校验：科目名称和编码唯一性（避免数据库唯一索引冲突）
-        checkSubjectUnique(dto.getSubjectName(), dto.getSubjectCode());
-
-        // 4. 处理封面上传（复用文件存储服务）
-        String subjectCoverUrl = null;
-        try {
-            if (dto.getCoverFile() != null && !dto.getCoverFile().isEmpty()) {
-                subjectCoverUrl = fileStorageService.storeCover(dto.getCoverFile(), dto.getId());
-            }
-        } catch (Exception e) {
-            // 捕获文件上传异常，给出明确提示
-            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "封面上传失败：" + e.getMessage());
-        }
-
-        // 5. 构建Subject实体（完善默认值逻辑）
+        // 3. 创建科目
         Subject subject = new Subject();
-        subject.setId(dto.getId());
-        subject.setSubjectName(dto.getSubjectName().trim()); // 去除首尾空格，避免无效空格
-        subject.setSubjectCode(dto.getSubjectCode().trim());
-        subject.setStatus(dto.getStatus() == null ? 1 : dto.getStatus());
-        subject.setIsDeleted(dto.getIsDeleted() == null ? false : dto.getIsDeleted());
-        subject.setAvatar(subjectCoverUrl);
+        BeanUtils.copyProperties(request, subject);
+        subject.setStatus(1); // 默认启用
+        subject.setCreatedAt(LocalDateTime.now());
+        subject.setUpdatedAt(LocalDateTime.now());
+        subject.setIsDeleted(false);
 
-        // 6. 保存到数据库
-        boolean saveSuccess = save(subject);
-
-        // 7. 事务补偿：保存失败时删除已上传的封面（避免垃圾文件）
-        if (!saveSuccess && subjectCoverUrl != null) {
-            boolean deleteSuccess = fileStorageService.deleteFile(subjectCoverUrl);
-            log.warn("科目创建失败，删除已上传封面：subjectId={}, url={}, 删除结果={}",
-                    dto.getId(), subjectCoverUrl, deleteSuccess);
-            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "创建科目失败，请重试");
+        int result = subjectDao.insert(subject);
+        if (result <= 0) {
+            throw new BusinessException("添加科目失败");
         }
 
-        log.info("科目创建成功：subjectId={}, subjectName={}", dto.getId(), dto.getSubjectName());
-        return saveSuccess;
+        log.info("科目添加成功：subjectId={}", subject.getId());
+        return convertToDTO(subject);
     }
 
     @Override
-    public int deleteSubject(Integer id) {
-        if(id == null){
-            throw new ApiException(HttpStatus.BAD_REQUEST,"该科目不存在");
-        }
-        int row2;
-        try {
-            row2 = subjectDao.deleteTeacher(id);
-        }catch (Exception e){
-            return 0;
+    @Transactional(rollbackFor = Exception.class)
+    public SubjectDTO updateSubject(Long id, SubjectUpdateRequest request) {
+        log.info("更新科目：subjectId={}", id);
+
+        // 1. 查询科目是否存在
+        Subject subject = subjectDao.selectById(id);
+        if (subject == null || subject.getIsDeleted()) {
+            throw new BusinessException("科目不存在或已删除");
         }
 
-        int row = subjectDao.deleteById(id);
-        if(row <= 0){
-            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR,"删除失败");
+        // 2. 检查科目编码唯一性（如果修改）
+        if (StringUtils.hasText(request.getSubjectCode()) && !request.getSubjectCode().equals(subject.getSubjectCode())) {
+            LambdaQueryWrapper<Subject> codeQuery = new LambdaQueryWrapper<>();
+            codeQuery.eq(Subject::getSubjectCode, request.getSubjectCode())
+                    .eq(Subject::getIsDeleted, false)
+                    .ne(Subject::getId, id);
+            if (subjectDao.selectCount(codeQuery) > 0) {
+                throw new DuplicateException("科目编码", request.getSubjectCode());
+            }
         }
-        return row;
+
+        // 3. 检查科目名称唯一性（如果修改）
+        if (StringUtils.hasText(request.getSubjectName()) && !request.getSubjectName().equals(subject.getSubjectName())) {
+            LambdaQueryWrapper<Subject> nameQuery = new LambdaQueryWrapper<>();
+            nameQuery.eq(Subject::getSubjectName, request.getSubjectName())
+                    .eq(Subject::getIsDeleted, false)
+                    .ne(Subject::getId, id);
+            if (subjectDao.selectCount(nameQuery) > 0) {
+                throw new DuplicateException("科目名称", request.getSubjectName());
+            }
+        }
+
+        // 4. 更新科目信息
+        if (StringUtils.hasText(request.getSubjectName())) {
+            subject.setSubjectName(request.getSubjectName());
+        }
+        if (StringUtils.hasText(request.getSubjectCode())) {
+            subject.setSubjectCode(request.getSubjectCode());
+        }
+        if (request.getSortOrder() != null) {
+            subject.setSortOrder(request.getSortOrder());
+        }
+        if (request.getStatus() != null) {
+            subject.setStatus(request.getStatus());
+        }
+        if (StringUtils.hasText(request.getRemark())) {
+            subject.setRemark(request.getRemark());
+        }
+        if (StringUtils.hasText(request.getAvatar())) {
+            subject.setAvatar(request.getAvatar());
+        }
+        subject.setUpdatedAt(LocalDateTime.now());
+
+        int result = subjectDao.updateById(subject);
+        if (result <= 0) {
+            throw new BusinessException("更新科目失败");
+        }
+
+        log.info("科目更新成功：subjectId={}", id);
+        return convertToDTO(subject);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteSubject(Long id) {
+        log.info("删除科目：subjectId={}", id);
+
+        // 1. 查询科目是否存在
+        Subject subject = subjectDao.selectById(id);
+        if (subject == null || subject.getIsDeleted()) {
+            throw new BusinessException("科目不存在或已删除");
+        }
+
+        // 2. 软删除科目
+        LambdaUpdateWrapper<Subject> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Subject::getId, id)
+                .set(Subject::getIsDeleted, true)
+                .set(Subject::getUpdatedAt, LocalDateTime.now());
+
+        int result = subjectDao.update(null, updateWrapper);
+        if (result <= 0) {
+            throw new BusinessException("删除科目失败");
+        }
+
+        // 3. 删除科目-教师关联
+        LambdaQueryWrapper<SubjectTeacher> query = new LambdaQueryWrapper<>();
+        query.eq(SubjectTeacher::getSubjectId, id);
+        subjectTeacherDao.delete(query);
+
+        log.info("科目删除成功：subjectId={}", id);
+    }
+
+    @Override
+    public List<TeacherDTO> getSubjectTeachers(Long subjectId) {
+        log.info("查询科目的授课老师：subjectId={}", subjectId);
+
+        // 1. 查询科目是否存在
+        Subject subject = subjectDao.selectById(subjectId);
+        if (subject == null || subject.getIsDeleted()) {
+            throw new BusinessException("科目不存在或已删除");
+        }
+
+        // 2. 查询科目关联的教师ID列表
+        LambdaQueryWrapper<SubjectTeacher> query = new LambdaQueryWrapper<>();
+        query.eq(SubjectTeacher::getSubjectId, subjectId);
+        List<SubjectTeacher> subjectTeachers = subjectTeacherDao.selectList(query);
+
+        if (CollectionUtils.isEmpty(subjectTeachers)) {
+            return new ArrayList<>();
+        }
+
+        // 3. 查询教师信息
+        List<Long> teacherIds = subjectTeachers.stream()
+                .map(SubjectTeacher::getTeacherId)
+                .collect(Collectors.toList());
+
+        LambdaQueryWrapper<Teacher> teacherQuery = new LambdaQueryWrapper<>();
+        teacherQuery.in(Teacher::getId, teacherIds)
+                .eq(Teacher::getIsDeleted, false);
+        List<Teacher> teachers = teacherDao.selectList(teacherQuery);
+
+        return teachers.stream()
+                .map(this::convertTeacherToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void addTeachersToSubject(Long subjectId, List<Long> teacherIds) {
+        log.info("为科目添加授课老师：subjectId={}, teacherIds={}", subjectId, teacherIds);
+
+        if (CollectionUtils.isEmpty(teacherIds)) {
+            return;
+        }
+
+        // 1. 检查科目是否存在
+        Subject subject = subjectDao.selectById(subjectId);
+        if (subject == null || subject.getIsDeleted()) {
+            throw new BusinessException("科目不存在或已删除");
+        }
+
+        // 2. 批量添加教师关联
+        for (Long teacherId : teacherIds) {
+            // 检查教师是否存在
+            Teacher teacher = teacherDao.selectById(teacherId);
+            if (teacher == null || teacher.getIsDeleted()) {
+                log.warn("教师不存在或已删除，跳过：teacherId={}", teacherId);
+                continue;
+            }
+
+            // 检查是否已存在关联
+            LambdaQueryWrapper<SubjectTeacher> query = new LambdaQueryWrapper<>();
+            query.eq(SubjectTeacher::getSubjectId, subjectId)
+                    .eq(SubjectTeacher::getTeacherId, teacherId);
+
+            if (subjectTeacherDao.selectCount(query) == 0) {
+                SubjectTeacher subjectTeacher = new SubjectTeacher();
+                subjectTeacher.setSubjectId(subjectId);
+                subjectTeacher.setTeacherId(teacherId);
+                subjectTeacher.setCreatedAt(new java.util.Date());
+                subjectTeacherDao.insert(subjectTeacher);
+            }
+        }
+
+        log.info("授课老师添加成功");
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void removeTeachersFromSubject(Long subjectId, List<Long> teacherIds) {
+        log.info("移除科目的授课老师：subjectId={}, teacherIds={}", subjectId, teacherIds);
+
+        if (CollectionUtils.isEmpty(teacherIds)) {
+            return;
+        }
+
+        // 删除科目-教师关联
+        LambdaQueryWrapper<SubjectTeacher> query = new LambdaQueryWrapper<>();
+        query.eq(SubjectTeacher::getSubjectId, subjectId)
+                .in(SubjectTeacher::getTeacherId, teacherIds);
+
+        subjectTeacherDao.delete(query);
+
+        log.info("授课老师移除成功");
     }
 
     /**
-     * 新增：校验科目名称和编码唯一性
-     * 若数据库存在相同名称或编码，抛出异常
+     * 将Subject实体转换为DTO
      */
-    private void checkSubjectUnique(String subjectName, String subjectCode) {
-        LambdaQueryWrapper<Subject> queryWrapper = new LambdaQueryWrapper<Subject>()
-                .eq(Subject::getSubjectName, subjectName.trim()) // 匹配名称（去空格）
-                .or() // 或匹配编码
-                .eq(Subject::getSubjectCode, subjectCode.trim());
+    private SubjectDTO convertToDTO(Subject subject) {
+        SubjectDTO dto = SubjectDTO.builder()
+                .id(subject.getId())
+                .subjectName(subject.getSubjectName())
+                .subjectCode(subject.getSubjectCode())
+                .sortOrder(subject.getSortOrder())
+                .status(subject.getStatus())
+                .remark(subject.getRemark())
+                .avatar(subject.getAvatar())
+                .createdAt(subject.getCreatedAt())
+                .updatedAt(subject.getUpdatedAt())
+                .build();
 
-        long count = count(queryWrapper);
-        if (count > 0) {
-            throw new ApiException(HttpStatus.CONFLICT, "科目名称或编码已存在，请勿重复创建");
+        // 查询科目的授课教师ID列表和数量
+        LambdaQueryWrapper<SubjectTeacher> query = new LambdaQueryWrapper<>();
+        query.eq(SubjectTeacher::getSubjectId, subject.getId());
+        List<SubjectTeacher> subjectTeachers = subjectTeacherDao.selectList(query);
+
+        if (!CollectionUtils.isEmpty(subjectTeachers)) {
+            List<Long> teacherIds = subjectTeachers.stream()
+                    .map(SubjectTeacher::getTeacherId)
+                    .collect(Collectors.toList());
+            dto.setTeacherIds(teacherIds);
+            dto.setTeacherCount(teacherIds.size());
+        } else {
+            dto.setTeacherCount(0);
         }
+
+        return dto;
+    }
+
+    /**
+     * 将Teacher实体转换为DTO（简化版）
+     */
+    private TeacherDTO convertTeacherToDTO(Teacher teacher) {
+        return TeacherDTO.builder()
+                .id(teacher.getId().longValue())
+                .userId(teacher.getUserId() != null ? teacher.getUserId().longValue() : null)
+                .teacherNo(teacher.getTeacherNo())
+                .teacherName(teacher.getTeacherName())
+                .gender(teacher.getGender())
+                .birthDate(teacher.getBirthDate())
+                .idCard(teacher.getIdCard())
+                .phone(teacher.getPhone())
+                .email(teacher.getEmail())
+                .title(teacher.getTitle())
+                .hireDate(teacher.getHireDate())
+                .createdAt(teacher.getCreatedAt())
+                .updatedAt(teacher.getUpdatedAt())
+                .build();
     }
 }
-

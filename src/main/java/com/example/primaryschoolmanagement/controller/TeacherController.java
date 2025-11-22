@@ -1,69 +1,109 @@
 package com.example.primaryschoolmanagement.controller;
 
 import com.example.primaryschoolmanagement.common.utils.R;
-import com.example.primaryschoolmanagement.dto.TeacherDTO;
-import com.example.primaryschoolmanagement.dto.TeacherQueryDTO;
-import com.example.primaryschoolmanagement.dto.subjectteacherDTO;
-import com.example.primaryschoolmanagement.entity.AppUser;
-import com.example.primaryschoolmanagement.entity.Subject;
-import com.example.primaryschoolmanagement.entity.Teacher;
-import com.example.primaryschoolmanagement.entity.UserRole;
+import com.example.primaryschoolmanagement.dto.teacher.TeacherCreateRequest;
+import com.example.primaryschoolmanagement.dto.teacher.TeacherDTO;
+import com.example.primaryschoolmanagement.dto.teacher.TeacherUpdateRequest;
 import com.example.primaryschoolmanagement.service.TeacherService;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
+/**
+ * 教师管理Controller
+ */
+@Slf4j
 @RestController
-@RequestMapping(value="/api")
+@RequestMapping("/api")
 public class TeacherController {
+
     @Autowired
     private TeacherService teacherService;
-    //教师详情
-    @GetMapping(value="/teacher/{id}")
-    public R getTeacherById(@PathVariable Integer id){
-        return this.teacherService.getTeacherById(id);
-    }
 
-    //老师列表支持搜索
+    /**
+     * 教师列表查询（支持条件筛选）
+     */
     @GetMapping("/teacher/list")
-    public R queryByConditions(@RequestBody TeacherQueryDTO teacherQueryDTO) {
+    public R getTeacherList(
+            @RequestParam(required = false) String teacherName,
+            @RequestParam(required = false) String teacherNo,
+            @RequestParam(required = false) String title) {
 
-        // 调用服务层方法，传递搜索条件（null表示不筛选该字段）
-        return teacherService.queryByConditions(teacherQueryDTO);
+        log.info("查询教师列表：teacherName={}, teacherNo={}, title={}", teacherName, teacherNo, title);
+        List<TeacherDTO> teachers = teacherService.queryTeacherList(teacherName, teacherNo, title);
+        return R.ok(teachers);
     }
-    //添加老师   信息会同步添加在user表
-    @PostMapping(value="/teacher")
-    public R addteacher(@RequestBody Teacher teacher){
-        return this.teacherService.addTeacher(teacher);
+
+    /**
+     * 教师详情
+     */
+    @GetMapping("/teacher/{id}")
+    public R getTeacherById(@PathVariable Long id) {
+        log.info("查询教师详情：id={}", id);
+        TeacherDTO teacher = teacherService.getTeacherDtoById(id);
+        return R.ok(teacher);
     }
-    //删除老师
+
+    /**
+     * 添加教师
+     */
+    @PostMapping("/teacher")
+    public R addTeacher(@Valid @RequestBody TeacherCreateRequest request) {
+        log.info("添加教师：teacherNo={}, teacherName={}", request.getTeacherNo(), request.getTeacherName());
+        TeacherDTO teacher = teacherService.addTeacher(request);
+        return R.ok(teacher);
+    }
+
+    /**
+     * 修改教师
+     */
+    @PutMapping("/teacher/{id}")
+    public R updateTeacher(@PathVariable Long id, @Valid @RequestBody TeacherUpdateRequest request) {
+        log.info("修改教师：id={}", id);
+        TeacherDTO teacher = teacherService.updateTeacher(id, request);
+        return R.ok(teacher);
+    }
+
+    /**
+     * 删除教师
+     */
     @DeleteMapping("/teacher/{id}")
-    public R deleteTeacher(
-            @PathVariable ("id") Integer id
-            ) { // 变量名与 {id} 一致时，可省略 "id" 参数
-        return this.teacherService.deleteTeacher(id);
+    public R deleteTeacher(@PathVariable Long id) {
+        log.info("删除教师：id={}", id);
+        teacherService.deleteTeacher(id);
+        return R.ok("删除成功");
     }
-
-@PutMapping(value="/teacher/{id}")
-public R updateteacher(
-        @PathVariable ("id") Integer id,
-        @RequestBody Teacher teacher,
-         AppUser appuser,
-         UserRole userrole,
-        subjectteacherDTO dto
-        ){
-    return this.teacherService.updateTeacher(id,teacher,appuser,userrole,dto);
-}
-
 
     /**
      * 根据科目ID获取能教该科目的教师列表
-     * 用于排课时根据选择的科目动态加载对应的教师
-     * @param subjectId 科目ID
-     * @return 教师列表
      */
     @GetMapping("/teacher/subject/{subjectId}")
     public R getTeachersBySubjectId(@PathVariable Long subjectId) {
-        return teacherService.getTeachersBySubjectId(subjectId);
+        log.info("根据科目查询教师：subjectId={}", subjectId);
+        List<TeacherDTO> teachers = teacherService.getTeachersBySubjectId(subjectId);
+        return R.ok(teachers);
     }
 
+    /**
+     * 为教师添加科目
+     */
+    @PostMapping("/teacher/{teacherId}/subjects")
+    public R addSubjectsToTeacher(@PathVariable Long teacherId, @RequestBody List<Long> subjectIds) {
+        log.info("为教师添加科目：teacherId={}, subjectIds={}", teacherId, subjectIds);
+        teacherService.addSubjectsToTeacher(teacherId, subjectIds);
+        return R.ok("科目添加成功");
+    }
+
+    /**
+     * 移除教师的科目
+     */
+    @DeleteMapping("/teacher/{teacherId}/subjects")
+    public R removeSubjectsFromTeacher(@PathVariable Long teacherId, @RequestBody List<Long> subjectIds) {
+        log.info("移除教师的科目：teacherId={}, subjectIds={}", teacherId, subjectIds);
+        teacherService.removeSubjectsFromTeacher(teacherId, subjectIds);
+        return R.ok("科目移除成功");
+    }
 }

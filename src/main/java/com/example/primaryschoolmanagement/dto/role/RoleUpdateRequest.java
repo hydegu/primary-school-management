@@ -24,6 +24,12 @@ public class RoleUpdateRequest {
     private String roleName;
 
     /**
+     * 角色编码
+     */
+    @Size(max = 50, message = "角色编码长度不能超过50个字符")
+    private String roleCode;
+
+    /**
      * 角色描述
      */
     @Size(max = 200, message = "角色描述长度不能超过200个字符")
