@@ -1,6 +1,7 @@
 package com.example.primaryschoolmanagement.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.example.primaryschoolmanagement.common.base.BaseEntity;
@@ -21,5 +22,6 @@ public class Subject extends BaseEntity {
     private Integer sortOrder;
     private Integer status;
     private String remark;
+    @TableField("avatar")
     private String avatar;
 }

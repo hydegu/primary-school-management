@@ -133,6 +133,53 @@ public class FileStorageServiceImpl implements FileStorageService {
         }
     }
 
+    @Override
+    public String storeCover(MultipartFile file, Long subjectId) {
+        // 1. 验证文件（复用头像的图片验证逻辑：非空、大小、类型、文件名合法性）
+        validateImageFile(file);
+
+        // 2. 生成唯一文件名（规则：subjectId_UUID.扩展名，和头像风格一致）
+        String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+        String fileExtension = getFileExtension(originalFilename);
+        String newFilename = generateCoverFilename(subjectId, fileExtension);
+
+        try {
+            // 3. 创建按日期分类的子目录（格式：subject-covers/2024/01/15/，和头像目录结构一致）
+            String datePath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+            // 根目录/upload + 封面子目录subject-covers + 日期目录
+            Path targetDir = uploadPath.resolve(fileUploadProperties.getCoverDir()).resolve(datePath);
+            Files.createDirectories(targetDir); // 不存在则创建多级目录
+
+            // 4. 保存文件（覆盖已存在的同名文件，避免冲突）
+            Path targetPath = targetDir.resolve(newFilename);
+            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+            // 5. 生成访问URL（格式：/upload/subject-covers/2024/01/15/subjectId_UUID.jpg）
+            String fileUrl = String.format("%s/%s/%s/%s",
+                    fileUploadProperties.getAccessUrlPrefix(), // 前缀：/upload
+                    fileUploadProperties.getCoverDir(), // 封面目录：subject-covers
+                    datePath, // 日期目录：2024/01/15
+                    newFilename // 文件名：1_123e4567e89b12d3a456.jpg
+            );
+
+            log.info("科目封面上传成功：subjectId={}, fileUrl={}", subjectId, fileUrl);
+            return fileUrl;
+
+        } catch (IOException e) {
+            log.error("科目封面存储失败：subjectId={}, filename={}", subjectId, newFilename, e);
+            throw new BusinessException("科目封面上传失败");
+        }
+    }
+
+    /**
+     * 新增：生成科目封面唯一文件名（规则：subjectId_UUID.扩展名）
+     */
+    private String generateCoverFilename(Long subjectId, String extension) {
+        String uuid = UUID.randomUUID().toString().replace("-", ""); // 生成无横线UUID
+        return String.format("%d_%s%s", subjectId, uuid, extension); // 示例：1_123e4567e89b12d3a456.jpg
+    }
+
+
     /**
      * 检查是否为允许的图片类型
      */

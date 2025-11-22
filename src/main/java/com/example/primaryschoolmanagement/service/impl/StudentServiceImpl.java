@@ -3,11 +3,14 @@ package com.example.primaryschoolmanagement.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.exception.ApiException;
 import com.example.primaryschoolmanagement.dao.StudentDao;
 import com.example.primaryschoolmanagement.dao.UserDao;
 import com.example.primaryschoolmanagement.dto.StudentDto;
+import com.example.primaryschoolmanagement.dto.common.PageResult;
 import com.example.primaryschoolmanagement.entity.AppUser;
 import com.example.primaryschoolmanagement.entity.Student;
 
@@ -21,8 +24,10 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -41,6 +46,9 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
     @Resource
     private UserDao userDao;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     @Cacheable(cacheNames = "students:profile", key = "#studentNo", unless = "#result == null")
     public Student findByStudentNo(String studentNo) {
@@ -56,24 +64,35 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int createStudent(StudentDto dto) {
+        if(dto == null){
+            throw new ApiException(HttpStatus.BAD_REQUEST,"新增学生不能为空");
+        }
         // 1. 校验学号唯一性
-        String studentNo = dto.getStudentNo().trim();
+        String studentNo = dto.getStudentNo();
+        if (!StringUtils.hasText(studentNo)){
+            throw new ApiException(HttpStatus.BAD_REQUEST,"新增学生需要学号");
+        }
+        studentNo = studentNo.trim();
         Student existStudent = findByStudentNo(studentNo);
         if (existStudent != null) {
-            throw new ApiException(HttpStatus.CONFLICT, "学号已存在：" + studentNo);
+            throw new ApiException(HttpStatus.CONFLICT, "该学生已存在：" + studentNo);
         }
 
         // 2. 转换DTO为实体
-
+        String encodedPassword = passwordEncoder.encode("123456");
         AppUser appUser = new AppUser()
                 .setUsername(dto.getStudentNo())
-                .setPassword("123456")
+                .setPassword(encodedPassword)
                 .setUserType(3)
                 .setRealName(dto.getStudentName());
 
         // 3. 保存到数据库
-
-        int row1 = userDao.insert(appUser);
+        int row1 ;
+        try {
+            row1 = userDao.insert(appUser);
+        }catch (Exception e){
+            throw new ApiException(HttpStatus.CREATED,"账号不能重复");
+        }
         if (row1 <= 0) {
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "添加用户失败");
         }
@@ -99,24 +118,25 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @CacheEvict(cacheNames = "students:profile", key = "#dto.id")
-    public boolean updateStudent(Student dto) {
+    @CacheEvict(cacheNames = "students:profile", key = "#id")
+    public boolean updateStudent(Student dto, Long id) {
+
         if (dto == null) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "修改人员不能为空");
         }
 
-        Student student = studentDao.selectById(dto.getId());
+        Student student = studentDao.selectById(id);
         if (student == null || student.getIsDeleted()) {
             throw new ApiException(HttpStatus.NOT_FOUND, "查无此人");
         }
+        Long userId = student.getUserId();
         //用户表
-        Long id = student.getUserId();
         if (dto.getStudentName() != null){
-            int row2 = studentDao.updateUser2(dto.getStudentName(),id);
+            int row2 = studentDao.updateUser2(dto.getStudentName(),userId);
         }
 
         LambdaUpdateWrapper<Student> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(Student::getId,dto.getId());
+        updateWrapper.eq(Student::getId,id);
         //更新修改的字段
         Boolean hasChange = false;
         if(dto.getStudentName() != null){
@@ -166,7 +186,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
             throw new ApiException(HttpStatus.BAD_REQUEST, "用户Id为空");
         }
         Student student = studentDao.selectOne(new LambdaQueryWrapper<Student>()
-                .eq(Student::getUserId, id));
+                .eq(Student::getId, id));
         Long userId = student.getUserId();
         if (userId == null) {
             throw new ApiException(HttpStatus.NOT_FOUND, "学生记录未关联用户ID，无法删除关联用户");
@@ -182,32 +202,46 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public List<Student> list(Map<String,Object> map) {
+    @Transactional(readOnly = true)
+    public PageResult<Student> list(Map<String,Object> map) {
+        // 提取分页参数
+        Integer page = ObjectUtils.isEmpty(map.get("page")) ? 1 : Integer.parseInt(map.get("page").toString());
+        Integer size = ObjectUtils.isEmpty(map.get("size")) ? 10 : Integer.parseInt(map.get("size").toString());
+
+        // 分页参数检查
+        if(page <= 0)page = 1;
+        if(size < 1) size = 10;
         LambdaQueryWrapper<Student> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Student::getIsDeleted,0);
-        if(map == null){
-            return studentDao.selectList(queryWrapper);
+        if(map != null){
+            if(map.get("studentNo") != null){
+                queryWrapper.eq(Student::getStudentNo,map.get("studentNo"));
+            }
+            if(map.get("studentName") != null){
+                queryWrapper.like(Student::getStudentName,map.get("studentName"));
+            }
+            if(map.get("gender") != null){
+                queryWrapper.eq(Student::getGender,map.get("gender"));
+            }
+            if(map.get("IdCard") != null){
+                queryWrapper.eq(Student::getIdCard,map.get("IdCard"));
+            }
+            if(map.get("classId") != null){
+                queryWrapper.eq(Student::getClassId,map.get("classId"));
+            }
+            if(map.get("gradeId") != null){
+                queryWrapper.eq(Student::getGradeId,map.get("gradeId"));
+            }
         }
-        if(map.get("studentNo") != null){
-            queryWrapper.eq(Student::getStudentNo,map.get("studentNo"));
-        }
-        if(map.get("studentName") != null){
-            queryWrapper.eq(Student::getStudentName,map.get("studentName"));
-        }
-        if(map.get("gender") != null){
-            queryWrapper.eq(Student::getGender,map.get("gender"));
-        }
-        if(map.get("IdCard") != null){
-            queryWrapper.eq(Student::getIdCard,map.get("IdCard"));
-        }
-        if(map.get("classId") != null){
-            queryWrapper.eq(Student::getClassId,map.get("classId"));
-        }
-        if(map.get("gradeId") != null){
-            queryWrapper.eq(Student::getGradeId,map.get("gradeId"));
-        }
-        return studentDao.selectList(queryWrapper);
+        Page<Student> page1 = new Page(page,size);
+        IPage<Student> pageStudent = studentDao.selectPage(page1, queryWrapper);
+        return PageResult.of(
+                pageStudent.getTotal(),
+                pageStudent.getRecords(),
+                page,
+                size
+
+        );
     }
 
 }

@@ -4,6 +4,7 @@ import com.example.primaryschoolmanagement.common.exception.ApiException;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dao.StudentDao;
 import com.example.primaryschoolmanagement.dto.StudentDto;
+import com.example.primaryschoolmanagement.dto.common.PageResult;
 import com.example.primaryschoolmanagement.entity.AppUser;
 import com.example.primaryschoolmanagement.entity.Student;
 import com.example.primaryschoolmanagement.service.StudentService;
@@ -44,18 +45,20 @@ public class StudentController {
     @GetMapping(value = "/list")
     public R list(@RequestParam(required = false) Map<String,Object> map){
         try {
-            List<Student> studentList = studentService.list(map);
+            PageResult<Student> studentList = studentService.list(map);
             return R.ok(studentList);
         }catch (Exception e){
             return R.er(500,"查询异常"+e.getMessage());
         }
     }
     @PutMapping(value = "/{id}")
-    public R updateStudent(@RequestBody Student dto){
+    public R updateStudent(
+            @PathVariable("id") Long id,
+            @RequestBody Student dto){
         if(dto == null){
             return R.er(400,"更改信息不能为空");
         }
-        if(!studentService.updateStudent(dto)){
+        if(!studentService.updateStudent(dto,id)){
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR,"更新失败");
         }
         return R.ok();

@@ -1,7 +1,9 @@
 package com.example.primaryschoolmanagement.service;
 
 import com.example.primaryschoolmanagement.dto.ScheduleInitDataDTO;
+import com.example.primaryschoolmanagement.entity.Schedule;
 import com.example.primaryschoolmanagement.vo.ScheduleVO;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -28,4 +30,6 @@ public interface ScheduleService {
      * @return 该班级的所有排课信息（包含科目名、教师名、班级名、课程名）
      */
     List<ScheduleVO> getScheduleByClassId(Integer classId);
+
+
 }

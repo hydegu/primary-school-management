@@ -51,4 +51,5 @@ public class ScheduleController {
             return R.er(500, "获取排课初始化数据失败: " + e.getMessage());
         }
     }
+
 }

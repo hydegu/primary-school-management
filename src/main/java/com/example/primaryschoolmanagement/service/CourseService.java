@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.primaryschoolmanagement.dto.SubjectTeacherRelationDTO;
 import com.example.primaryschoolmanagement.entity.Course;
 import com.example.primaryschoolmanagement.entity.Student;
+import com.example.primaryschoolmanagement.entity.Subject;
 import com.example.primaryschoolmanagement.vo.CourseVO;
 import org.springframework.stereotype.Service;
 
@@ -31,5 +32,7 @@ public interface CourseService extends IService<Course> {
     List<CourseVO> listCourses(Integer subjectId, Integer classId);
 
     int addcourse(SubjectTeacherRelationDTO dto);
+
+
 
 }

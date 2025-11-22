@@ -36,4 +36,7 @@ public class FileUploadProperties {
      * 文件访问URL前缀
      */
     private String accessUrlPrefix = "/uploads";
+
+    // 封面存储相关配置
+    private String coverDir;
 }

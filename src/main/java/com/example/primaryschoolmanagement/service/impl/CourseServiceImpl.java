@@ -12,6 +12,7 @@ import com.example.primaryschoolmanagement.service.CourseService;
 import com.example.primaryschoolmanagement.vo.CourseVO;
 import jakarta.annotation.Resource;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -124,11 +125,10 @@ public class CourseServiceImpl extends ServiceImpl<CourseDao, Course> implements
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    @CacheEvict(cacheNames = "courses:profile", key = "#subjectId")
+    @Cacheable(cacheNames = "courses:profile", key = "#subjectId")
     public List<CourseVO> list(Integer subjectId) {
         if(subjectId == null){
-            throw new ApiException(HttpStatus.BAD_REQUEST,"科目名不能为空");
+            throw new ApiException(HttpStatus.BAD_REQUEST,"科目Id不能为空");
         }
         List<CourseVO> courseList = courseDao.courseList(subjectId);
         return  courseList == null ? List.of() : courseList;

@@ -31,4 +31,12 @@ public interface FileStorageService {
      * @throws IllegalArgumentException 如果文件不符合要求
      */
     void validateImageFile(MultipartFile file);
+
+    /**
+     * 上传科目封面
+     * @param file 封面文件（图片）
+     * @param subjectId 科目ID（用于生成唯一文件名，关联科目）
+     * @return 封面访问URL
+     */
+    String storeCover(MultipartFile file, Long subjectId);
 }

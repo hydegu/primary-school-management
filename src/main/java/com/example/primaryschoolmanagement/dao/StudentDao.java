@@ -18,10 +18,10 @@ public interface StudentDao extends BaseMapper<Student> {
         insert into sys_user_role
             (user_id,role_id) 
         values (
-            (select id from sys_user where username = #{username})
+            (select id from sys_user where username = #{studentNo})
             ,5)
     """)
-    int addUserRole(String username);
+    int addUserRole(String studentNo);
 
     @Delete("""
         delete from sys_user_role where user_id = #{student.userId} and role_id = 5
