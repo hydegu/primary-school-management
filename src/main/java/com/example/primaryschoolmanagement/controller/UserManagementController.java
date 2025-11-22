@@ -98,6 +98,8 @@ public class UserManagementController {
     public R updateUser(
             @PathVariable Long id,
             @RequestParam(required = false) MultipartFile avatarFile,
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String password,
             @RequestParam(required = false) String realName,
             @RequestParam(required = false) String phone,
             @RequestParam(required = false) String email,
@@ -109,6 +111,8 @@ public class UserManagementController {
         try {
             // 构建请求对象
             UserUpdateRequest request = UserUpdateRequest.builder()
+                    .username(username)
+                    .password(password)
                     .realName(realName)
                     .phone(phone)
                     .email(email)
