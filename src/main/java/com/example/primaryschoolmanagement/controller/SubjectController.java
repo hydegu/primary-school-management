@@ -5,13 +5,17 @@ import com.example.primaryschoolmanagement.dto.subject.SubjectCreateRequest;
 import com.example.primaryschoolmanagement.dto.subject.SubjectDTO;
 import com.example.primaryschoolmanagement.dto.subject.SubjectUpdateRequest;
 import com.example.primaryschoolmanagement.dto.teacher.TeacherDTO;
+import com.example.primaryschoolmanagement.service.FileStorageService;
 import com.example.primaryschoolmanagement.service.SubjectService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 科目管理Controller
@@ -23,6 +27,9 @@ public class SubjectController {
 
     @Autowired
     private SubjectService subjectService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     /**
      * 科目列表查询
@@ -102,5 +109,29 @@ public class SubjectController {
         log.info("移除科目的授课老师：subjectId={}, teacherIds={}", id, teacherIds);
         subjectService.removeTeachersFromSubject(id, teacherIds);
         return R.ok("授课老师移除成功");
+    }
+
+    /**
+     * 上传科目封面
+     */
+    @PostMapping("/subject/upload-cover")
+    public R uploadSubjectCover(@RequestParam("file") MultipartFile file,
+                                @RequestParam(value = "subjectId", required = false) Long subjectId) {
+        log.info("上传科目封面：subjectId={}, fileName={}", subjectId, file.getOriginalFilename());
+
+        try {
+            String fileUrl = fileStorageService.storeSubjectCover(file, subjectId);
+
+            Map<String, String> result = new HashMap<>();
+            result.put("url", fileUrl);
+
+            return R.ok(result);
+        } catch (IllegalArgumentException e) {
+            log.error("文件验证失败：{}", e.getMessage());
+            return R.error(400, e.getMessage());
+        } catch (Exception e) {
+            log.error("文件上传失败", e);
+            return R.error(500, "文件上传失败");
+        }
     }
 }
