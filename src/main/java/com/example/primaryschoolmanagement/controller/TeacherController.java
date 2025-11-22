@@ -42,13 +42,7 @@ public class TeacherController {
             ) { // 变量名与 {id} 一致时，可省略 "id" 参数
         return this.teacherService.deleteTeacher(id);
     }
-   //更新老师
-//    @PutMapping(value="/teacher/{id}")
-//    public R updateteacher(
-////            @PathVariable ("id") Integer id,
-//            @RequestBody TeacherDTO teacherDTO){
-//        return this.teacherService.updateTeacher(teacherDTO);
-//    }
+
 @PutMapping(value="/teacher/{id}")
 public R updateteacher(
         @PathVariable ("id") Integer id,
