@@ -4,6 +4,7 @@ import com.example.primaryschoolmanagement.common.exception.ApiException;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dao.StudentDao;
 import com.example.primaryschoolmanagement.dto.StudentDto;
+import com.example.primaryschoolmanagement.dto.common.PageResult;
 import com.example.primaryschoolmanagement.entity.AppUser;
 import com.example.primaryschoolmanagement.entity.Student;
 import com.example.primaryschoolmanagement.service.StudentService;
@@ -44,7 +45,7 @@ public class StudentController {
     @GetMapping(value = "/list")
     public R list(@RequestParam(required = false) Map<String,Object> map){
         try {
-            List<Student> studentList = studentService.list(map);
+            PageResult<Student> studentList = studentService.list(map);
             return R.ok(studentList);
         }catch (Exception e){
             return R.er(500,"查询异常"+e.getMessage());

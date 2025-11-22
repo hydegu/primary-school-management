@@ -10,6 +10,7 @@ import com.example.primaryschoolmanagement.common.exception.ApiException;
 import com.example.primaryschoolmanagement.dao.StudentDao;
 import com.example.primaryschoolmanagement.dao.UserDao;
 import com.example.primaryschoolmanagement.dto.StudentDto;
+import com.example.primaryschoolmanagement.dto.common.PageResult;
 import com.example.primaryschoolmanagement.entity.AppUser;
 import com.example.primaryschoolmanagement.entity.Student;
 
@@ -26,6 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -200,32 +202,46 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public List<Student> list(Map<String,Object> map) {
+    @Transactional(readOnly = true)
+    public PageResult<Student> list(Map<String,Object> map) {
+        // 提取分页参数
+        Integer page = ObjectUtils.isEmpty(map.get("page")) ? 1 : Integer.parseInt(map.get("page").toString());
+        Integer size = ObjectUtils.isEmpty(map.get("size")) ? 10 : Integer.parseInt(map.get("size").toString());
 
+        // 分页参数检查
+        if(page <= 0)page = 1;
+        if(size < 1) size = 10;
         LambdaQueryWrapper<Student> queryWrapper = new LambdaQueryWrapper<>();
-        if(map == null){
-            return studentDao.selectList(queryWrapper);
+        queryWrapper.eq(Student::getIsDeleted,0);
+        if(map != null){
+            if(map.get("studentNo") != null){
+                queryWrapper.eq(Student::getStudentNo,map.get("studentNo"));
+            }
+            if(map.get("studentName") != null){
+                queryWrapper.like(Student::getStudentName,map.get("studentName"));
+            }
+            if(map.get("gender") != null){
+                queryWrapper.eq(Student::getGender,map.get("gender"));
+            }
+            if(map.get("IdCard") != null){
+                queryWrapper.eq(Student::getIdCard,map.get("IdCard"));
+            }
+            if(map.get("classId") != null){
+                queryWrapper.eq(Student::getClassId,map.get("classId"));
+            }
+            if(map.get("gradeId") != null){
+                queryWrapper.eq(Student::getGradeId,map.get("gradeId"));
+            }
         }
-        if(map.get("studentNo") != null){
-            queryWrapper.eq(Student::getStudentNo,map.get("studentNo"));
-        }
-        if(map.get("studentName") != null){
-            queryWrapper.like(Student::getStudentName,map.get("studentName"));
-        }
-        if(map.get("gender") != null){
-            queryWrapper.eq(Student::getGender,map.get("gender"));
-        }
-        if(map.get("IdCard") != null){
-            queryWrapper.eq(Student::getIdCard,map.get("IdCard"));
-        }
-        if(map.get("classId") != null){
-            queryWrapper.eq(Student::getClassId,map.get("classId"));
-        }
-        if(map.get("gradeId") != null){
-            queryWrapper.eq(Student::getGradeId,map.get("gradeId"));
-        }
-        return studentDao.selectList(queryWrapper);
+        Page<Student> page1 = new Page(page,size);
+        IPage<Student> pageStudent = studentDao.selectPage(page1, queryWrapper);
+        return PageResult.of(
+                pageStudent.getTotal(),
+                pageStudent.getRecords(),
+                page,
+                size
+
+        );
     }
 
 }

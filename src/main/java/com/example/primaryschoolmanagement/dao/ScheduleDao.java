@@ -51,4 +51,6 @@ public interface ScheduleDao extends BaseMapper<Schedule> {
     WHERE s.id = #{id} AND s.is_deleted = 0
     """)
     ScheduleVO getScheduleById(@Param("id") Long id);
+
+
 }

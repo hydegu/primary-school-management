@@ -1,10 +1,13 @@
 package com.example.primaryschoolmanagement.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.exception.ApiException;
 import com.example.primaryschoolmanagement.dao.SubjectDao;
 import com.example.primaryschoolmanagement.dto.SubjectCreateDTO;
+import com.example.primaryschoolmanagement.dto.common.PageResult;
 import com.example.primaryschoolmanagement.entity.Subject;
 import com.example.primaryschoolmanagement.service.FileStorageService;
 import com.example.primaryschoolmanagement.service.SubjectService;
@@ -15,8 +18,10 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -32,10 +37,24 @@ public class SubjectServiceImpl extends ServiceImpl<SubjectDao,Subject> implemen
 
 
     @Override
-    public List<Subject> subjectList() {
+    public PageResult<Subject> subjectList(Map<String,Object> map) {
+        // 提取分页参数
+        Integer page = ObjectUtils.isEmpty(map.get("page")) ? 1 : Integer.parseInt(map.get("page").toString());
+        Integer size = ObjectUtils.isEmpty(map.get("size")) ? 10 : Integer.parseInt(map.get("size").toString());
 
-        List<Subject> subjectList = subjectDao.subjectList();
-        return subjectList;
+        // 分页参数检查
+        if(page <= 0)page = 1;
+        if(size < 1) size = 10;
+        LambdaQueryWrapper<Subject> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Subject::getIsDeleted,0);
+        IPage<Subject> page1 = new Page<>(page,size);
+        IPage<Subject> subjectList = subjectDao.selectPage(page1,queryWrapper);
+        return PageResult.of(
+                subjectList.getTotal(),
+                subjectList.getRecords(),
+                page,
+                size
+        );
     }
 
 
