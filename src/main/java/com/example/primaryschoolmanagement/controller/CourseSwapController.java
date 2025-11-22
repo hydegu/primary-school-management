@@ -8,21 +8,23 @@ import com.example.primaryschoolmanagement.dto.CourseSwapDTO;
 import com.example.primaryschoolmanagement.dto.CourseSwapConfirmDTO;
 import com.example.primaryschoolmanagement.service.CourseSwapService;
 import com.example.primaryschoolmanagement.vo.CourseSwapVO;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * 换课管理Controller
+ */
 @RestController
 @RequestMapping("/api/course-swap")
-@Api(tags = "换课管理接口")
 public class CourseSwapController {
 
     @Resource
     private CourseSwapService courseSwapService;
 
+    /**
+     * 提交换课申请
+     */
     @PostMapping("")
-    @ApiOperation("提交换课申请")
     public R submitCourseSwap(@RequestBody CourseSwapDTO courseSwapDTO) {
         Long teacherId = SecurityUtils.getCurrentUserId();
         if (teacherId == null) {
@@ -32,8 +34,10 @@ public class CourseSwapController {
         return R.ok(swapId);
     }
 
+    /**
+     * 查询我的换课记录
+     */
     @GetMapping("/my")
-    @ApiOperation("查询我的换课记录")
     public R getMyCourseSwaps(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -45,8 +49,10 @@ public class CourseSwapController {
         return R.ok(courseSwapPage);
     }
 
+    /**
+     * 对方确认换课
+     */
     @PutMapping("/{id}/confirm")
-    @ApiOperation("对方确认换课")
     public R confirmCourseSwap(
             @PathVariable Long id,
             @RequestBody CourseSwapConfirmDTO confirmDTO) {

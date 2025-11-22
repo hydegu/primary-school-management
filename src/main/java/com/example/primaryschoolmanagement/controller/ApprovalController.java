@@ -8,24 +8,26 @@ import com.example.primaryschoolmanagement.dto.ApprovalActionDTO;
 import com.example.primaryschoolmanagement.service.ApprovalService;
 import com.example.primaryschoolmanagement.vo.ApprovalVO;
 import com.example.primaryschoolmanagement.vo.ApprovalNodeVO;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * 审批管理Controller
+ */
 @RestController
 @RequestMapping("/api/approval")
-@Api(tags = "审批管理接口")
 public class ApprovalController {
 
     @Resource
     private ApprovalService approvalService;
 
+    /**
+     * 提交审批（统一接口）
+     */
     @PostMapping("/{id}/submit")
-    @ApiOperation("提交审批（统一接口）")
     public R submit(@PathVariable Long id, @RequestBody @Validated ApprovalActionDTO approvalActionDTO) {
         try {
             Long approverId = SecurityUtils.getCurrentUserId();
@@ -57,8 +59,10 @@ public class ApprovalController {
         }
     }
 
+    /**
+     * 待我审批
+     */
     @GetMapping("/pending")
-    @ApiOperation("待我审批")
     public R getPendingApprovals(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -75,8 +79,10 @@ public class ApprovalController {
         }
     }
 
+    /**
+     * 审批历史
+     */
     @GetMapping("/history")
-    @ApiOperation("审批历史")
     public R getApprovalHistory(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -93,8 +99,10 @@ public class ApprovalController {
         }
     }
 
+    /**
+     * 审批流程节点
+     */
     @GetMapping("/{id}/nodes")
-    @ApiOperation("审批流程节点")
     public R getApprovalNodes(@PathVariable Long id) {
         try {
             List<ApprovalNodeVO> nodes = approvalService.getApprovalNodes(id);

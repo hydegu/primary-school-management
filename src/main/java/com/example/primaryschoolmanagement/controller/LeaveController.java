@@ -6,16 +6,16 @@ import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.dto.LeaveDTO;
 import com.example.primaryschoolmanagement.service.LeaveService;
 import com.example.primaryschoolmanagement.vo.LeaveVO;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * 请假管理Controller
+ */
 @RestController
 @RequestMapping("/api/leave")
-@Api(tags = "请假管理接口")
 public class LeaveController {
 
     private static final Logger log = LoggerFactory.getLogger(LeaveController.class);
@@ -23,8 +23,10 @@ public class LeaveController {
     @Resource
     private LeaveService leaveService;
 
+    /**
+     * 提交请假申请
+     */
     @PostMapping("")
-    @ApiOperation("提交请假申请")
     public R submitLeave(@RequestBody LeaveDTO leaveDTO) {
         // 移除强转代码，Service内部安全获取用户信息
         try {
@@ -38,15 +40,19 @@ public class LeaveController {
         }
     }
 
+    /**
+     * 查询请假详情
+     */
     @GetMapping("/{id}")
-    @ApiOperation("查询请假详情")
     public R getLeaveDetail(@PathVariable Long id) {
         LeaveVO leaveVO = leaveService.getLeaveDetail(id);
         return R.ok(leaveVO);
     }
 
+    /**
+     * 查询我的请假记录
+     */
     @GetMapping("/my")
-    @ApiOperation("查询我的请假记录")
     public R getMyLeaves(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -59,8 +65,10 @@ public class LeaveController {
         }
     }
 
+    /**
+     * 撤回请假申请
+     */
     @PutMapping("/{id}/cancel")
-    @ApiOperation("撤回请假申请")
     public R cancelLeave(@PathVariable Long id) {
         // 移除userId参数，Service内部验证权限
         try {
@@ -71,8 +79,10 @@ public class LeaveController {
         }
     }
 
+    /**
+     * 查询待审批请假列表
+     */
     @GetMapping("/pending")
-    @ApiOperation("查询待审批请假列表")
     public R getPendingLeaves(
             @RequestParam Long classId,
             @RequestParam(defaultValue = "1") int page,

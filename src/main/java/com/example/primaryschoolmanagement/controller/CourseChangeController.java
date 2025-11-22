@@ -6,21 +6,23 @@ import com.example.primaryschoolmanagement.common.utils.SecurityUtils;
 import com.example.primaryschoolmanagement.dto.CourseChangeDTO;
 import com.example.primaryschoolmanagement.service.CourseChangeService;
 import com.example.primaryschoolmanagement.vo.CourseChangeVO;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * 调课管理Controller
+ */
 @RestController
 @RequestMapping("/api/course-change")
-@Api(tags = "调课管理接口")
 public class CourseChangeController {
 
     @Resource
     private CourseChangeService courseChangeService;
 
+    /**
+     * 提交调课申请
+     */
     @PostMapping("")
-    @ApiOperation("提交调课申请")
     public R submitCourseChange(@RequestBody CourseChangeDTO courseChangeDTO) {
         Long teacherId = SecurityUtils.getCurrentUserId();
         if (teacherId == null) {
@@ -30,15 +32,19 @@ public class CourseChangeController {
         return R.ok(changeId);
     }
 
+    /**
+     * 查询调课详情
+     */
     @GetMapping("/{id}")
-    @ApiOperation("查询调课详情")
     public R getCourseChangeDetail(@PathVariable Long id) {
         CourseChangeVO courseChangeVO = courseChangeService.getCourseChangeDetail(id);
         return R.ok(courseChangeVO);
     }
 
+    /**
+     * 查询我的调课记录
+     */
     @GetMapping("/my")
-    @ApiOperation("查询我的调课记录")
     public R getMyCourseChanges(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
