@@ -128,10 +128,10 @@ public class SubjectController {
             return R.ok(result);
         } catch (IllegalArgumentException e) {
             log.error("文件验证失败：{}", e.getMessage());
-            return R.error(400, e.getMessage());
+            return R.er(400, e.getMessage());
         } catch (Exception e) {
             log.error("文件上传失败", e);
-            return R.error(500, "文件上传失败");
+            return R.er(500, "文件上传失败");
         }
     }
 }
