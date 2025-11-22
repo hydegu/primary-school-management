@@ -33,13 +33,13 @@ public interface ClassesDao extends BaseMapper<Classes>  {
     FROM edu_class c
     LEFT JOIN edu_teacher t ON c.head_teacher_id = t.id
     WHERE c.is_deleted = 0
-    <if test="classNo != null and classNo != ''">
+    <if test="param2 != null and param2 != ''">
         AND c.class_no LIKE CONCAT('%', #{classNo}, '%')
     </if>
-    <if test="className != null and className != ''">
+    <if test="param3 != null and param3 != ''">
         AND c.class_name LIKE CONCAT('%', #{className}, '%')
     </if>
-    <if test="headTeacherName != null and headTeacherName != ''">
+    <if test="param4 != null and param4 != ''">
         AND t.teacher_name LIKE CONCAT('%', #{headTeacherName}, '%')
     </if>
     ORDER BY c.id DESC
