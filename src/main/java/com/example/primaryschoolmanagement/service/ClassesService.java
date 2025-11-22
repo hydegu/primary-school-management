@@ -9,9 +9,9 @@ import com.example.primaryschoolmanagement.entity.Teacher;
 import java.util.List;
 
 public interface ClassesService extends IService<Classes> {
-    R classesList();
+    R classesList(int page, int size);
     // 模糊搜索班级列表
-    R searchClasses(String classNo, String className, String headTeacherName);
+    R searchClasses(String classNo, String className, String headTeacherName, int page, int size);
     R addclasses(Classes classes);
     R deleteclasses(Integer id);
     R updateclasses(Long id,Classes classes);

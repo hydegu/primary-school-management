@@ -1,6 +1,8 @@
 package com.example.primaryschoolmanagement.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.primaryschoolmanagement.entity.Classes;
 import com.example.primaryschoolmanagement.entity.Student;
 import com.example.primaryschoolmanagement.vo.ClassesVO;
@@ -23,7 +25,7 @@ public interface ClassesDao extends BaseMapper<Classes>  {
     List<Student> classStudent(Integer id);
 
     /**
-     * 模糊搜索班级列表（关联班主任姓名）
+     * 模糊搜索班级列表（关联班主任姓名）- 分页版本
      */
     @Select("""
     <script>
@@ -43,7 +45,8 @@ public interface ClassesDao extends BaseMapper<Classes>  {
     ORDER BY c.id DESC
     </script>
     """)
-    List<ClassesVO> searchClasses(@Param("classNo") String classNo,
-                                   @Param("className") String className,
-                                   @Param("headTeacherName") String headTeacherName);
+    IPage<ClassesVO> searchClasses(Page<ClassesVO> page,
+                                    @Param("classNo") String classNo,
+                                    @Param("className") String className,
+                                    @Param("headTeacherName") String headTeacherName);
 }

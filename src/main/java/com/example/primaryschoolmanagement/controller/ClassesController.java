@@ -28,12 +28,14 @@ public class ClassesController {
     public R classesList(
             @RequestParam(required = false) String classNo,
             @RequestParam(required = false) String className,
-            @RequestParam(required = false) String headTeacherName){
+            @RequestParam(required = false) String headTeacherName,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size){
         // 如果有任何搜索参数，则使用模糊搜索
         if (classNo != null || className != null || headTeacherName != null) {
-            return this.classesService.searchClasses(classNo, className, headTeacherName);
+            return this.classesService.searchClasses(classNo, className, headTeacherName, page, size);
         }
-        return this.classesService.classesList();
+        return this.classesService.classesList(page, size);
     }
     //添加班级
     @PostMapping(value="/class")

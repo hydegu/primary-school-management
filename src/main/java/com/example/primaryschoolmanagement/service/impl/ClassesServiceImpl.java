@@ -2,6 +2,8 @@ package com.example.primaryschoolmanagement.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.common.utils.SecurityUtils;
@@ -31,20 +33,30 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
         this.classesDao = classesDao;
     }
     @Override
-    public R classesList() {
-       LambdaQueryWrapper<Classes> queryWrapper = new LambdaQueryWrapper<>();
-        List<Classes> classesList = this.classesDao.selectList(queryWrapper);
-        if (classesList.isEmpty()) {
-            return R.er();
-        } else {
-            return R.ok(classesList);
-        }
+    public R classesList(int page, int size) {
+        // 创建分页对象
+        Page<Classes> pageParam = new Page<>(page, size);
+
+        // 创建查询条件，过滤已删除记录
+        LambdaQueryWrapper<Classes> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Classes::getIsDeleted, 0);
+        queryWrapper.orderByDesc(Classes::getId);
+
+        // 执行分页查询
+        IPage<Classes> classesPage = this.classesDao.selectPage(pageParam, queryWrapper);
+
+        return R.ok(classesPage);
     }
 
     @Override
-    public R searchClasses(String classNo, String className, String headTeacherName) {
-        List<ClassesVO> classesList = this.classesDao.searchClasses(classNo, className, headTeacherName);
-        return R.ok(classesList);
+    public R searchClasses(String classNo, String className, String headTeacherName, int page, int size) {
+        // 创建分页对象
+        Page<ClassesVO> pageParam = new Page<>(page, size);
+
+        // 执行分页模糊查询
+        IPage<ClassesVO> classesPage = this.classesDao.searchClasses(pageParam, classNo, className, headTeacherName);
+
+        return R.ok(classesPage);
     }
 
     @Override
