@@ -215,7 +215,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentDao,Student> implemen
         queryWrapper.eq(Student::getIsDeleted,0);
         if(map != null){
             if(map.get("studentNo") != null){
-                queryWrapper.eq(Student::getStudentNo,map.get("studentNo"));
+                queryWrapper.like(Student::getStudentNo,map.get("studentNo"));
             }
             if(map.get("studentName") != null){
                 queryWrapper.like(Student::getStudentName,map.get("studentName"));

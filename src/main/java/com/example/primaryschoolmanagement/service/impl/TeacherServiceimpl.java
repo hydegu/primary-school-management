@@ -66,7 +66,7 @@ public class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> impleme
             queryWrapper.like(Teacher::getTeacherName, teacherName.trim());
         }
         if (StringUtils.hasText(teacherNo)) {
-            queryWrapper.eq(Teacher::getTeacherNo, teacherNo.trim());
+            queryWrapper.like(Teacher::getTeacherNo, teacherNo.trim());
         }
         if (StringUtils.hasText(title)) {
             queryWrapper.like(Teacher::getTitle, title.trim());
