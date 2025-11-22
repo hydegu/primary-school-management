@@ -5,6 +5,7 @@ import com.example.primaryschoolmanagement.dto.TeacherDTO;
 import com.example.primaryschoolmanagement.dto.TeacherQueryDTO;
 import com.example.primaryschoolmanagement.dto.subjectteacherDTO;
 import com.example.primaryschoolmanagement.entity.AppUser;
+import com.example.primaryschoolmanagement.entity.Subject;
 import com.example.primaryschoolmanagement.entity.Teacher;
 import com.example.primaryschoolmanagement.entity.UserRole;
 import com.example.primaryschoolmanagement.service.TeacherService;
@@ -31,8 +32,8 @@ public class TeacherController {
     }
     //添加老师   信息会同步添加在user表
     @PostMapping(value="/teacher")
-    public int addteacher(@RequestBody TeacherDTO teacherDTO){
-        return this.teacherService.addTeacher(teacherDTO);
+    public R addteacher(@RequestBody Teacher teacher){
+        return this.teacherService.addTeacher(teacher);
     }
     //删除老师
     @DeleteMapping("/teacher/{id}")
@@ -42,12 +43,22 @@ public class TeacherController {
         return this.teacherService.deleteTeacher(id);
     }
    //更新老师
-    @PutMapping(value="/teacher/{id}")
-    public R updateteacher(
-//            @PathVariable ("id") Integer id,
-            @RequestBody TeacherDTO teacherDTO){
-        return this.teacherService.updateTeacher(teacherDTO);
-    }
+//    @PutMapping(value="/teacher/{id}")
+//    public R updateteacher(
+////            @PathVariable ("id") Integer id,
+//            @RequestBody TeacherDTO teacherDTO){
+//        return this.teacherService.updateTeacher(teacherDTO);
+//    }
+@PutMapping(value="/teacher/{id}")
+public R updateteacher(
+        @PathVariable ("id") Integer id,
+        @RequestBody Teacher teacher,
+         AppUser appuser,
+         UserRole userrole,
+        subjectteacherDTO dto
+        ){
+    return this.teacherService.updateTeacher(id,teacher,appuser,userrole,dto);
+}
 
 
     /**

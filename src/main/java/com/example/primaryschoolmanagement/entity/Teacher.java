@@ -12,7 +12,7 @@ import java.util.Date;
 @Accessors(chain = true)
 public class Teacher extends BaseEntity {
     private Integer id;
-    private  Integer userId;
+    private  Long userId;
     private String teacherNo;
     private String teacherName;
     private Integer gender;

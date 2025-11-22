@@ -12,10 +12,10 @@ public interface TeacherService extends IService<Teacher>{
     R teacherList();//查询未删除的
     R queryByConditions(TeacherQueryDTO teacherQueryDTO);
     R getTeacherById(Integer id);
-    int addTeacher(TeacherDTO teacherDTO);
+    R addTeacher(Teacher teacher);
     R deleteTeacher(Integer id);
-    R updateTeacher(TeacherDTO teacherDTO);
-
+//    R updateTeacher(TeacherDTO teacherDTO);
+    R updateTeacher(Integer id,Teacher teacher, AppUser appuser, UserRole userrole,subjectteacherDTO dto);
     /**
      * 根据科目ID获取能教该科目的教师列表
      * @param subjectId 科目ID

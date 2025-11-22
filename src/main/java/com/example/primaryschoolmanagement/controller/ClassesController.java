@@ -47,8 +47,8 @@ public class ClassesController {
     }
     //更新班级
     @PutMapping(value="/class/{id}")
-    public R updateclasses(@RequestBody Classes classes){
-        return  this.classesService.updateclasses(classes);
+    public R updateclasses(@PathVariable Long id,@RequestBody Classes classes){
+        return  this.classesService.updateclasses(id,classes);
     }
     //班级详情
     @GetMapping(value="/class/{id}")
