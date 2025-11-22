@@ -30,4 +30,13 @@ public class subjectteacherDTO {
     private Long subjectId;
     private Long teacherId;
     private Date createdAt;
+
+
+
+
+    private String subjectName;
+    private String subjectCode;
+    private Integer sortOrder;
+
+
 }
