@@ -23,6 +23,11 @@ public class FileUploadProperties {
     private String avatarDir = "avatars";
 
     /**
+     * 科目封面文件存储子目录
+     */
+    private String subjectCoverDir = "subject-covers";
+
+    /**
      * 允许的图片格式
      */
     private String[] allowedImageTypes = {"image/jpeg", "image/png", "image/jpg", "image/gif"};

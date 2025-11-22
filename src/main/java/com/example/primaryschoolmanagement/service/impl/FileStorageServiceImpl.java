@@ -82,6 +82,44 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     @Override
+    public String storeSubjectCover(MultipartFile file, Long subjectId) {
+        // 1. 验证文件
+        validateImageFile(file);
+
+        // 2. 生成文件名
+        String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+        String fileExtension = getFileExtension(originalFilename);
+        String newFilename = subjectId != null ?
+                generateFilename(subjectId, fileExtension) :
+                generateUuidFilename(fileExtension);
+
+        try {
+            // 3. 创建按日期分类的子目录：subject-covers/2024/11/22/
+            String datePath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+            Path targetDir = uploadPath.resolve(fileUploadProperties.getSubjectCoverDir()).resolve(datePath);
+            Files.createDirectories(targetDir);
+
+            // 4. 保存文件
+            Path targetPath = targetDir.resolve(newFilename);
+            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+            // 5. 生成访问URL
+            String fileUrl = String.format("%s/%s/%s/%s",
+                    fileUploadProperties.getAccessUrlPrefix(),
+                    fileUploadProperties.getSubjectCoverDir(),
+                    datePath,
+                    newFilename);
+
+            log.info("科目封面上传成功：subjectId={}, fileUrl={}", subjectId, fileUrl);
+            return fileUrl;
+
+        } catch (IOException e) {
+            log.error("科目封面存储失败：subjectId={}, filename={}", subjectId, newFilename, e);
+            throw new BusinessException("科目封面存储失败");
+        }
+    }
+
+    @Override
     public boolean deleteFile(String fileUrl) {
         if (!StringUtils.hasText(fileUrl)) {
             return false;
@@ -156,5 +194,13 @@ public class FileStorageServiceImpl implements FileStorageService {
     private String generateFilename(Long userId, String extension) {
         String uuid = UUID.randomUUID().toString().replace("-", "");
         return String.format("%d_%s%s", userId, uuid, extension);
+    }
+
+    /**
+     * 生成纯UUID文件名：UUID.ext
+     */
+    private String generateUuidFilename(String extension) {
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        return String.format("%s%s", uuid, extension);
     }
 }
