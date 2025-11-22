@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.utils.R;
+import com.example.primaryschoolmanagement.common.utils.SecurityUtils;
 import com.example.primaryschoolmanagement.dao.ClassesDao;
 import com.example.primaryschoolmanagement.dao.StudentDao;
 import com.example.primaryschoolmanagement.entity.Classes;
@@ -89,9 +90,8 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
     }
 
     @Override
-    public R updateclasses(Classes classes) {
+    public R updateclasses(Long id,Classes classes) {
         // 1. 验证主键id是否存在（必须传入id才能确定更新哪条记录）
-        Integer id = classes.getId();
         if (id == null) {
             return R.er();
         }

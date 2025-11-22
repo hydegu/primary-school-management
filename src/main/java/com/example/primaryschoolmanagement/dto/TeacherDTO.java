@@ -1,18 +1,15 @@
-package com.example.primaryschoolmanagement.entity;
+package com.example.primaryschoolmanagement.dto;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.example.primaryschoolmanagement.common.base.BaseEntity;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.Date;
 
 @Data
-@TableName("edu_teacher")
 @Accessors(chain = true)
-public class Teacher extends BaseEntity {
+public class TeacherDTO {
     private Integer id;
-    private  Long userId;
+    private  Integer userId;
     private String teacherNo;
     private String teacherName;
     private Integer gender;
@@ -22,4 +19,12 @@ public class Teacher extends BaseEntity {
     private String email;
     private String title;
     private Date hireDate;
+
+
+
+
+    private String username;
+    private String password;
+    private String realName;
+    private Integer userType;
 }

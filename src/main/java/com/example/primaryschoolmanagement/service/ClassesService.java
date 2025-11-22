@@ -14,7 +14,7 @@ public interface ClassesService extends IService<Classes> {
     R searchClasses(String classNo, String className, String headTeacherName);
     R addclasses(Classes classes);
     R deleteclasses(Integer id);
-    R updateclasses(Classes classes);
+    R updateclasses(Long id,Classes classes);
     //班级详情
     R getclassById(Integer id);
     //班级学生列表   根据class_id 查询
