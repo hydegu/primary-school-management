@@ -1,11 +1,9 @@
 package com.example.primaryschoolmanagement.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.example.primaryschoolmanagement.dto.SubjectTeacherRelationDTO;
 import com.example.primaryschoolmanagement.entity.Course;
 import com.example.primaryschoolmanagement.vo.CourseVO;
 import org.apache.ibatis.annotations.*;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -61,14 +59,4 @@ public interface CourseDao extends BaseMapper<Course> {
     </script>
     """)
     List<CourseVO> courseListWithFilters(@Param("subjectId") Integer subjectId, @Param("classId") Integer classId);
-
-    @Insert("""
-        insert into edu_subject_teacher(subject_id,teacher_id)
-        values(#{dto.subjectId},#{dto.teacherId})
-""")
-    int addCourse(@Param("dto")SubjectTeacherRelationDTO dto);
-    @Delete("""
-        delete from edu_subject_teacher where teacher_id = #{dto.teacherId} and subject_id = #{dto.subjectId}
-""")
-    int delete(@Param("dto")SubjectTeacherRelationDTO dto);
 }

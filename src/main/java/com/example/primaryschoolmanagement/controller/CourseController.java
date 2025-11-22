@@ -2,7 +2,6 @@ package com.example.primaryschoolmanagement.controller;
 
 import com.example.primaryschoolmanagement.common.exception.ApiException;
 import com.example.primaryschoolmanagement.common.utils.R;
-import com.example.primaryschoolmanagement.dto.SubjectTeacherRelationDTO;
 import com.example.primaryschoolmanagement.entity.Course;
 import com.example.primaryschoolmanagement.service.CourseService;
 import com.example.primaryschoolmanagement.service.ScheduleService;
@@ -10,7 +9,6 @@ import com.example.primaryschoolmanagement.vo.CourseVO;
 import com.example.primaryschoolmanagement.vo.ScheduleVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,30 +25,6 @@ public class CourseController {
     @Resource
     private ScheduleService scheduleService;
 
-    @PostMapping(value = "")
-    public R addCourse(@RequestBody SubjectTeacherRelationDTO dto){
-        System.out.println(dto);
-        if (dto == null){
-            throw new ApiException(HttpStatus.BAD_REQUEST,"数据为空");
-        }
-        int row = courseService.addcourse(dto);
-        return row > 0 ?R.ok():R.er();
-    }
-//    @PostMapping(value = "")
-//    public R createCourse(@RequestBody Course course){
-//
-//        Boolean iscreate = null;
-//        try {
-//            iscreate = courseService.createCourse(course);
-//            if (!iscreate){
-//                return R.er();
-//            }
-//        }catch (Exception e){
-//            return R.er(400,"新增失败"+e.getMessage());
-//        }
-//
-//        return R.ok();
-//    }
     @PutMapping(value = "/{id}")
     public R update(@RequestBody Course course){
         if(course == null){

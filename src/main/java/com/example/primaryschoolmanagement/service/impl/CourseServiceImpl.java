@@ -1,12 +1,9 @@
 package com.example.primaryschoolmanagement.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.exception.ApiException;
 import com.example.primaryschoolmanagement.dao.CourseDao;
-import com.example.primaryschoolmanagement.dto.SubjectTeacherRelationDTO;
 import com.example.primaryschoolmanagement.entity.Course;
 import com.example.primaryschoolmanagement.service.CourseService;
 import com.example.primaryschoolmanagement.vo.CourseVO;
@@ -16,10 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class CourseServiceImpl extends ServiceImpl<CourseDao, Course> implements CourseService {
@@ -82,33 +77,6 @@ public class CourseServiceImpl extends ServiceImpl<CourseDao, Course> implements
         return update(updateWrapper);
     }
 
-    //删除中间表
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    @CacheEvict(cacheNames = "courses:profile", key = "#dto")
-    public int deleteCourse(SubjectTeacherRelationDTO dto) {
-        if(dto.getSubjectId() == null || dto.getTeacherId()==null){
-            throw new ApiException(HttpStatus.BAD_REQUEST,"删除的课程为空");
-        }
-        int row = courseDao.delete(dto);
-        if (row <= 0){
-            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR,"删除失败");
-        }
-        return row;
-    }
-    //删除课程表中的数据
-//    @Override
-//    @Transactional(rollbackFor = Exception.class)
-//    @CacheEvict(cacheNames = "courses:profile", key = "#id")
-//    public int deleteCourse(Integer id) {
-//        Course existCourse = getById(id);
-//        if(existCourse == null){
-//            throw new ApiException(HttpStatus.BAD_REQUEST,"删除的课程为空");
-//        }
-//        int row = courseDao.deleteById(id);
-//        return row;
-//    }
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     @CacheEvict(cacheNames = "courses:profile", key = "#id")
@@ -142,21 +110,6 @@ public class CourseServiceImpl extends ServiceImpl<CourseDao, Course> implements
     public List<CourseVO> listCourses(Integer subjectId, Integer classId) {
         List<CourseVO> courseList = courseDao.courseListWithFilters(subjectId, classId);
         return courseList == null ? List.of() : courseList;
-    }
-
-    //根据课程添加仅老师
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    @CacheEvict(cacheNames = "courses:profile", key = "#dto")
-    public int addcourse(SubjectTeacherRelationDTO dto) {
-        if(dto == null){
-            throw new ApiException(HttpStatus.BAD_REQUEST,"新增数据是空的");
-        }
-        int row = courseDao.addCourse(dto);
-        if(row <= 0){
-            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR,"新增失败");
-        }
-        return row;
     }
 
 }
