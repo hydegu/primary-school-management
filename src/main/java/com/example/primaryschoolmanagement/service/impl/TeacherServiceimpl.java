@@ -323,59 +323,81 @@ public class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> impleme
 
         // 7. 更新班主任与班级的关联（一个班主任只能负责一个班级）
         if (request.getClassId() != null) {
-            // 先清除该教师在所有班级中的班主任关联
-            LambdaUpdateWrapper<Classes> clearWrapper = new LambdaUpdateWrapper<>();
-            clearWrapper.eq(Classes::getHeadTeacherId, id.intValue())
-                    .set(Classes::getHeadTeacherId, null)
-                    .set(Classes::getUpdatedAt, LocalDateTime.now());
-            classesDao.update(null, clearWrapper);
-            log.info("已清除教师 {} 的所有班主任关联", id);
-
-            // 如果提供了新的班级ID，则更新班主任关联
-            if (request.getClassId() > 0) {
-                // 验证班级是否存在且未被删除
-                Classes clazz = classesDao.selectById(request.getClassId().intValue());
-                if (clazz == null || clazz.getIsDeleted() == 1) {
-                    throw new BusinessException("班级ID " + request.getClassId() + " 不存在或已删除");
-                }
-
-                // 检查班级是否已有其他班主任
-                if (clazz.getHeadTeacherId() != null && !clazz.getHeadTeacherId().equals(id.intValue())) {
-                    throw new BusinessException("班级 " + clazz.getClassName() + " 已有班主任，请先解除原班主任关联");
-                }
-
-                // 更新新班级的班主任
-                LambdaUpdateWrapper<Classes> updateWrapper = new LambdaUpdateWrapper<>();
-                updateWrapper.eq(Classes::getId, request.getClassId().intValue())
-                        .set(Classes::getHeadTeacherId, id.intValue())
-                        .set(Classes::getUpdatedAt, LocalDateTime.now());
-                classesDao.update(null, updateWrapper);
-                log.info("为教师 {} 分配了班级 {} 的班主任职责", id, request.getClassId());
-            }
-        }
-
-        // 8. 业务逻辑验证和警告
-        // 检查职称与班级分配的一致性
-        if (StringUtils.hasText(request.getTitle()) && "班主任".equals(request.getTitle())) {
-            // 检查是否分配了班级
-            LambdaQueryWrapper<Classes> classQuery = new LambdaQueryWrapper<>();
-            classQuery.eq(Classes::getHeadTeacherId, id.intValue())
+            // 获取该教师当前负责的班级
+            LambdaQueryWrapper<Classes> currentClassQuery = new LambdaQueryWrapper<>();
+            currentClassQuery.eq(Classes::getHeadTeacherId, id.intValue())
                     .eq(Classes::getIsDeleted, 0);
-            long classCount = classesDao.selectCount(classQuery);
+            Classes currentClass = classesDao.selectOne(currentClassQuery);
+            Long currentClassId = currentClass != null ? currentClass.getId().longValue() : null;
 
-            if (classCount == 0) {
-                log.warn("教师 {} 的职称为班主任，但未分配任何班级", id);
-            } else if (classCount > 1) {
-                log.warn("教师 {} 的职称为班主任，但负责了 {} 个班级（应该只负责一个班级）", id, classCount);
+            if (request.getClassId() <= 0) {
+                // classId <= 0 表示清除班级关联
+                if (currentClassId != null) {
+                    LambdaUpdateWrapper<Classes> clearWrapper = new LambdaUpdateWrapper<>();
+                    clearWrapper.eq(Classes::getHeadTeacherId, id.intValue())
+                            .set(Classes::getHeadTeacherId, null)
+                            .set(Classes::getUpdatedAt, LocalDateTime.now());
+                    classesDao.update(null, clearWrapper);
+                    log.info("已清除教师 {} 的班主任关联（原班级ID: {}）", id, currentClassId);
+                }
+            } else {
+                // classId > 0 表示分配新班级
+                // 如果新班级与当前班级相同，跳过更新
+                if (currentClassId != null && currentClassId.equals(request.getClassId())) {
+                    log.info("教师 {} 已负责班级 {}，无需更新", id, request.getClassId());
+                } else {
+                    // 验证新班级是否存在且未被删除
+                    Classes newClass = classesDao.selectById(request.getClassId().intValue());
+                    if (newClass == null || newClass.getIsDeleted() == 1) {
+                        throw new BusinessException("班级ID " + request.getClassId() + " 不存在或已删除");
+                    }
+
+                    // 检查新班级是否已有其他班主任
+                    if (newClass.getHeadTeacherId() != null && !newClass.getHeadTeacherId().equals(id.intValue())) {
+                        throw new BusinessException("班级 " + newClass.getClassName() + " 已有班主任，请先解除原班主任关联");
+                    }
+
+                    // 先清除当前教师的所有班主任关联
+                    if (currentClassId != null) {
+                        LambdaUpdateWrapper<Classes> clearWrapper = new LambdaUpdateWrapper<>();
+                        clearWrapper.eq(Classes::getHeadTeacherId, id.intValue())
+                                .set(Classes::getHeadTeacherId, null)
+                                .set(Classes::getUpdatedAt, LocalDateTime.now());
+                        classesDao.update(null, clearWrapper);
+                        log.info("已清除教师 {} 的原班主任关联（原班级ID: {}）", id, currentClassId);
+                    }
+
+                    // 分配新班级
+                    LambdaUpdateWrapper<Classes> updateWrapper = new LambdaUpdateWrapper<>();
+                    updateWrapper.eq(Classes::getId, request.getClassId().intValue())
+                            .set(Classes::getHeadTeacherId, id.intValue())
+                            .set(Classes::getUpdatedAt, LocalDateTime.now());
+                    classesDao.update(null, updateWrapper);
+                    log.info("为教师 {} 分配了班级 {} 的班主任职责", id, request.getClassId());
+                }
             }
         }
 
-        // 如果分配了班级但职称不是班主任，记录警告
-        if (request.getClassId() != null && request.getClassId() > 0) {
-            if (!StringUtils.hasText(request.getTitle()) || !"班主任".equals(request.getTitle())) {
-                // 检查当前教师的职称
-                if (!StringUtils.hasText(teacher.getTitle()) || !"班主任".equals(teacher.getTitle())) {
-                    log.warn("教师 {} 分配了班级但职称不是班主任，当前职称：{}", id, teacher.getTitle());
+        // 8. 业务逻辑验证和警告（检查最终状态）
+        // 重新查询教师当前负责的班级数量
+        LambdaQueryWrapper<Classes> finalClassQuery = new LambdaQueryWrapper<>();
+        finalClassQuery.eq(Classes::getHeadTeacherId, id.intValue())
+                .eq(Classes::getIsDeleted, 0);
+        long finalClassCount = classesDao.selectCount(finalClassQuery);
+
+        // 检查职称与班级分配的一致性（使用最终状态）
+        String finalTitle = StringUtils.hasText(request.getTitle()) ? request.getTitle() : teacher.getTitle();
+        if (StringUtils.hasText(finalTitle)) {
+            if ("班主任".equals(finalTitle)) {
+                if (finalClassCount == 0) {
+                    log.warn("教师 {} 的职称为班主任，但未分配任何班级", id);
+                } else if (finalClassCount > 1) {
+                    log.warn("教师 {} 的职称为班主任，但负责了 {} 个班级（应该只负责一个班级）", id, finalClassCount);
+                }
+            } else {
+                // 职称不是班主任但分配了班级
+                if (finalClassCount > 0) {
+                    log.warn("教师 {} 的职称为 {}，但分配了 {} 个班级", id, finalTitle, finalClassCount);
                 }
             }
         }
