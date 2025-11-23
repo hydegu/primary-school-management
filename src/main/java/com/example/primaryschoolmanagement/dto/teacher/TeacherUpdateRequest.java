@@ -79,7 +79,7 @@ public class TeacherUpdateRequest {
     private List<Long> subjectIds;
 
     /**
-     * 班级ID列表（如果是班主任）
+     * 负责的班级ID（如果是班主任，一个班主任只能负责一个班级）
      */
-    private List<Long> classIds;
+    private Long classId;
 }
