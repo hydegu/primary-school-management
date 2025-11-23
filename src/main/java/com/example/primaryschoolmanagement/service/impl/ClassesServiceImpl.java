@@ -5,29 +5,38 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.primaryschoolmanagement.common.exception.BusinessException;
 import com.example.primaryschoolmanagement.common.utils.R;
 import com.example.primaryschoolmanagement.common.utils.SecurityUtils;
 import com.example.primaryschoolmanagement.dao.ClassesDao;
 import com.example.primaryschoolmanagement.dao.StudentDao;
+import com.example.primaryschoolmanagement.dao.TeacherDao;
 import com.example.primaryschoolmanagement.entity.Classes;
 import com.example.primaryschoolmanagement.entity.Student;
 import com.example.primaryschoolmanagement.entity.Teacher;
 import com.example.primaryschoolmanagement.service.ClassesService;
 import com.example.primaryschoolmanagement.vo.ClassesVO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implements ClassesService {
+    private static final Logger log = LoggerFactory.getLogger(ClassesServiceImpl.class);
+
     private final ClassesDao classesDao;
     @Autowired
     private JdbcTemplate jdbcTemplate;
     @Autowired
     private StudentDao studentDao; // 需在类中定义StudentDao的Autowired注入
+    @Autowired
+    private TeacherDao teacherDao;
 
     public ClassesServiceImpl(ClassesDao classesDao) {
         this.classesDao = classesDao;
@@ -131,8 +140,41 @@ public class ClassesServiceImpl extends ServiceImpl<ClassesDao,Classes> implemen
         if (classes.getGradeId() != null) {
             updateWrapper.set("grade_id", classes.getGradeId());
         }
-        // 修正headTeacherId的判断（原wait()是错误调用，此处判断非空即可）
+        // 班主任变更的业务验证
         if (classes.getHeadTeacherId() != null) {
+            Integer oldHeadTeacherId = existingClasses.getHeadTeacherId();
+            Integer newHeadTeacherId = classes.getHeadTeacherId();
+
+            // 如果班主任发生变化，需要进行业务验证
+            if (!Objects.equals(oldHeadTeacherId, newHeadTeacherId)) {
+                // 如果新班主任不是0（0表示清除班主任）
+                if (newHeadTeacherId > 0) {
+                    // 1. 验证新班主任是否存在
+                    Teacher teacher = teacherDao.selectById(newHeadTeacherId);
+                    if (teacher == null || teacher.getIsDeleted()) {
+                        throw new BusinessException("教师ID " + newHeadTeacherId + " 不存在或已删除");
+                    }
+
+                    // 2. 验证新班主任是否已经负责其他班级（一个班主任只能负责一个班级）
+                    LambdaQueryWrapper<Classes> query = new LambdaQueryWrapper<>();
+                    query.eq(Classes::getHeadTeacherId, newHeadTeacherId)
+                            .eq(Classes::getIsDeleted, 0)
+                            .ne(Classes::getId, id);
+                    long count = classesDao.selectCount(query);
+                    if (count > 0) {
+                        throw new BusinessException("教师 " + teacher.getTeacherName() + " 已担任其他班级的班主任，一个班主任只能负责一个班级");
+                    }
+
+                    // 3. 可选验证：检查教师职称是否为"班主任"（警告而非阻止）
+                    if (!"班主任".equals(teacher.getTitle())) {
+                        log.warn("教师 {} (ID: {}) 的职称为 {}，不是班主任，但被分配为班级 {} 的班主任",
+                                teacher.getTeacherName(), newHeadTeacherId, teacher.getTitle(), id);
+                    }
+                    log.info("班级 {} 的班主任从 {} 更新为 {} ({})", id, oldHeadTeacherId, newHeadTeacherId, teacher.getTeacherName());
+                } else {
+                    log.info("班级 {} 清除班主任关联（原班主任ID: {}）", id, oldHeadTeacherId);
+                }
+            }
             updateWrapper.set("head_teacher_id", classes.getHeadTeacherId());
         }
         if (classes.getClassroom() != null && !classes.getClassroom().trim().isEmpty()) {
