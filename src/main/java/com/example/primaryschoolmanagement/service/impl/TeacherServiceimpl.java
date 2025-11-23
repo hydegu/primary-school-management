@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.primaryschoolmanagement.common.exception.BusinessException;
 import com.example.primaryschoolmanagement.common.exception.DuplicateException;
+import com.example.primaryschoolmanagement.dao.ClassesDao;
 import com.example.primaryschoolmanagement.dao.SubjectTeacherDao;
 import com.example.primaryschoolmanagement.dao.TeacherDao;
 import com.example.primaryschoolmanagement.dao.UserDao;
@@ -13,6 +14,7 @@ import com.example.primaryschoolmanagement.dto.teacher.TeacherCreateRequest;
 import com.example.primaryschoolmanagement.dto.teacher.TeacherDTO;
 import com.example.primaryschoolmanagement.dto.teacher.TeacherUpdateRequest;
 import com.example.primaryschoolmanagement.entity.AppUser;
+import com.example.primaryschoolmanagement.entity.Classes;
 import com.example.primaryschoolmanagement.entity.SubjectTeacher;
 import com.example.primaryschoolmanagement.entity.Teacher;
 import com.example.primaryschoolmanagement.entity.UserRole;
@@ -49,6 +51,9 @@ public class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> impleme
 
     @Autowired
     private SubjectTeacherDao subjectTeacherDao;
+
+    @Autowired
+    private ClassesDao classesDao;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -288,16 +293,17 @@ public class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> impleme
             }
 
             // 5. 更新角色（根据职称变化）
-            if (StringUtils.hasText(request.getTitle())) {
-                Long newRoleId = "班主任".equals(request.getTitle()) ? 4L : 3L;
-
+            // 注意：只有职称明确为"班主任"时才自动设置班主任角色(4)
+            // 其他职称变化不会自动修改角色，需要通过角色管理接口单独设置
+            if (StringUtils.hasText(request.getTitle()) && "班主任".equals(request.getTitle())) {
                 LambdaQueryWrapper<UserRole> roleQuery = new LambdaQueryWrapper<>();
                 roleQuery.eq(UserRole::getUserId, teacher.getUserId());
                 UserRole userRole = userRoleDao.selectOne(roleQuery);
 
-                if (userRole != null && !userRole.getRoleId().equals(newRoleId)) {
-                    userRole.setRoleId(newRoleId);
+                if (userRole != null && !userRole.getRoleId().equals(4L)) {
+                    userRole.setRoleId(4L); // 班主任角色
                     userRoleDao.updateById(userRole);
+                    log.info("已将教师 {} 的角色更新为班主任角色", id);
                 }
             }
         }
@@ -312,6 +318,68 @@ public class TeacherServiceimpl extends ServiceImpl<TeacherDao, Teacher> impleme
             // 重新添加科目关联
             if (!CollectionUtils.isEmpty(request.getSubjectIds())) {
                 addSubjectsToTeacher(id, request.getSubjectIds());
+            }
+        }
+
+        // 7. 更新班主任与班级的关联
+        if (request.getClassIds() != null) {
+            // 先清除该教师在所有班级中的班主任关联
+            LambdaUpdateWrapper<Classes> clearWrapper = new LambdaUpdateWrapper<>();
+            clearWrapper.eq(Classes::getHeadTeacherId, id.intValue())
+                    .set(Classes::getHeadTeacherId, null)
+                    .set(Classes::getUpdatedAt, LocalDateTime.now());
+            classesDao.update(null, clearWrapper);
+            log.info("已清除教师 {} 的所有班主任关联", id);
+
+            // 如果提供了新的班级列表，则更新班主任关联
+            if (!CollectionUtils.isEmpty(request.getClassIds())) {
+                // 验证班级是否存在且未被删除
+                for (Long classId : request.getClassIds()) {
+                    Classes clazz = classesDao.selectById(classId.intValue());
+                    if (clazz == null || clazz.getIsDeleted() == 1) {
+                        throw new BusinessException("班级ID " + classId + " 不存在或已删除");
+                    }
+
+                    // 检查班级是否已有其他班主任
+                    if (clazz.getHeadTeacherId() != null && !clazz.getHeadTeacherId().equals(id.intValue())) {
+                        throw new BusinessException("班级 " + clazz.getClassName() + " 已有班主任，请先解除原班主任关联");
+                    }
+                }
+
+                // 更新新班级的班主任
+                LambdaUpdateWrapper<Classes> updateWrapper = new LambdaUpdateWrapper<>();
+                List<Integer> classIdInts = request.getClassIds().stream()
+                        .map(Long::intValue)
+                        .collect(Collectors.toList());
+                updateWrapper.in(Classes::getId, classIdInts)
+                        .set(Classes::getHeadTeacherId, id.intValue())
+                        .set(Classes::getUpdatedAt, LocalDateTime.now());
+                int updatedCount = classesDao.update(null, updateWrapper);
+                log.info("为教师 {} 分配了 {} 个班级的班主任职责", id, updatedCount);
+            }
+        }
+
+        // 8. 业务逻辑验证和警告
+        // 检查职称与班级分配的一致性
+        if (StringUtils.hasText(request.getTitle()) && "班主任".equals(request.getTitle())) {
+            // 检查是否分配了班级
+            LambdaQueryWrapper<Classes> classQuery = new LambdaQueryWrapper<>();
+            classQuery.eq(Classes::getHeadTeacherId, id.intValue())
+                    .eq(Classes::getIsDeleted, 0);
+            long classCount = classesDao.selectCount(classQuery);
+
+            if (classCount == 0) {
+                log.warn("教师 {} 的职称为班主任，但未分配任何班级", id);
+            }
+        }
+
+        // 如果分配了班级但职称不是班主任，记录警告
+        if (request.getClassIds() != null && !CollectionUtils.isEmpty(request.getClassIds())) {
+            if (!StringUtils.hasText(request.getTitle()) || !"班主任".equals(request.getTitle())) {
+                // 检查当前教师的职称
+                if (!StringUtils.hasText(teacher.getTitle()) || !"班主任".equals(teacher.getTitle())) {
+                    log.warn("教师 {} 分配了班级但职称不是班主任，当前职称：{}", id, teacher.getTitle());
+                }
             }
         }
 
